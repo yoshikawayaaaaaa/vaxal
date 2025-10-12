@@ -1,0 +1,395 @@
+// Prisma Schema for VAXAL Management System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ユーザー管理
+enum UserRole {
+  VAXAL_ADMIN      // VAXAL社員
+  ENGINEER_MASTER  // エンジニア(マスターアカウント)
+  ENGINEER_STAFF   // エンジニア(スタッフアカウント)
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum BloodType {
+  A
+  B
+  O
+  AB
+  UNKNOWN
+}
+
+// マスターアカウント(会社)
+model Company {
+  id                    String   @id @default(cuid())
+  companyNumber         String   @unique // 業者番号
+  companyName           String
+  establishedDate       DateTime?
+  businessContent       String?
+  capital               String?
+  employeeCount         Int?
+  address               String
+  revenue               String?
+  representativeName    String   // 代表者名
+  phoneNumber           String
+  faxNumber             String?
+  email                 String   @unique
+  websiteUrl            String?
+  majorClients          String?
+  relatedCompanies      String?
+  constructionLicense   Boolean  @default(false)
+  registrationStatus    Boolean  @default(false)
+  licenseStatus         Boolean  @default(false)
+  qualificationStatus   Boolean  @default(false)
+  insuranceName         String?
+  insuranceNumber       String?
+  coverageAmount        String?
+  workersCompensation   Boolean  @default(false)
+  invoiceNumber         String?
+  businessHours         String?
+  availableServices     String?  @db.Text // 対応可能業種（カンマ区切り）
+  serviceExperience     Json?    // 各業種経験年数
+  constructionHistory   String?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // リレーション
+  masterUser            User?    @relation("CompanyMaster")
+  staffUsers            User[]   @relation("CompanyStaff")
+  projects              Project[]
+}
+
+// ユーザー(エンジニア・VAXAL社員)
+model User {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  password              String
+  role                  UserRole
+  
+  // 基本情報
+  name                  String
+  address               String?
+  bloodType             BloodType?
+  birthDate             DateTime?
+  gender                Gender?
+  phoneNumber           String
+  emergencyContact      String?
+  
+  // エンジニア固有情報
+  companyId             String?
+  company               Company? @relation("CompanyStaff", fields: [companyId], references: [id])
+  masterCompanyId       String?  @unique
+  masterCompany         Company? @relation("CompanyMaster", fields: [masterCompanyId], references: [id])
+  
+  availableServices     String?  @db.Text // 対応可能業種（カンマ区切り）
+  serviceExperience     Json?    // 各業種経験年数
+  hasLicense            Boolean  @default(false)
+  hasQualification      Boolean  @default(false)
+  hasWorkersComp        Boolean  @default(false)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // リレーション
+  assignedProjects      Project[] @relation("AssignedEngineer")
+  createdProjects       Project[] @relation("CreatedBy")
+  reports               Report[]
+  calendarEvents        CalendarEvent[]
+}
+
+// 案件管理
+enum ProjectStatus {
+  PENDING           // 未着手
+  IN_PROGRESS       // 進行中
+  COMPLETED         // 完了
+  CANCELLED         // キャンセル
+}
+
+enum WorkType {
+  NEW_INSTALLATION  // 新設
+  REFORM            // リフォーム
+  REPLACEMENT       // 交換
+}
+
+enum WorkCategory {
+  MAIN_WORK         // 本工事
+  CORRECTION        // 是正
+  SITE_SURVEY       // 現場調査
+}
+
+enum ProductType {
+  ECO_CUTE          // エコキュート
+  GAS_WATER_HEATER  // ガス給湯器
+  ELECTRIC_HEATER   // 電気温水器
+  BATHROOM_DRYER    // 浴室乾燥機
+  SOLAR_PANEL       // 太陽光パネル
+  OTHER             // その他
+}
+
+enum PaymentMethod {
+  CASH              // 現金
+  CARD              // カード
+  LOAN              // ローン
+  BANK_TRANSFER     // 銀行振込
+  ELECTRONIC_MONEY  // 電子マネー
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  INQUIRY_FORM
+  LINE
+  SNS
+  OTHER
+}
+
+enum BuildingType {
+  MANSION           // マンション
+  DETACHED_HOUSE    // 戸建て
+  APARTMENT         // アパート
+  OTHER             // その他
+}
+
+model Project {
+  id                    String   @id @default(cuid())
+  projectNumber         String   @unique // 案件番号
+  
+  // 基本情報
+  siteName              String
+  siteAddress           String
+  customerName          String
+  customerAddress       String
+  customerPhone         String
+  
+  // 工事情報
+  workContent           ProductType
+  workType              WorkType
+  workCategory          WorkCategory
+  workTime              String   @default("09:00~17:00")
+  overview              String?
+  
+  // 商品情報(エコキュートの例)
+  productSetNumber      String?
+  productTankNumber     String?
+  productHeatPumpNumber String?
+  productRemoteNumber   String?
+  productBaseNumber     String?
+  productFallNumber     String?
+  productUlbroNumber    String?
+  
+  // 支払い情報
+  paymentAmount         Int?
+  productWarranty       Boolean  @default(false)
+  paymentMethod         PaymentMethod?
+  idCardRequired        Boolean  @default(false)
+  idCardObtained        Boolean  @default(false)
+  bankbookRequired      Boolean  @default(false)
+  bankbookObtained      Boolean  @default(false)
+  
+  // メモ
+  additionalWork        String?  // 追加工事
+  existingProductInfo   String?  // 既存商品情報
+  constructionNotes     String?  // 施工指示
+  
+  // 日程
+  workDate              DateTime?
+  receptionDate         DateTime?
+  orderDate             DateTime?
+  expectedCompletionDate DateTime?
+  completionDate        DateTime?
+  
+  // 社内メモ(VAXAL専用)
+  firstContactMethod    ContactMethod?
+  communicationTool     String?
+  internalNotes         String?
+  
+  // 元請け情報
+  contractorName        String?
+  contractorPhone       String?
+  contractorNotes       String?
+  
+  // VAXAL担当者情報
+  receptionStaff        String?
+  receptionStaffPhone   String?
+  salesStaff            String?
+  salesStaffPhone       String?
+  constructionStaff     String?
+  constructionStaffPhone String?
+  staffNotes            String?
+  
+  // 建築情報
+  roofingDate           DateTime?
+  demolitionDate        DateTime?
+  buildingType          BuildingType?
+  installationFloor     String?
+  installationLocation  String?
+  keyboxNumber          String?
+  storageLocation       String?
+  parkingSpace          String?
+  buildingNotes         String?
+  
+  // 商品情報詳細
+  productCategory       String?
+  productSeries         String?
+  deliveryDate          DateTime?
+  shipmentDate          DateTime?
+  productNotes          String?
+  
+  // 配送情報
+  deliveryTime          String?
+  deliverySpecification String?
+  deliveryLocation      String?
+  deliveryNotes         String?
+  
+  // 現場調査情報
+  surveyRequestDate     DateTime?
+  surveyDate            DateTime?
+  surveyTime            String?
+  surveyCompany         String?
+  surveyStaff           String?
+  reSurveyDate          DateTime?
+  surveyNotes           String?
+  
+  // 施工情報
+  constructionDate      DateTime?
+  constructionCompany   String?
+  constructionStaffName String?
+  constructionEmail     String?
+  constructionPhone     String?
+  remainingWorkDate     DateTime?
+  constructionInfoNotes String?
+  
+  // 請負金額(マスターのみ閲覧可能)
+  contractAmount        Int?
+  
+  // ステータス
+  status                ProjectStatus @default(PENDING)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdById           String
+  createdBy             User     @relation("CreatedBy", fields: [createdById], references: [id])
+  
+  // リレーション
+  companyId             String?
+  company               Company? @relation(fields: [companyId], references: [id])
+  assignedEngineerId    String?
+  assignedEngineer      User?    @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id])
+  reports               Report[]
+  files                 ProjectFile[]
+  calendarEvents        CalendarEvent[]
+}
+
+// カレンダーイベント
+enum EventType {
+  CONFIRMED         // 確定予定(青)
+  AVAILABLE         // 対応可能日(緑)
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  eventType   EventType
+  
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// 報告書
+enum ReportType {
+  SITE_SURVEY       // 現場調査報告
+  PICKUP            // 集荷報告
+  CHECK_IN          // check in報告
+  COMPLETION        // 工事完了報告
+  UNLOADING         // 荷卸し報告
+}
+
+enum ReportStatus {
+  PENDING           // 未着手
+  COMPLETED         // 完了
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  reportType  ReportType
+  status      ReportStatus @default(PENDING)
+  notes       String?
+  
+  // 集荷報告用
+  pickupMaterials String?   // 持ち出し部材
+  
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  files       ReportFile[]
+}
+
+// ファイル管理
+enum FileCategory {
+  SITE_FOLDER           // 現場フォルダ
+  ARRANGEMENT_FOLDER    // 手配フォルダ
+  SURVEY_REPORT         // 現場調査報告
+  PICKUP_REPORT         // 集荷報告
+  CHECKIN_REPORT        // check in報告
+  COMPLETION_REPORT     // 工事完了報告
+  UNLOADING_REPORT      // 荷卸し報告
+  APPEARANCE_PHOTO      // 身だしなみ写真
+  BEFORE_WORK_PHOTO     // 工事前写真
+  SUBSIDY_PHOTO         // 補助金申請写真
+  REGULATION_PHOTO      // 規定写真
+  FREE_PHOTO            // フリーフォルダ
+}
+
+model ProjectFile {
+  id          String       @id @default(cuid())
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  category    FileCategory
+  
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ReportFile {
+  id          String       @id @default(cuid())
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  
+  reportId    String
+  report      Report       @relation(fields: [reportId], references: [id])
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
