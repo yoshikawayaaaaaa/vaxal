@@ -21,6 +21,12 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
 
   const menuItems = [
     {
+      title: '注文受付',
+      href: '/dashboard/orders/new',
+      icon: LayoutDashboard,
+      vaxalOnly: true,
+    },
+    {
       title: '施工主基本情報',
       href: '/dashboard/project',
       icon: LayoutDashboard,
