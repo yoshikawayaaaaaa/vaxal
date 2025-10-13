@@ -290,6 +290,79 @@ model Project {
   reports               Report[]
   files                 ProjectFile[]
   calendarEvents        CalendarEvent[]
+  mainInfo              MainInfo?
+}
+
+// 主要情報
+model MainInfo {
+  id                    String   @id @default(cuid())
+  projectNumber         String   @unique // 案件番号で紐付け
+  
+  // 施工指示
+  constructionNotes     String?  @db.Text
+  
+  // 元請け情報
+  contractorName        String?
+  contractorPhone       String?
+  contractorNotes       String?  @db.Text
+  
+  // VAXAL担当者情報
+  receptionStaff        String?
+  receptionStaffPhone   String?
+  salesStaff            String?
+  salesStaffPhone       String?
+  constructionStaff     String?
+  constructionStaffPhone String?
+  staffNotes            String?  @db.Text
+  
+  // 建築情報
+  roofingDate           DateTime?
+  demolitionDate        DateTime?
+  buildingType          BuildingType?
+  installationFloor     String?
+  installationLocation  String?  @db.Text
+  keyboxNumber          String?
+  storageLocation       String?
+  parkingSpace          String?  @db.Text
+  buildingNotes         String?  @db.Text
+  
+  // 商品情報
+  productCategory       String?
+  productSeries         String?
+  deliveryDate          DateTime?
+  shipmentDate          DateTime?
+  productNotes          String?  @db.Text
+  
+  // 配送情報
+  deliveryTime          String?
+  deliverySpecification String?
+  deliveryLocation      String?
+  deliveryNotes         String?  @db.Text
+  
+  // 現場調査情報
+  surveyRequestDate     DateTime?
+  surveyDate            DateTime?
+  surveyTime            String?
+  surveyCompany         String?
+  surveyStaff           String?
+  reSurveyDate          DateTime?
+  surveyNotes           String?  @db.Text
+  
+  // 施工情報
+  constructionDate      DateTime?
+  constructionCompany   String?
+  constructionStaffName String?
+  constructionPhone     String?
+  constructionEmail     String?
+  remainingWorkDate     DateTime?
+  constructionInfoNotes String?  @db.Text
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // リレーション
+  projectId             String   @unique
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 // カレンダーイベント
