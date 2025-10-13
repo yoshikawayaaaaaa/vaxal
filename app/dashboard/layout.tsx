@@ -27,7 +27,11 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen bg-gray-50">
       {/* サイドバー */}
-      <Sidebar companyName={companyName} userRole={userRole} />
+      <Sidebar 
+        companyName={companyName} 
+        userRole={userRole} 
+        isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
+      />
 
       {/* メインコンテンツ */}
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -14,12 +14,14 @@ import {
 interface SidebarProps {
   companyName?: string
   userRole?: string
+  isVaxalAdmin?: boolean
 }
 
-export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア' }: SidebarProps) {
+export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false }: SidebarProps) {
   const pathname = usePathname()
 
-  const menuItems = [
+  // VAXAL社員のみメニューを表示
+  const menuItems = isVaxalAdmin ? [
     {
       title: 'カレンダー',
       href: '/dashboard/calendar',
@@ -29,9 +31,8 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       title: '注文受付',
       href: '/dashboard/orders/new',
       icon: LayoutDashboard,
-      vaxalOnly: true,
     },
-  ]
+  ] : []
 
   return (
     <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex flex-col">
