@@ -14,7 +14,6 @@ export function ProjectDetailTabs({ projectId, activeTab = 'basic' }: ProjectDet
     { id: 'main', label: '主要情報', href: `/dashboard/project/${projectId}/main-info` },
     { id: 'related', label: '関連情報', href: `/dashboard/project/${projectId}/related` },
     { id: 'detail', label: '詳細情報', href: `/dashboard/project/${projectId}/detail` },
-    { id: 'report', label: '報告', href: `/dashboard/project/${projectId}/reports` },
   ]
 
   return (
