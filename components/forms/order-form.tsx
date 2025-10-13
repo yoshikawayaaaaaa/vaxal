@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CalendarEmbed } from '@/components/calendar/calendar-embed'
 
 export function OrderForm() {
   const router = useRouter()
@@ -452,6 +453,12 @@ export function OrderForm() {
               value={formData.completionDate}
               onChange={(e) => handleChange('completionDate', e.target.value)}
             />
+          </div>
+
+          {/* カレンダー表示 */}
+          <div className="mt-6">
+            <h3 className="text-sm font-medium mb-3">工事予定カレンダー</h3>
+            <CalendarEmbed />
           </div>
         </CardContent>
       </Card>

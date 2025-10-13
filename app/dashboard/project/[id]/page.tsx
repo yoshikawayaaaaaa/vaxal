@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
+import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 
 export default async function ProjectDetailPage({
   params,
@@ -76,6 +77,9 @@ export default async function ProjectDetailPage({
           <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
           <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
         </div>
+
+        {/* タブナビゲーション */}
+        <ProjectDetailTabs projectId={id} activeTab="basic" />
 
         {/* 施工主基本情報 */}
         <section className="mb-8">
@@ -241,7 +245,7 @@ export default async function ProjectDetailPage({
 
         {/* メモ */}
         {(project.additionalWork || project.existingProductInfo || project.constructionNotes) && (
-          <section>
+          <section className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">メモ</h2>
             
             <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
@@ -263,6 +267,76 @@ export default async function ProjectDetailPage({
                   <p className="text-base whitespace-pre-wrap">{project.constructionNotes}</p>
                 </div>
               )}
+            </div>
+          </section>
+        )}
+
+        {/* 日程 */}
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">日程</h2>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+              {project.workDate && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">工事日</p>
+                  <p className="text-base">{new Date(project.workDate).toLocaleDateString('ja-JP')}</p>
+                </div>
+              )}
+              {project.receptionDate && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">受付日</p>
+                  <p className="text-base">{new Date(project.receptionDate).toLocaleDateString('ja-JP')}</p>
+                </div>
+              )}
+              {project.orderDate && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">受注日</p>
+                  <p className="text-base">{new Date(project.orderDate).toLocaleDateString('ja-JP')}</p>
+                </div>
+              )}
+              {project.expectedCompletionDate && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">完了予定日</p>
+                  <p className="text-base">{new Date(project.expectedCompletionDate).toLocaleDateString('ja-JP')}</p>
+                </div>
+              )}
+              {project.completionDate && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">完了日</p>
+                  <p className="text-base">{new Date(project.completionDate).toLocaleDateString('ja-JP')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* 社内メモ（VAXAL専用） */}
+        {session.user.role === 'VAXAL_ADMIN' && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">社内メモ（VAXAL専用）</h2>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-6">
+              <div className="space-y-4">
+                {project.firstContactMethod && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">ファーストコンタクトの連絡手段</p>
+                    <p className="text-base">{project.firstContactMethod}</p>
+                  </div>
+                )}
+                {project.communicationTool && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">連絡ツール</p>
+                    <p className="text-base whitespace-pre-wrap">{project.communicationTool}</p>
+                  </div>
+                )}
+                {project.internalNotes && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">備考欄</p>
+                    <p className="text-base whitespace-pre-wrap">{project.internalNotes}</p>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         )}

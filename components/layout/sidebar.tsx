@@ -21,35 +21,15 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
 
   const menuItems = [
     {
+      title: 'カレンダー',
+      href: '/dashboard/calendar',
+      icon: LayoutDashboard,
+    },
+    {
       title: '注文受付',
       href: '/dashboard/orders/new',
       icon: LayoutDashboard,
       vaxalOnly: true,
-    },
-    {
-      title: '施工主基本情報',
-      href: '/dashboard/project',
-      icon: LayoutDashboard,
-    },
-    {
-      title: '主要情報',
-      href: '/dashboard/main-info',
-      icon: FileText,
-    },
-    {
-      title: '関連情報',
-      href: '/dashboard/related-info',
-      icon: LinkIcon,
-    },
-    {
-      title: '詳細情報',
-      href: '/dashboard/detail-info',
-      icon: Image,
-    },
-    {
-      title: '報告',
-      href: '/dashboard/reports',
-      icon: ClipboardList,
     },
   ]
 
