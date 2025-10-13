@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Menu, Plus } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
 interface DashboardHeaderProps {
@@ -24,14 +24,6 @@ export function DashboardHeader({
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            className="bg-gray-900 text-white hover:bg-gray-800 border-gray-900"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            ADD WIDGET
-          </Button>
-          
           <Button
             onClick={() => signOut({ callbackUrl: '/' })}
             className="bg-red-600 hover:bg-red-700 text-white"
