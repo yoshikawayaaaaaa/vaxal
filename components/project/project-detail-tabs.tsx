@@ -12,7 +12,7 @@ export function ProjectDetailTabs({ projectId, activeTab = 'basic' }: ProjectDet
   const tabs = [
     { id: 'basic', label: '施工主基本情報', href: `/dashboard/project/${projectId}` },
     { id: 'main', label: '主要情報', href: `/dashboard/project/${projectId}/main-info` },
-    { id: 'related', label: '関連情報', href: `/dashboard/project/${projectId}/related-info` },
+    { id: 'related', label: '関連情報', href: `/dashboard/project/${projectId}/related` },
     { id: 'detail', label: '詳細情報', href: `/dashboard/project/${projectId}/detail-info` },
     { id: 'report', label: '報告', href: `/dashboard/project/${projectId}/reports` },
   ]
