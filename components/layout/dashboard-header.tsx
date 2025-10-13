@@ -32,11 +32,15 @@ export function DashboardHeader({
           </Button>
 
           {userName && (
-            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+            <a
+              href="/dashboard/profile"
+              className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center hover:bg-gray-400 transition-colors cursor-pointer"
+              title="プロフィール"
+            >
               <span className="text-sm font-medium text-gray-700">
                 {userName.charAt(0)}
               </span>
-            </div>
+            </a>
           )}
         </div>
       </div>
