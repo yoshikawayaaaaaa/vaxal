@@ -59,7 +59,7 @@ export default function Home() {
             </Button>
           </Link>
 
-          <Link href="/register?type=engineer" className="block">
+          <Link href="/register/engineer" className="block">
             <Button 
               variant="outline" 
               className="w-full h-10 text-sm text-green-600 border-green-600 hover:bg-green-50"

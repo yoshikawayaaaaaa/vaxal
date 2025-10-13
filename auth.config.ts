@@ -7,6 +7,7 @@ import { z } from 'zod'
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
+  userType: z.enum(['vaxal', 'engineer']).optional(),
 })
 
 export default {
@@ -19,9 +20,41 @@ export default {
           return null
         }
 
-        const { email, password } = validatedFields.data
+        const { email, password, userType } = validatedFields.data
 
-        // まずVaxalUserを検索
+        // userTypeが指定されている場合は、そのテーブルのみをチェック
+        if (userType === 'engineer') {
+          // EngineerUserのみを検索
+          const engineerUser = await prisma.engineerUser.findUnique({
+            where: { email },
+            include: {
+              company: true,
+              masterCompany: true,
+            },
+          })
+
+          if (!engineerUser) {
+            return null
+          }
+
+          const passwordsMatch = await bcrypt.compare(password, engineerUser.password)
+          
+          if (!passwordsMatch) {
+            return null
+          }
+
+          return {
+            id: engineerUser.id,
+            email: engineerUser.email,
+            name: engineerUser.name,
+            role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
+            userType: 'engineer',
+            companyId: engineerUser.companyId,
+            masterCompanyId: engineerUser.masterCompanyId,
+          }
+        }
+
+        // userTypeがvaxalまたは未指定の場合は、VaxalUserを検索
         const vaxalUser = await prisma.vaxalUser.findUnique({
           where: { email },
         })
@@ -42,30 +75,32 @@ export default {
           }
         }
 
-        // 次にEngineerUserを検索
-        const engineerUser = await prisma.engineerUser.findUnique({
-          where: { email },
-          include: {
-            company: true,
-            masterCompany: true,
-          },
-        })
+        // userTypeが未指定の場合のみ、EngineerUserもチェック
+        if (!userType) {
+          const engineerUser = await prisma.engineerUser.findUnique({
+            where: { email },
+            include: {
+              company: true,
+              masterCompany: true,
+            },
+          })
 
-        if (engineerUser) {
-          const passwordsMatch = await bcrypt.compare(password, engineerUser.password)
-          
-          if (!passwordsMatch) {
-            return null
-          }
+          if (engineerUser) {
+            const passwordsMatch = await bcrypt.compare(password, engineerUser.password)
+            
+            if (!passwordsMatch) {
+              return null
+            }
 
-          return {
-            id: engineerUser.id,
-            email: engineerUser.email,
-            name: engineerUser.name,
-            role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
-            userType: 'engineer',
-            companyId: engineerUser.companyId,
-            masterCompanyId: engineerUser.masterCompanyId,
+            return {
+              id: engineerUser.id,
+              email: engineerUser.email,
+              name: engineerUser.name,
+              role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
+              userType: 'engineer',
+              companyId: engineerUser.companyId,
+              masterCompanyId: engineerUser.masterCompanyId,
+            }
           }
         }
 

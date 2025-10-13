@@ -30,6 +30,7 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email,
         password,
+        userType: accountType, // vaxal or engineer
         redirect: false,
       })
 
@@ -134,7 +135,7 @@ export default function LoginPage() {
             アカウントをお持ちでない方は
           </p>
           <Link 
-            href={`/register?type=${accountType}`}
+            href={isVaxal ? '/register' : '/register/engineer'}
             className={`text-sm font-medium ${
               isVaxal ? 'text-blue-600 hover:text-blue-700' : 'text-green-600 hover:text-green-700'
             }`}
