@@ -12,6 +12,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const accountType = searchParams.get('type') || 'vaxal'
+  const registered = searchParams.get('registered')
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -91,6 +92,12 @@ export default function LoginPage() {
                 className="h-11"
               />
             </div>
+
+            {registered && (
+              <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                登録が完了しました。ログインしてください。
+              </div>
+            )}
 
             {error && (
               <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
