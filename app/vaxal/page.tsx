@@ -10,7 +10,7 @@ export default async function DashboardPage() {
 
   // VAXAL社員はカレンダー画面にリダイレクト
   if (session.user.role === 'VAXAL_ADMIN') {
-    redirect('/dashboard/calendar')
+    redirect('/vaxal/calendar')
   }
   
   // エンジニアは開発中画面を表示

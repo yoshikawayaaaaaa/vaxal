@@ -40,7 +40,7 @@ export function CalendarView({ events }: CalendarViewProps) {
   const router = useRouter()
 
   const handleSelectEvent = (event: CalendarEvent) => {
-    router.push(`/dashboard/project/${event.id}`)
+    router.push(`/vaxal/project/${event.id}`)
   }
 
   const eventStyleGetter = (event: CalendarEvent) => {

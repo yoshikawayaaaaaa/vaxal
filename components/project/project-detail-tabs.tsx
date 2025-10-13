@@ -10,10 +10,10 @@ interface ProjectDetailTabsProps {
 
 export function ProjectDetailTabs({ projectId, activeTab = 'basic' }: ProjectDetailTabsProps) {
   const tabs = [
-    { id: 'basic', label: '施工主基本情報', href: `/dashboard/project/${projectId}` },
-    { id: 'main', label: '主要情報', href: `/dashboard/project/${projectId}/main-info` },
-    { id: 'related', label: '関連情報', href: `/dashboard/project/${projectId}/related` },
-    { id: 'detail', label: '詳細情報', href: `/dashboard/project/${projectId}/detail` },
+    { id: 'basic', label: '基本情報', href: `/vaxal/project/${projectId}` },
+    { id: 'main-info', label: '主要情報', href: `/vaxal/project/${projectId}/main-info` },
+    { id: 'related', label: '関連情報', href: `/vaxal/project/${projectId}/related` },
+    { id: 'detail', label: '詳細情報', href: `/vaxal/project/${projectId}/detail` },
   ]
 
   return (

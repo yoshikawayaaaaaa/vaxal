@@ -7,11 +7,13 @@ import { signOut } from 'next-auth/react'
 interface DashboardHeaderProps {
   title?: string
   userName?: string
+  userType?: 'vaxal' | 'engineer'
 }
 
 export function DashboardHeader({ 
   title = 'Project Honeycomb',
-  userName 
+  userName,
+  userType = 'vaxal'
 }: DashboardHeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -33,7 +35,7 @@ export function DashboardHeader({
 
           {userName && (
             <a
-              href="/dashboard/profile"
+              href={userType === 'engineer' ? '/engineer/profile' : '/vaxal/profile'}
               className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center hover:bg-gray-400 transition-colors cursor-pointer"
               title="プロフィール"
             >

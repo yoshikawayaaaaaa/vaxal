@@ -37,7 +37,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError('メールアドレスまたはパスワードが正しくありません')
       } else {
-        router.push('/dashboard')
+        // ユーザータイプに応じて適切なダッシュボードにリダイレクト
+        const redirectPath = accountType === 'engineer' ? '/engineer' : '/vaxal'
+        router.push(redirectPath)
         router.refresh()
       }
     } catch (error) {

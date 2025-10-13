@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 
-export default async function DashboardLayout({
+export default async function EngineerDashboardLayout({
   children,
 }: {
   children: React.ReactNode
@@ -11,17 +11,20 @@ export default async function DashboardLayout({
   const session = await auth()
 
   if (!session) {
-    redirect('/login')
+    redirect('/login?type=engineer')
+  }
+
+  // エンジニア以外はVAXALダッシュボードへ
+  if (session.user.userType !== 'engineer') {
+    redirect('/vaxal')
   }
 
   const companyName = session.user.masterCompanyId 
     ? 'MIAMU TIGERS' // TODO: 実際の会社名を取得
-    : 'VAXAL'
+    : 'エンジニア'
 
-  const userRole = session.user.role === 'VAXAL_ADMIN' 
-    ? 'VAXAL社員' 
-    : session.user.role === 'ENGINEER_MASTER'
-    ? 'エンジニア'
+  const userRole = session.user.role === 'ENGINEER_MASTER'
+    ? 'マスター'
     : 'スタッフ'
 
   return (
@@ -30,7 +33,7 @@ export default async function DashboardLayout({
       <Sidebar 
         companyName={companyName} 
         userRole={userRole} 
-        isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
+        isVaxalAdmin={false}
       />
 
       {/* メインコンテンツ */}
@@ -38,6 +41,7 @@ export default async function DashboardLayout({
         <DashboardHeader 
           title="Project Honeycomb" 
           userName={session.user.name}
+          userType="engineer"
         />
         
         <main className="flex-1 overflow-y-auto">

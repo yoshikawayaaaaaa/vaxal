@@ -24,12 +24,12 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
   const menuItems = isVaxalAdmin ? [
     {
       title: 'カレンダー',
-      href: '/dashboard/calendar',
+      href: '/vaxal/calendar',
       icon: LayoutDashboard,
     },
     {
       title: '注文受付',
-      href: '/dashboard/orders/new',
+      href: '/vaxal/orders/new',
       icon: LayoutDashboard,
     },
   ] : []

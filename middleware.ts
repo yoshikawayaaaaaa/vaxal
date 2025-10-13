@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
+  const userType = req.auth?.user?.userType
 
   const isAuthPage = nextUrl.pathname.startsWith('/login') || 
                      nextUrl.pathname.startsWith('/register')
@@ -11,7 +12,11 @@ export default auth((req) => {
 
   if (isAuthPage) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL('/dashboard', nextUrl))
+      // ユーザータイプに応じて適切なダッシュボードにリダイレクト
+      if (userType === 'engineer') {
+        return NextResponse.redirect(new URL('/engineer', nextUrl))
+      }
+      return NextResponse.redirect(new URL('/vaxal', nextUrl))
     }
     return NextResponse.next()
   }

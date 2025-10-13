@@ -50,7 +50,7 @@ export default function Home() {
           </div>
 
           {/* 新規登録リンク */}
-          <Link href="/register?type=vaxal" className="block mb-2">
+          <Link href="/register" className="block mb-2">
             <Button 
               variant="outline" 
               className="w-full h-10 text-sm text-blue-600 border-blue-600 hover:bg-blue-50"
