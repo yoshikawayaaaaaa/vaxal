@@ -10,10 +10,9 @@ datasource db {
 }
 
 // ユーザー管理
-enum UserRole {
-  VAXAL_ADMIN      // VAXAL社員
-  ENGINEER_MASTER  // エンジニア(マスターアカウント)
-  ENGINEER_STAFF   // エンジニア(スタッフアカウント)
+enum EngineerRole {
+  MASTER  // マスターアカウント
+  STAFF   // スタッフアカウント
 }
 
 enum Gender {
@@ -66,17 +65,35 @@ model Company {
   updatedAt             DateTime @updatedAt
   
   // リレーション
-  masterUser            User?    @relation("CompanyMaster")
-  staffUsers            User[]   @relation("CompanyStaff")
+  masterUser            EngineerUser?    @relation("CompanyMaster")
+  staffUsers            EngineerUser[]   @relation("CompanyStaff")
   projects              Project[]
 }
 
-// ユーザー(エンジニア・VAXAL社員)
-model User {
+// VAXAL社員
+model VaxalUser {
   id                    String   @id @default(cuid())
   email                 String   @unique
   password              String
-  role                  UserRole
+  
+  // 基本情報
+  name                  String
+  phoneNumber           String
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // リレーション
+  createdProjects       Project[] @relation("CreatedByVaxal")
+  vaxalCalendarEvents   CalendarEvent[] @relation("VaxalCalendar")
+}
+
+// エンジニア
+model EngineerUser {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  password              String
+  role                  EngineerRole
   
   // 基本情報
   name                  String
@@ -87,12 +104,13 @@ model User {
   phoneNumber           String
   emergencyContact      String?
   
-  // エンジニア固有情報
+  // 会社情報
   companyId             String?
   company               Company? @relation("CompanyStaff", fields: [companyId], references: [id])
   masterCompanyId       String?  @unique
   masterCompany         Company? @relation("CompanyMaster", fields: [masterCompanyId], references: [id])
   
+  // 業務情報
   availableServices     String?  @db.Text // 対応可能業種（カンマ区切り）
   serviceExperience     Json?    // 各業種経験年数
   hasLicense            Boolean  @default(false)
@@ -104,9 +122,8 @@ model User {
   
   // リレーション
   assignedProjects      Project[] @relation("AssignedEngineer")
-  createdProjects       Project[] @relation("CreatedBy")
   reports               Report[]
-  calendarEvents        CalendarEvent[]
+  engineerCalendarEvents CalendarEvent[] @relation("EngineerCalendar")
 }
 
 // 案件管理
@@ -279,14 +296,14 @@ model Project {
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-  createdById           String
-  createdBy             User     @relation("CreatedBy", fields: [createdById], references: [id])
+  createdByVaxalId      String
+  createdByVaxal        VaxalUser @relation("CreatedByVaxal", fields: [createdByVaxalId], references: [id])
   
   // リレーション
   companyId             String?
   company               Company? @relation(fields: [companyId], references: [id])
   assignedEngineerId    String?
-  assignedEngineer      User?    @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id])
+  assignedEngineer      EngineerUser? @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id])
   reports               Report[]
   files                 ProjectFile[]
   calendarEvents        CalendarEvent[]
@@ -379,8 +396,12 @@ model CalendarEvent {
   endDate     DateTime
   eventType   EventType
   
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  // VaxalUserまたはEngineerUserのどちらか
+  vaxalUserId      String?
+  vaxalUser        VaxalUser?     @relation("VaxalCalendar", fields: [vaxalUserId], references: [id])
+  engineerUserId   String?
+  engineerUser     EngineerUser?  @relation("EngineerCalendar", fields: [engineerUserId], references: [id])
+  
   projectId   String?
   project     Project?  @relation(fields: [projectId], references: [id])
   
@@ -413,8 +434,8 @@ model Report {
   
   projectId   String
   project     Project      @relation(fields: [projectId], references: [id])
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
+  engineerUserId String
+  engineerUser   EngineerUser @relation(fields: [engineerUserId], references: [id])
   
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

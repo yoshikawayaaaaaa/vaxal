@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
         internalNotes: body.internalNotes || null,
         
         // 作成者
-        createdById: session.user.id,
+        createdByVaxalId: session.user.id,
         
         status: 'PENDING',
       },
@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
     const projects = await prisma.project.findMany({
       where,
       include: {
-        createdBy: {
+        createdByVaxal: {
           select: {
             id: true,
             name: true,

@@ -4,11 +4,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   // VAXAL管理者を取得
-  const admin = await prisma.user.findFirst({
-    where: {
-      role: 'VAXAL_ADMIN',
-    },
-  })
+  const admin = await prisma.vaxalUser.findFirst()
 
   if (!admin) {
     console.error('VAXAL管理者が見つかりません')
@@ -38,7 +34,7 @@ async function main() {
       paymentAmount: 350000,
       paymentMethod: 'CASH',
       status: 'PENDING',
-      createdById: admin.id,
+      createdByVaxalId: admin.id,
     },
     {
       projectNumber: 'HC-2025-1013-002',
@@ -55,7 +51,7 @@ async function main() {
       paymentAmount: 280000,
       paymentMethod: 'CARD',
       status: 'PENDING',
-      createdById: admin.id,
+      createdByVaxalId: admin.id,
     },
     {
       projectNumber: 'HC-2025-1013-003',
@@ -72,7 +68,7 @@ async function main() {
       paymentAmount: 1200000,
       paymentMethod: 'LOAN',
       status: 'PENDING',
-      createdById: admin.id,
+      createdByVaxalId: admin.id,
     },
     {
       projectNumber: 'HC-2025-1013-004',
@@ -89,7 +85,7 @@ async function main() {
       paymentAmount: 85000,
       paymentMethod: 'BANK_TRANSFER',
       status: 'PENDING',
-      createdById: admin.id,
+      createdByVaxalId: admin.id,
     },
     {
       projectNumber: 'HC-2025-1013-005',
@@ -108,13 +104,15 @@ async function main() {
       paymentAmount: 420000,
       paymentMethod: 'CASH',
       status: 'PENDING',
-      createdById: admin.id,
+      createdByVaxalId: admin.id,
     },
   ]
 
   for (const projectData of testProjects) {
-    const project = await prisma.project.create({
-      data: projectData,
+    const project = await prisma.project.upsert({
+      where: { projectNumber: projectData.projectNumber },
+      update: projectData,
+      create: projectData,
     })
     console.log(`✓ プロジェクト作成: ${project.projectNumber} - ${project.siteName}`)
   }

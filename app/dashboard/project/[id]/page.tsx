@@ -20,7 +20,7 @@ export default async function ProjectDetailPage({
   const project = await prisma.project.findUnique({
     where: { id },
     include: {
-      createdBy: {
+      createdByVaxal: {
         select: {
           name: true,
           email: true,

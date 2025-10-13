@@ -21,7 +21,29 @@ export default {
 
         const { email, password } = validatedFields.data
 
-        const user = await prisma.user.findUnique({
+        // まずVaxalUserを検索
+        const vaxalUser = await prisma.vaxalUser.findUnique({
+          where: { email },
+        })
+
+        if (vaxalUser) {
+          const passwordsMatch = await bcrypt.compare(password, vaxalUser.password)
+          
+          if (!passwordsMatch) {
+            return null
+          }
+
+          return {
+            id: vaxalUser.id,
+            email: vaxalUser.email,
+            name: vaxalUser.name,
+            role: 'VAXAL_ADMIN',
+            userType: 'vaxal',
+          }
+        }
+
+        // 次にEngineerUserを検索
+        const engineerUser = await prisma.engineerUser.findUnique({
           where: { email },
           include: {
             company: true,
@@ -29,24 +51,25 @@ export default {
           },
         })
 
-        if (!user) {
-          return null
+        if (engineerUser) {
+          const passwordsMatch = await bcrypt.compare(password, engineerUser.password)
+          
+          if (!passwordsMatch) {
+            return null
+          }
+
+          return {
+            id: engineerUser.id,
+            email: engineerUser.email,
+            name: engineerUser.name,
+            role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
+            userType: 'engineer',
+            companyId: engineerUser.companyId,
+            masterCompanyId: engineerUser.masterCompanyId,
+          }
         }
 
-        const passwordsMatch = await bcrypt.compare(password, user.password)
-
-        if (!passwordsMatch) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          companyId: user.companyId,
-          masterCompanyId: user.masterCompanyId,
-        }
+        return null
       },
     }),
   ],
@@ -58,8 +81,9 @@ export default {
       if (user) {
         token.id = user.id
         token.role = user.role
-        token.companyId = user.companyId
-        token.masterCompanyId = user.masterCompanyId
+        token.userType = user.userType
+        token.companyId = user.companyId ?? null
+        token.masterCompanyId = user.masterCompanyId ?? null
       }
       return token
     },
@@ -67,8 +91,9 @@ export default {
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as string
-        session.user.companyId = token.companyId as string | null
-        session.user.masterCompanyId = token.masterCompanyId as string | null
+        session.user.userType = token.userType as string
+        session.user.companyId = token.companyId
+        session.user.masterCompanyId = token.masterCompanyId
       }
       return session
     },
