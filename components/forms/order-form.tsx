@@ -20,8 +20,11 @@ export function OrderForm() {
     siteAddress: '',
     overview: '',
     customerName: '',
+    customerBirthDate: '',
+    applicantRelationship: '',
     customerAddress: '',
     customerPhone: '',
+    firstInquiryDate: new Date().toISOString().slice(0, 16),
     
     // 工事情報
     workContent: 'ECO_CUTE',
@@ -36,11 +39,18 @@ export function OrderForm() {
     productBaseNumber: '',
     productFallNumber: '',
     productUlbroNumber: '',
+    productOtherNumber: '',
     
     // 支払い情報
     paymentAmount: '',
     productWarranty: false,
+    warrantyPeriod: 'FIVE_YEARS',
     paymentMethod: 'CASH',
+    subsidyAmount: '',
+    sellingPrice: '',
+    costPrice: '',
+    hasHandMoney: false,
+    handMoneyAmount: '',
     idCardRequired: false,
     bankbookRequired: false,
     
@@ -68,7 +78,7 @@ export function OrderForm() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/orders', {
+      const response = await fetch('/api/vaxal/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,11 +87,12 @@ export function OrderForm() {
       })
 
       if (!response.ok) {
-        throw new Error('注文の登録に失敗しました')
+        const errorData = await response.json()
+        throw new Error(errorData.error || '注文の登録に失敗しました')
       }
 
       const data = await response.json()
-      router.push(`/dashboard/project/${data.id}`)
+      router.push(`/vaxal/project/${data.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : '注文の登録に失敗しました')
     } finally {
@@ -142,6 +153,41 @@ export function OrderForm() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="customerBirthDate">お客様の生年月日 *</Label>
+              <Input
+                id="customerBirthDate"
+                type="date"
+                value={formData.customerBirthDate}
+                onChange={(e) => handleChange('customerBirthDate', e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="applicantRelationship">申込者の続柄</Label>
+              <Input
+                id="applicantRelationship"
+                value={formData.applicantRelationship}
+                onChange={(e) => handleChange('applicantRelationship', e.target.value)}
+                placeholder="例: 本人、配偶者、子"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="firstInquiryDate">初回お問い合わせ日時 *</Label>
+              <Input
+                id="firstInquiryDate"
+                type="datetime-local"
+                value={formData.firstInquiryDate}
+                onChange={(e) => handleChange('firstInquiryDate', e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="customerAddress">住所 *</Label>
               <Input
                 id="customerAddress"
@@ -150,17 +196,16 @@ export function OrderForm() {
                 required
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="customerPhone">電話番号 *</Label>
-            <Input
-              id="customerPhone"
-              type="tel"
-              value={formData.customerPhone}
-              onChange={(e) => handleChange('customerPhone', e.target.value)}
-              required
-            />
+            <div className="space-y-2">
+              <Label htmlFor="customerPhone">電話番号 *</Label>
+              <Input
+                id="customerPhone"
+                type="tel"
+                value={formData.customerPhone}
+                onChange={(e) => handleChange('customerPhone', e.target.value)}
+                required
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -261,7 +306,7 @@ export function OrderForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productBaseNumber">脚部カバー品番</Label>
                 <Input
@@ -278,12 +323,23 @@ export function OrderForm() {
                   onChange={(e) => handleChange('productFallNumber', e.target.value)}
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productUlbroNumber">ウルブロ品番</Label>
                 <Input
                   id="productUlbroNumber"
                   value={formData.productUlbroNumber}
                   onChange={(e) => handleChange('productUlbroNumber', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="productOtherNumber">その他の品番</Label>
+                <Input
+                  id="productOtherNumber"
+                  value={formData.productOtherNumber}
+                  onChange={(e) => handleChange('productOtherNumber', e.target.value)}
                 />
               </div>
             </div>
@@ -324,16 +380,78 @@ export function OrderForm() {
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="subsidyAmount">補助金金額</Label>
+              <Input
+                id="subsidyAmount"
+                type="number"
+                value={formData.subsidyAmount}
+                onChange={(e) => handleChange('subsidyAmount', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sellingPrice">売価</Label>
+              <Input
+                id="sellingPrice"
+                type="number"
+                value={formData.sellingPrice}
+                onChange={(e) => handleChange('sellingPrice', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="costPrice">原価</Label>
+              <Input
+                id="costPrice"
+                type="number"
+                value={formData.costPrice}
+                onChange={(e) => handleChange('costPrice', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="warrantyPeriod">商品保証期間</Label>
+              <select
+                id="warrantyPeriod"
+                className="w-full h-10 px-3 rounded-md border border-gray-300"
+                value={formData.warrantyPeriod}
+                onChange={(e) => handleChange('warrantyPeriod', e.target.value)}
+              >
+                <option value="FIVE_YEARS">5年</option>
+                <option value="SEVEN_YEARS">7年</option>
+                <option value="TEN_YEARS">10年</option>
+              </select>
+            </div>
+          </div>
+
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
-              id="productWarranty"
-              checked={formData.productWarranty}
-              onChange={(e) => handleChange('productWarranty', e.target.checked)}
+              id="hasHandMoney"
+              checked={formData.hasHandMoney}
+              onChange={(e) => handleChange('hasHandMoney', e.target.checked)}
               className="w-4 h-4"
             />
-            <Label htmlFor="productWarranty">商品保証</Label>
+            <Label htmlFor="hasHandMoney">手元の有無（アルバイト代金）</Label>
           </div>
+
+          {formData.hasHandMoney && (
+            <div className="space-y-2">
+              <Label htmlFor="handMoneyAmount">手元の代金</Label>
+              <Input
+                id="handMoneyAmount"
+                type="number"
+                value={formData.handMoneyAmount}
+                onChange={(e) => handleChange('handMoneyAmount', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+          )}
 
           <div className="flex items-center space-x-2">
             <input

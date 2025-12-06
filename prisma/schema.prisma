@@ -163,6 +163,12 @@ enum PaymentMethod {
   ELECTRONIC_MONEY  // 電子マネー
 }
 
+enum WarrantyPeriod {
+  FIVE_YEARS        // 5年
+  SEVEN_YEARS       // 7年
+  TEN_YEARS         // 10年
+}
+
 enum ContactMethod {
   EMAIL
   PHONE
@@ -187,8 +193,11 @@ model Project {
   siteName              String
   siteAddress           String
   customerName          String
+  customerBirthDate     DateTime // お客様の生年月日
+  applicantRelationship String?  // 申込者の続柄
   customerAddress       String
   customerPhone         String
+  firstInquiryDate      DateTime // 初回お問い合わせ日時
   
   // 工事情報
   workContent           ProductType
@@ -205,11 +214,18 @@ model Project {
   productBaseNumber     String?
   productFallNumber     String?
   productUlbroNumber    String?
+  productOtherNumber    String?  // その他の品番
   
   // 支払い情報
   paymentAmount         Int?
   productWarranty       Boolean  @default(false)
+  warrantyPeriod        WarrantyPeriod? // 商品保証期間
   paymentMethod         PaymentMethod?
+  subsidyAmount         Int?     // 補助金金額
+  sellingPrice          Int?     // 売価
+  costPrice             Int?     // 原価
+  hasHandMoney          Boolean  @default(false) // 手元の有無
+  handMoneyAmount       Int?     // 手元の代金
   idCardRequired        Boolean  @default(false)
   idCardObtained        Boolean  @default(false)
   bankbookRequired      Boolean  @default(false)
