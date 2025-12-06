@@ -24,11 +24,17 @@ interface CalendarEvent {
   start: Date
   end: Date
   resource: {
-    projectNumber: string
-    workContent: string
-    workType: string
-    siteAddress: string
-    status: string
+    type?: 'AVAILABLE' | 'CONFIRMED'
+    // エンジニア情報
+    engineerName?: string
+    companyName?: string
+    // 案件情報（確定予定の場合）
+    projectNumber?: string
+    workContent?: string
+    workType?: string
+    siteAddress?: string
+    status?: string
+    siteName?: string
   }
 }
 
@@ -46,20 +52,27 @@ export function CalendarView({ events }: CalendarViewProps) {
   const eventStyleGetter = (event: CalendarEvent) => {
     let backgroundColor = '#3b82f6' // デフォルト: 青
 
-    // ステータスに応じて色を変更
-    switch (event.resource.status) {
-      case 'PENDING':
-        backgroundColor = '#eab308' // 黄色
-        break
-      case 'IN_PROGRESS':
-        backgroundColor = '#3b82f6' // 青
-        break
-      case 'COMPLETED':
-        backgroundColor = '#22c55e' // 緑
-        break
-      case 'CANCELLED':
-        backgroundColor = '#ef4444' // 赤
-        break
+    // イベントタイプに応じて色を変更
+    if (event.resource.type === 'AVAILABLE') {
+      backgroundColor = '#22c55e' // 緑（対応可能日）
+    } else if (event.resource.type === 'CONFIRMED') {
+      // 確定予定の場合はステータスに応じて色を変更
+      switch (event.resource.status) {
+        case 'PENDING':
+          backgroundColor = '#eab308' // 黄色
+          break
+        case 'IN_PROGRESS':
+          backgroundColor = '#3b82f6' // 青
+          break
+        case 'COMPLETED':
+          backgroundColor = '#22c55e' // 緑
+          break
+        case 'CANCELLED':
+          backgroundColor = '#ef4444' // 赤
+          break
+        default:
+          backgroundColor = '#3b82f6' // デフォルト: 青
+      }
     }
 
     return {

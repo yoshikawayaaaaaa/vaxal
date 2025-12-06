@@ -10,45 +10,94 @@ export default async function CalendarPage() {
     redirect('/login')
   }
 
-  // VAXAL社員は全ての案件を取得、エンジニアは自分に割り当てられた案件のみ
-  const where = session.user.role === 'VAXAL_ADMIN'
-    ? {}
-    : { assignedEngineerId: session.user.id }
+  // VAXAL社員のみアクセス可能
+  if (session.user.role !== 'VAXAL_ADMIN') {
+    redirect('/engineer')
+  }
 
-  const projects = await prisma.project.findMany({
-    where,
-    select: {
-      id: true,
-      projectNumber: true,
-      siteName: true,
-      customerName: true,
-      workDate: true,
-      workContent: true,
-      workType: true,
-      siteAddress: true,
-      status: true,
+  // 全エンジニアの出勤可能日を取得
+  const availableDates = await prisma.calendarEvent.findMany({
+    where: {
+      eventType: 'AVAILABLE',
+    },
+    include: {
+      engineerUser: {
+        select: {
+          id: true,
+          name: true,
+          company: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
-      workDate: 'asc',
+      startDate: 'asc',
     },
   })
 
-  // 工事日が設定されている案件のみをカレンダーイベントに変換
-  const events = projects
-    .filter(project => project.workDate)
-    .map(project => ({
-      id: project.id,
-      title: `${project.siteName} - ${project.customerName}`,
-      start: new Date(project.workDate!),
-      end: new Date(project.workDate!),
-      resource: {
-        projectNumber: project.projectNumber,
-        workContent: project.workContent,
-        workType: project.workType,
-        siteAddress: project.siteAddress,
-        status: project.status,
+  // 確定予定（割り振られた案件）を取得
+  const confirmedEvents = await prisma.calendarEvent.findMany({
+    where: {
+      eventType: 'CONFIRMED',
+    },
+    include: {
+      engineerUser: {
+        select: {
+          id: true,
+          name: true,
+          company: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
       },
-    }))
+      project: {
+        select: {
+          id: true,
+          projectNumber: true,
+          siteName: true,
+          siteAddress: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: {
+      startDate: 'asc',
+    },
+  })
+
+  // カレンダーイベント形式に変換
+  const events = [
+    ...availableDates.map((date) => ({
+      id: date.id,
+      title: `${date.engineerUser?.company?.companyName || '不明'} - ${date.engineerUser?.name || '不明'} - 対応可能`,
+      start: new Date(date.startDate),
+      end: new Date(date.endDate),
+      resource: {
+        type: 'AVAILABLE' as const,
+        engineerName: date.engineerUser?.name,
+        companyName: date.engineerUser?.company?.companyName,
+      },
+    })),
+    ...confirmedEvents.map((event) => ({
+      id: event.id,
+      title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,
+      start: new Date(event.startDate),
+      end: new Date(event.endDate),
+      resource: {
+        type: 'CONFIRMED' as const,
+        projectNumber: event.project?.projectNumber,
+        siteName: event.project?.siteName,
+        status: event.project?.status,
+        engineerName: event.engineerUser?.name,
+        companyName: event.engineerUser?.company?.companyName,
+      },
+    })),
+  ]
 
   return (
     <div className="p-8">
