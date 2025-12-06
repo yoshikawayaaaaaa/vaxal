@@ -110,12 +110,66 @@ export async function POST(request: NextRequest) {
         revisitCount: body.revisitCount ? parseInt(body.revisitCount) : null,
         crossSellContent: body.crossSellContent || null,
         
+        // エンジニア割り振り
+        assignedEngineerId: body.assignedEngineerId || null,
+        
         // 作成者
         createdByVaxalId: session.user.id,
         
         status: 'PENDING',
       },
     })
+
+    // エンジニアが割り振られ、かつ工事日が設定されている場合
+    if (body.assignedEngineerId && body.workDate) {
+      const workDate = new Date(body.workDate)
+      
+      // 日付の範囲を設定
+      const startOfDay = new Date(workDate)
+      startOfDay.setHours(0, 0, 0, 0)
+      const endOfDay = new Date(workDate)
+      endOfDay.setHours(23, 59, 59, 999)
+
+      // 既存の「対応可能」イベントを検索
+      const existingAvailableEvent = await prisma.calendarEvent.findFirst({
+        where: {
+          engineerUserId: body.assignedEngineerId,
+          eventType: 'AVAILABLE',
+          startDate: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      })
+
+      if (existingAvailableEvent) {
+        // 既存の「対応可能」イベントを「確定予定」に更新
+        await prisma.calendarEvent.update({
+          where: {
+            id: existingAvailableEvent.id,
+          },
+          data: {
+            title: `${body.siteName} - 確定予定`,
+            description: `案件番号: ${projectNumber}`,
+            eventType: 'CONFIRMED',
+            projectId: project.id,
+          },
+        })
+      } else {
+        // 「対応可能」イベントがない場合は新規作成
+        await prisma.calendarEvent.create({
+          data: {
+            title: `${body.siteName} - 確定予定`,
+            description: `案件番号: ${projectNumber}`,
+            startDate: startOfDay,
+            endDate: endOfDay,
+            eventType: 'CONFIRMED',
+            engineerUserId: body.assignedEngineerId,
+            projectId: project.id,
+          },
+        })
+      }
+    }
 
     return NextResponse.json(project, { status: 201 })
   } catch (error) {

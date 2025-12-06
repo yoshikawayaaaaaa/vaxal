@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { OrderForm } from '@/components/forms/order-form'
+import { prisma } from '@/lib/prisma'
 
 export default async function NewOrderPage() {
   const session = await auth()
@@ -14,6 +15,29 @@ export default async function NewOrderPage() {
     redirect('/dashboard')
   }
 
+  // 全エンジニア会社とそのスタッフを取得
+  const companies = await prisma.company.findMany({
+    include: {
+      masterUser: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      staffUsers: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      companyName: 'asc',
+    },
+  })
+
   return (
     <div className="p-8">
       <div className="max-w-5xl mx-auto">
@@ -22,7 +46,7 @@ export default async function NewOrderPage() {
           <p className="text-gray-600 mt-2">新規案件の情報を入力してください</p>
         </div>
 
-        <OrderForm />
+        <OrderForm engineerCompanies={companies} />
       </div>
     </div>
   )

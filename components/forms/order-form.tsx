@@ -8,13 +8,37 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CalendarEmbed } from '@/components/calendar/calendar-embed'
 
-export function OrderForm() {
+interface EngineerCompany {
+  id: string
+  companyName: string
+  masterUser: {
+    id: string
+    name: string
+    email: string
+  } | null
+  staffUsers: {
+    id: string
+    name: string
+    email: string
+  }[]
+}
+
+interface OrderFormProps {
+  engineerCompanies: EngineerCompany[]
+}
+
+export function OrderForm({ engineerCompanies }: OrderFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [availableEngineers, setAvailableEngineers] = useState<any[]>([])
+  const [loadingEngineers, setLoadingEngineers] = useState(false)
 
   // フォームの状態管理
   const [formData, setFormData] = useState({
+    // エンジニア割り振り
+    assignedEngineerId: '',
+    
     // 基本情報
     siteName: '',
     siteAddress: '',
@@ -107,10 +131,147 @@ export function OrderForm() {
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    
+    // 工事日が変更されたら、その日に出勤可能なエンジニアを取得
+    if (field === 'workDate' && value) {
+      fetchAvailableEngineers(value)
+    }
+  }
+
+  // 指定日に出勤可能なエンジニアを取得
+  const fetchAvailableEngineers = async (date: string) => {
+    setLoadingEngineers(true)
+    try {
+      const response = await fetch(`/api/engineer/available?date=${date}`)
+      if (response.ok) {
+        const data = await response.json()
+        setAvailableEngineers(data.companies || [])
+      } else {
+        setAvailableEngineers([])
+      }
+    } catch (error) {
+      console.error('出勤可能エンジニア取得エラー:', error)
+      setAvailableEngineers([])
+    } finally {
+      setLoadingEngineers(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 日程（エンジニア割り振りの前に移動） */}
+      <Card>
+        <CardHeader>
+          <CardTitle>日程</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="workDate">工事日 *</Label>
+              <Input
+                id="workDate"
+                type="date"
+                value={formData.workDate}
+                onChange={(e) => handleChange('workDate', e.target.value)}
+                required
+              />
+              {formData.workDate && (
+                <p className="text-xs text-gray-500">
+                  この日に出勤可能なエンジニアのみ選択できます
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="receptionDate">受付日</Label>
+              <Input
+                id="receptionDate"
+                type="date"
+                value={formData.receptionDate}
+                onChange={(e) => handleChange('receptionDate', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="orderDate">受注日</Label>
+              <Input
+                id="orderDate"
+                type="date"
+                value={formData.orderDate}
+                onChange={(e) => handleChange('orderDate', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="expectedCompletionDate">完了予定日</Label>
+              <Input
+                id="expectedCompletionDate"
+                type="date"
+                value={formData.expectedCompletionDate}
+                onChange={(e) => handleChange('expectedCompletionDate', e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* エンジニア割り振り */}
+      {formData.workDate && (
+        <Card>
+          <CardHeader>
+            <CardTitle>エンジニア割り振り</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {loadingEngineers ? (
+              <div className="text-center py-4">
+                <p className="text-gray-500">出勤可能なエンジニアを検索中...</p>
+              </div>
+            ) : availableEngineers.length > 0 ? (
+              <>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm font-medium text-green-900">
+                    ✅ {formData.workDate}に出勤可能なエンジニア: {availableEngineers.reduce((sum, company) => sum + company.engineers.length, 0)}名
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="assignedEngineerId">担当エンジニア</Label>
+                  <select
+                    id="assignedEngineerId"
+                    className="w-full h-10 px-3 rounded-md border border-gray-300"
+                    value={formData.assignedEngineerId}
+                    onChange={(e) => handleChange('assignedEngineerId', e.target.value)}
+                  >
+                    <option value="">選択してください</option>
+                    {availableEngineers.map((company) => (
+                      <optgroup key={company.companyId} label={company.companyName}>
+                        {company.engineers.map((engineer: any) => (
+                          <option key={engineer.id} value={engineer.id}>
+                            {engineer.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm font-medium text-yellow-900 mb-2">
+                  ⚠️ 出勤可能なエンジニアがいません
+                </p>
+                <p className="text-sm text-yellow-700">
+                  {formData.workDate}に出勤可能として登録しているエンジニアがいません。別の日付を選択するか、エンジニアに出勤可能日を登録してもらってください。
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 出勤可能なエンジニアがいる場合のみ、以下のフォームを表示 */}
+      {formData.workDate && availableEngineers.length > 0 && !loadingEngineers && (
+        <>
       {/* 基本情報 */}
       <Card>
         <CardHeader>
@@ -520,61 +681,6 @@ export function OrderForm() {
         </CardContent>
       </Card>
 
-      {/* 日程 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>日程</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="workDate">工事日</Label>
-              <Input
-                id="workDate"
-                type="date"
-                value={formData.workDate}
-                onChange={(e) => handleChange('workDate', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="receptionDate">受付日</Label>
-              <Input
-                id="receptionDate"
-                type="date"
-                value={formData.receptionDate}
-                onChange={(e) => handleChange('receptionDate', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="orderDate">受注日</Label>
-              <Input
-                id="orderDate"
-                type="date"
-                value={formData.orderDate}
-                onChange={(e) => handleChange('orderDate', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="expectedCompletionDate">完了予定日</Label>
-              <Input
-                id="expectedCompletionDate"
-                type="date"
-                value={formData.expectedCompletionDate}
-                onChange={(e) => handleChange('expectedCompletionDate', e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* カレンダー表示 */}
-          <div className="mt-6">
-            <h3 className="text-sm font-medium mb-3">工事予定カレンダー</h3>
-            <CalendarEmbed />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* 社内メモ（VAXAL専用） */}
       <Card>
@@ -694,6 +800,8 @@ export function OrderForm() {
           {isLoading ? '登録中...' : '注文を登録'}
         </Button>
       </div>
+      </>
+      )}
     </form>
   )
 }
