@@ -64,7 +64,6 @@ export function OrderForm() {
     receptionDate: new Date().toISOString().split('T')[0],
     orderDate: '',
     expectedCompletionDate: '',
-    completionDate: '',
     
     // 社内メモ（VAXAL専用）
     firstContactMethod: 'EMAIL',
@@ -567,16 +566,6 @@ export function OrderForm() {
                 onChange={(e) => handleChange('expectedCompletionDate', e.target.value)}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="completionDate">完了日</Label>
-            <Input
-              id="completionDate"
-              type="date"
-              value={formData.completionDate}
-              onChange={(e) => handleChange('completionDate', e.target.value)}
-            />
           </div>
 
           {/* カレンダー表示 */}

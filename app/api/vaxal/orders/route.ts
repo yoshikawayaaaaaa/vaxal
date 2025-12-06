@@ -98,7 +98,6 @@ export async function POST(request: NextRequest) {
         receptionDate: body.receptionDate ? new Date(body.receptionDate) : new Date(),
         orderDate: body.orderDate ? new Date(body.orderDate) : null,
         expectedCompletionDate: body.expectedCompletionDate ? new Date(body.expectedCompletionDate) : null,
-        completionDate: body.completionDate ? new Date(body.completionDate) : null,
         
         // 社内メモ（VAXAL専用）
         firstContactMethod: body.firstContactMethod || null,
