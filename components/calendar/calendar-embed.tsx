@@ -39,7 +39,7 @@ export function CalendarEmbed() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('/api/projects/calendar')
+        const response = await fetch('/api/vaxal/projects/calendar')
         if (response.ok) {
           const data = await response.json()
           // 日付文字列をDateオブジェクトに変換
@@ -130,6 +130,7 @@ export function CalendarEmbed() {
         defaultView="month"
         toolbar={true}
         popup={true}
+        onSelectEvent={() => {}} // クリックイベントを無効化
       />
     </div>
   )

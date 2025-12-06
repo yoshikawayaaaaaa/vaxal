@@ -605,12 +605,13 @@ export function OrderForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="communicationTool">連絡ツール</Label>
+            <Label htmlFor="communicationTool">連絡ツール *</Label>
             <textarea
               id="communicationTool"
               className="w-full min-h-[80px] px-3 py-2 rounded-md border border-gray-300"
               value={formData.communicationTool}
               onChange={(e) => handleChange('communicationTool', e.target.value)}
+              required
             />
           </div>
 
