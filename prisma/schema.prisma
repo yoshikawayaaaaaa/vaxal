@@ -191,6 +191,18 @@ enum BuildingType {
   OTHER             // その他
 }
 
+enum TankType {
+  THIN              // 薄型
+  SQUARE            // 角型
+}
+
+enum ReplacementType {
+  ECO_TO_ECO        // エコキュート→エコキュート
+  GAS_TO_ECO        // ガス給湯器→エコキュート
+  ELECTRIC_TO_ECO   // 電気温水器→エコキュート
+  OTHER             // その他
+}
+
 model Project {
   id                    String   @id @default(cuid())
   projectNumber         String   @unique // 案件番号
@@ -318,6 +330,18 @@ model Project {
   
   // 請負金額(マスターのみ閲覧可能)
   contractAmount        Int?
+  
+  // エンジニア入力情報（関連情報で表示）
+  existingManufacturer  String?           // 既設メーカー
+  yearsOfUse            Int?              // 使用年数
+  replacementType       ReplacementType?  // 交換種別
+  replacementManufacturer String?         // 交換メーカー
+  tankCapacity          String?           // タンク容量
+  tankType              TankType?         // 薄型or角型
+  hasSpecialSpec        Boolean  @default(false) // 特殊仕様有無
+  materialUnitPrice     Int?              // 部材単価
+  highwayFee            Int?              // 高速代
+  gasolineFee           Int?              // ガソリン代
   
   // ステータス
   status                ProjectStatus @default(PENDING)

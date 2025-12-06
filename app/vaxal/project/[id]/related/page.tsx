@@ -286,6 +286,70 @@ export default async function RelatedInfoPage({
             </Card>
           )}
 
+          {/* エンジニア入力情報 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>エンジニア入力情報</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">既設メーカー</p>
+                  <p className="font-medium">{project.existingManufacturer || '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">使用年数</p>
+                  <p className="font-medium">{project.yearsOfUse ? `${project.yearsOfUse}年` : '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">交換種別</p>
+                  <p className="font-medium">
+                    {project.replacementType === 'ECO_TO_ECO' && 'エコキュート→エコキュート'}
+                    {project.replacementType === 'GAS_TO_ECO' && 'ガス給湯器→エコキュート'}
+                    {project.replacementType === 'ELECTRIC_TO_ECO' && '電気温水器→エコキュート'}
+                    {project.replacementType === 'OTHER' && 'その他'}
+                    {!project.replacementType && '未入力'}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">交換メーカー</p>
+                  <p className="font-medium">{project.replacementManufacturer || '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">タンク容量</p>
+                  <p className="font-medium">{project.tankCapacity || '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">薄型or角型</p>
+                  <p className="font-medium">
+                    {project.tankType === 'THIN' && '薄型'}
+                    {project.tankType === 'SQUARE' && '角型'}
+                    {!project.tankType && '未入力'}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">特殊仕様有無</p>
+                  <p className="font-medium">{project.hasSpecialSpec ? 'あり' : 'なし'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">部材単価</p>
+                  <p className="font-medium">{project.materialUnitPrice ? `¥${project.materialUnitPrice.toLocaleString()}` : '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">高速代</p>
+                  <p className="font-medium">{project.highwayFee ? `¥${project.highwayFee.toLocaleString()}` : '未入力'}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">ガソリン代</p>
+                  <p className="font-medium">{project.gasolineFee ? `¥${project.gasolineFee.toLocaleString()}` : '未入力'}</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500 mt-4">
+                ※ この情報はエンジニアが入力します
+              </p>
+            </CardContent>
+          </Card>
+
           {/* 事故品登録（今後実装予定） */}
           <Card>
             <CardHeader>
