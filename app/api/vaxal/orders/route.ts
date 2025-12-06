@@ -105,6 +105,12 @@ export async function POST(request: NextRequest) {
         communicationTool: body.communicationTool || null,
         internalNotes: body.internalNotes || null,
         
+        // 再訪問情報
+        revisitType: body.revisitType || null,
+        revisitDateTime: body.revisitDateTime ? new Date(body.revisitDateTime) : null,
+        revisitCount: body.revisitCount ? parseInt(body.revisitCount) : null,
+        crossSellContent: body.crossSellContent || null,
+        
         // 作成者
         createdByVaxalId: session.user.id,
         

@@ -178,6 +178,12 @@ enum ContactMethod {
   OTHER
 }
 
+enum RevisitType {
+  COMPLAINT      // クレーム
+  REPURCHASE     // 再購入
+  ANOTHER_CASE   // 別案件
+}
+
 enum BuildingType {
   MANSION           // マンション
   DETACHED_HOUSE    // 戸建て
@@ -247,6 +253,12 @@ model Project {
   firstContactMethod    ContactMethod?
   communicationTool     String?
   internalNotes         String?
+  
+  // 再訪問情報
+  revisitType           RevisitType?  // 再訪問種別
+  revisitDateTime       DateTime?     // 再訪問日時
+  revisitCount          Int?          // 再訪問回数
+  crossSellContent      String?       // クロスセル内容
   
   // 元請け情報
   contractorName        String?

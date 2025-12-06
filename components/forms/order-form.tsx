@@ -70,6 +70,12 @@ export function OrderForm() {
     firstContactMethod: 'EMAIL',
     communicationTool: '',
     internalNotes: '',
+    
+    // 再訪問情報
+    revisitType: '',
+    revisitDateTime: '',
+    revisitCount: '',
+    crossSellContent: '',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -623,6 +629,55 @@ export function OrderForm() {
               value={formData.internalNotes}
               onChange={(e) => handleChange('internalNotes', e.target.value)}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="revisitType">再訪問種別</Label>
+              <select
+                id="revisitType"
+                className="w-full h-10 px-3 rounded-md border border-gray-300"
+                value={formData.revisitType}
+                onChange={(e) => handleChange('revisitType', e.target.value)}
+              >
+                <option value="">選択してください</option>
+                <option value="COMPLAINT">クレーム</option>
+                <option value="REPURCHASE">再購入</option>
+                <option value="ANOTHER_CASE">別案件</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="revisitDateTime">再訪問日時</Label>
+              <Input
+                id="revisitDateTime"
+                type="datetime-local"
+                value={formData.revisitDateTime}
+                onChange={(e) => handleChange('revisitDateTime', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="revisitCount">再訪問回数</Label>
+              <Input
+                id="revisitCount"
+                type="number"
+                value={formData.revisitCount}
+                onChange={(e) => handleChange('revisitCount', e.target.value)}
+                placeholder="回"
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="crossSellContent">クロスセル内容</Label>
+              <Input
+                id="crossSellContent"
+                value={formData.crossSellContent}
+                onChange={(e) => handleChange('crossSellContent', e.target.value)}
+                placeholder="例: 太陽光パネル、蓄電池"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
