@@ -20,7 +20,7 @@ interface SidebarProps {
 export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false }: SidebarProps) {
   const pathname = usePathname()
 
-  // VAXAL社員のみメニューを表示
+  // メニュー項目
   const menuItems = isVaxalAdmin ? [
     {
       title: 'カレンダー',
@@ -32,7 +32,18 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       href: '/vaxal/orders/new',
       icon: LayoutDashboard,
     },
-  ] : []
+  ] : [
+    {
+      title: 'ダッシュボード',
+      href: '/engineer',
+      icon: LayoutDashboard,
+    },
+    {
+      title: 'カレンダー',
+      href: '/engineer/calendar',
+      icon: FileText,
+    },
+  ]
 
   return (
     <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex flex-col">
