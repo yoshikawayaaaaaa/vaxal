@@ -88,7 +88,7 @@ export default async function EngineerProjectDetailPage({
         </div>
 
         {/* タブナビゲーション */}
-        <ProjectDetailTabs projectId={id} activeTab="basic" />
+        <ProjectDetailTabs projectId={id} activeTab="basic" userType="engineer" />
 
         {/* 施工主基本情報 */}
         <section className="mb-8">

@@ -1,20 +1,34 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface ProjectDetailTabsProps {
   projectId: string
   activeTab?: string
+  userType?: 'vaxal' | 'engineer'
 }
 
-export function ProjectDetailTabs({ projectId, activeTab = 'basic' }: ProjectDetailTabsProps) {
-  const tabs = [
-    { id: 'basic', label: '基本情報', href: `/vaxal/project/${projectId}` },
-    { id: 'main-info', label: '主要情報', href: `/vaxal/project/${projectId}/main-info` },
-    { id: 'related', label: '関連情報', href: `/vaxal/project/${projectId}/related` },
-    { id: 'detail', label: '詳細情報', href: `/vaxal/project/${projectId}/detail` },
-  ]
+export function ProjectDetailTabs({ 
+  projectId, 
+  activeTab = 'basic',
+  userType = 'vaxal'
+}: ProjectDetailTabsProps) {
+  const basePath = userType === 'engineer' ? '/engineer/project' : '/vaxal/project'
+  
+  const tabs = userType === 'engineer' 
+    ? [
+        { id: 'basic', label: '基本情報', href: `${basePath}/${projectId}` },
+        { id: 'main-info', label: '主要情報', href: `${basePath}/${projectId}/main-info` },
+        { id: 'detail', label: '詳細情報', href: `${basePath}/${projectId}/detail` },
+        { id: 'report', label: '報告', href: `${basePath}/${projectId}/report` },
+      ]
+    : [
+        { id: 'basic', label: '基本情報', href: `${basePath}/${projectId}` },
+        { id: 'main-info', label: '主要情報', href: `${basePath}/${projectId}/main-info` },
+        { id: 'related', label: '関連情報', href: `${basePath}/${projectId}/related` },
+        { id: 'detail', label: '詳細情報', href: `${basePath}/${projectId}/detail` },
+      ]
 
   return (
     <div className="border-b border-gray-200 mb-8">

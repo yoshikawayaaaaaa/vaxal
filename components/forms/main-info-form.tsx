@@ -91,7 +91,7 @@ export function MainInfoForm({
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/projects/${projectId}/main-info`, {
+      const response = await fetch(`/api/vaxal/projects/${projectId}/main-info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
