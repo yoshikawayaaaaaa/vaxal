@@ -225,12 +225,17 @@ export default async function EngineerReportPage({
                             {report.files.map((file) => (
                               <div key={file.id} className="border rounded p-2">
                                 {file.mimeType.startsWith('image/') ? (
-                                  <img
-                                    src={file.fileUrl}
-                                    alt={file.fileName}
-                                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
-                                    onClick={() => window.open(file.fileUrl, '_blank')}
-                                  />
+                                  <a
+                                    href={file.fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <img
+                                      src={file.fileUrl}
+                                      alt={file.fileName}
+                                      className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                    />
+                                  </a>
                                 ) : (
                                   <a
                                     href={file.fileUrl}
@@ -252,14 +257,6 @@ export default async function EngineerReportPage({
                         </div>
                       )}
 
-                      {/* 編集ボタン */}
-                      <div className="flex justify-end pt-2">
-                        <Link href={`/engineer/project/${id}/report/${report.id}/edit`}>
-                          <Button variant="outline" size="sm">
-                            編集
-                          </Button>
-                        </Link>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
