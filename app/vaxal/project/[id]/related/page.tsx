@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
 
 export default async function RelatedInfoPage({
   params,
@@ -16,12 +17,23 @@ export default async function RelatedInfoPage({
     redirect('/login')
   }
 
+  if (session.user.userType !== 'vaxal') {
+    redirect('/dashboard')
+  }
+
   const { id } = await params
 
   const project = await prisma.project.findUnique({
     where: { id },
     include: {
-      files: true,
+      reports: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          files: true,
+        },
+      },
       assignedEngineer: {
         include: {
           company: true,
@@ -34,47 +46,46 @@ export default async function RelatedInfoPage({
     notFound()
   }
 
-  // エンジニアは自分に割り当てられた案件のみ閲覧可能
-  if (
-    session.user.role !== 'VAXAL_ADMIN' &&
-    project.assignedEngineerId !== session.user.id
-  ) {
-    redirect('/dashboard')
+  // 報告タイプの日本語名
+  const reportTypeNames: Record<string, string> = {
+    SITE_SURVEY: '現場調査報告',
+    PICKUP: '集荷報告',
+    CHECK_IN: 'check in報告',
+    COMPLETION: '工事完了報告',
+    UNLOADING: '荷卸し報告',
   }
 
-  // ファイルをカテゴリ別に分類
-  const surveyReportFiles = project.files.filter(
-    (f) => f.category === 'SURVEY_REPORT'
-  )
-  const pickupReportFiles = project.files.filter(
-    (f) => f.category === 'PICKUP_REPORT'
-  )
-  const checkinReportFiles = project.files.filter(
-    (f) => f.category === 'CHECKIN_REPORT'
-  )
-  const completionReportFiles = project.files.filter(
-    (f) => f.category === 'COMPLETION_REPORT'
-  )
-  const unloadingReportFiles = project.files.filter(
-    (f) => f.category === 'UNLOADING_REPORT'
-  )
+  // 報告タイプごとにグループ化
+  const reportsByType = {
+    SITE_SURVEY: project.reports.filter((r) => r.reportType === 'SITE_SURVEY'),
+    PICKUP: project.reports.filter((r) => r.reportType === 'PICKUP'),
+    CHECK_IN: project.reports.filter((r) => r.reportType === 'CHECK_IN'),
+    COMPLETION: project.reports.filter((r) => r.reportType === 'COMPLETION'),
+    UNLOADING: project.reports.filter((r) => r.reportType === 'UNLOADING'),
+  }
+
+  // エンジニア入力情報を取得（最新の報告から）
+  const latestReport = project.reports[0]
 
   // マスターアカウントかどうかを判定
-  const isMasterAccount =
-    session.user.role === 'VAXAL_ADMIN' ||
-    (session.user.role === 'ENGINEER_MASTER' &&
-      project.assignedEngineer?.company?.masterCompanyId === session.user.id)
+  const isMasterAccount = session.user.role === 'VAXAL_ADMIN'
 
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
+          <Link
+            href="/vaxal"
+            className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+          >
+            ← ダッシュボードに戻る
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900">関連情報</h1>
           <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
-        <ProjectDetailTabs projectId={id} activeTab="related" />
+        <ProjectDetailTabs projectId={id} activeTab="related" userType="vaxal" />
 
         <div className="space-y-6">
           {/* 現場調査報告フォルダ */}
@@ -83,26 +94,41 @@ export default async function RelatedInfoPage({
               <CardTitle>現場調査報告フォルダ</CardTitle>
             </CardHeader>
             <CardContent>
-              {surveyReportFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {surveyReportFiles.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-2">
-                      {file.mimeType.startsWith('image/') ? (
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                          <span className="text-sm text-gray-500">
-                            {file.fileName}
-                          </span>
+              {reportsByType.SITE_SURVEY.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.SITE_SURVEY.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-2 truncate">
-                        {file.fileName}
-                      </p>
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -120,26 +146,47 @@ export default async function RelatedInfoPage({
               <CardTitle>集荷報告フォルダ</CardTitle>
             </CardHeader>
             <CardContent>
-              {pickupReportFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {pickupReportFiles.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-2">
-                      {file.mimeType.startsWith('image/') ? (
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                          <span className="text-sm text-gray-500">
-                            {file.fileName}
-                          </span>
+              {reportsByType.PICKUP.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.PICKUP.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.pickupMaterials && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">持ち出し部材</p>
+                          <p className="text-sm text-gray-600">{report.pickupMaterials}</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-2 truncate">
-                        {file.fileName}
-                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
+                        </div>
+                      )}
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -157,26 +204,41 @@ export default async function RelatedInfoPage({
               <CardTitle>check in報告フォルダ</CardTitle>
             </CardHeader>
             <CardContent>
-              {checkinReportFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {checkinReportFiles.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-2">
-                      {file.mimeType.startsWith('image/') ? (
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                          <span className="text-sm text-gray-500">
-                            {file.fileName}
-                          </span>
+              {reportsByType.CHECK_IN.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.CHECK_IN.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-2 truncate">
-                        {file.fileName}
-                      </p>
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -194,26 +256,41 @@ export default async function RelatedInfoPage({
               <CardTitle>工事完了報告フォルダ</CardTitle>
             </CardHeader>
             <CardContent>
-              {completionReportFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {completionReportFiles.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-2">
-                      {file.mimeType.startsWith('image/') ? (
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                          <span className="text-sm text-gray-500">
-                            {file.fileName}
-                          </span>
+              {reportsByType.COMPLETION.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.COMPLETION.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-2 truncate">
-                        {file.fileName}
-                      </p>
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -231,26 +308,41 @@ export default async function RelatedInfoPage({
               <CardTitle>荷卸し報告フォルダ</CardTitle>
             </CardHeader>
             <CardContent>
-              {unloadingReportFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {unloadingReportFiles.map((file) => (
-                    <div key={file.id} className="border rounded-lg p-2">
-                      {file.mimeType.startsWith('image/') ? (
-                        <img
-                          src={file.fileUrl}
-                          alt={file.fileName}
-                          className="w-full h-32 object-cover rounded"
-                        />
-                      ) : (
-                        <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                          <span className="text-sm text-gray-500">
-                            {file.fileName}
-                          </span>
+              {reportsByType.UNLOADING.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.UNLOADING.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
                         </div>
                       )}
-                      <p className="text-xs text-gray-600 mt-2 truncate">
-                        {file.fileName}
-                      </p>
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -261,6 +353,98 @@ export default async function RelatedInfoPage({
               )}
             </CardContent>
           </Card>
+
+          {/* エンジニア入力情報 */}
+          {latestReport && (
+            <Card>
+              <CardHeader>
+                <CardTitle>エンジニア入力情報</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-6">
+                  {latestReport.existingManufacturer && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">既設メーカー</p>
+                      <p className="font-medium">{latestReport.existingManufacturer}</p>
+                    </div>
+                  )}
+                  {latestReport.yearsOfUse && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">使用年数</p>
+                      <p className="font-medium">{latestReport.yearsOfUse}年</p>
+                    </div>
+                  )}
+                  {latestReport.replacementType && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">交換種別</p>
+                      <p className="font-medium">
+                        {latestReport.replacementType === 'ECO_TO_ECO' && 'エコキュート→エコキュート'}
+                        {latestReport.replacementType === 'GAS_TO_ECO' && 'ガス給湯器→エコキュート'}
+                        {latestReport.replacementType === 'ELECTRIC_TO_ECO' && '電気温水器→エコキュート'}
+                        {latestReport.replacementType === 'OTHER' && 'その他'}
+                      </p>
+                    </div>
+                  )}
+                  {latestReport.replacementManufacturer && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">交換メーカー</p>
+                      <p className="font-medium">{latestReport.replacementManufacturer}</p>
+                    </div>
+                  )}
+                  {latestReport.tankCapacity && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">タンク容量</p>
+                      <p className="font-medium">{latestReport.tankCapacity}</p>
+                    </div>
+                  )}
+                  {latestReport.tankType && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">薄型or角型</p>
+                      <p className="font-medium">
+                        {latestReport.tankType === 'THIN' && '薄型'}
+                        {latestReport.tankType === 'SQUARE' && '角型'}
+                      </p>
+                    </div>
+                  )}
+                  {latestReport.hasSpecialSpec !== null && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">特殊仕様有無</p>
+                      <p className="font-medium">{latestReport.hasSpecialSpec ? 'あり' : 'なし'}</p>
+                    </div>
+                  )}
+                  {latestReport.materialUnitPrice && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">部材単価</p>
+                      <p className="font-medium">¥{latestReport.materialUnitPrice.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {latestReport.highwayFee && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">高速代</p>
+                      <p className="font-medium">¥{latestReport.highwayFee.toLocaleString()}</p>
+                    </div>
+                  )}
+                  {latestReport.gasolineFee && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">ガソリン代</p>
+                      <p className="font-medium">¥{latestReport.gasolineFee.toLocaleString()}</p>
+                    </div>
+                  )}
+                </div>
+                {!latestReport.existingManufacturer &&
+                  !latestReport.yearsOfUse &&
+                  !latestReport.replacementType &&
+                  !latestReport.replacementManufacturer &&
+                  !latestReport.tankCapacity &&
+                  !latestReport.tankType &&
+                  !latestReport.materialUnitPrice &&
+                  !latestReport.highwayFee &&
+                  !latestReport.gasolineFee && (
+                    <p className="text-gray-400">エンジニア入力情報がまだ登録されていません</p>
+                  )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* 請負金額（マスターアカウントのみ） */}
           {isMasterAccount && (
@@ -285,70 +469,6 @@ export default async function RelatedInfoPage({
               </CardContent>
             </Card>
           )}
-
-          {/* エンジニア入力情報 */}
-          <Card>
-            <CardHeader>
-              <CardTitle>エンジニア入力情報</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">既設メーカー</p>
-                  <p className="font-medium">{project.existingManufacturer || '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">使用年数</p>
-                  <p className="font-medium">{project.yearsOfUse ? `${project.yearsOfUse}年` : '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">交換種別</p>
-                  <p className="font-medium">
-                    {project.replacementType === 'ECO_TO_ECO' && 'エコキュート→エコキュート'}
-                    {project.replacementType === 'GAS_TO_ECO' && 'ガス給湯器→エコキュート'}
-                    {project.replacementType === 'ELECTRIC_TO_ECO' && '電気温水器→エコキュート'}
-                    {project.replacementType === 'OTHER' && 'その他'}
-                    {!project.replacementType && '未入力'}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">交換メーカー</p>
-                  <p className="font-medium">{project.replacementManufacturer || '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">タンク容量</p>
-                  <p className="font-medium">{project.tankCapacity || '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">薄型or角型</p>
-                  <p className="font-medium">
-                    {project.tankType === 'THIN' && '薄型'}
-                    {project.tankType === 'SQUARE' && '角型'}
-                    {!project.tankType && '未入力'}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">特殊仕様有無</p>
-                  <p className="font-medium">{project.hasSpecialSpec ? 'あり' : 'なし'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">部材単価</p>
-                  <p className="font-medium">{project.materialUnitPrice ? `¥${project.materialUnitPrice.toLocaleString()}` : '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">高速代</p>
-                  <p className="font-medium">{project.highwayFee ? `¥${project.highwayFee.toLocaleString()}` : '未入力'}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">ガソリン代</p>
-                  <p className="font-medium">{project.gasolineFee ? `¥${project.gasolineFee.toLocaleString()}` : '未入力'}</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500 mt-4">
-                ※ この情報はエンジニアが入力します
-              </p>
-            </CardContent>
-          </Card>
 
           {/* 事故品登録（今後実装予定） */}
           <Card>
