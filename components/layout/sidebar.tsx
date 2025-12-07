@@ -65,7 +65,8 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
         <ul className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
+            // 完全一致のみアクティブにする
+            const isActive = pathname === item.href
             
             return (
               <li key={item.href}>
