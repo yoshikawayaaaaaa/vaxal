@@ -84,7 +84,7 @@ export default async function CalendarPage() {
       },
     })),
     ...confirmedEvents.map((event) => ({
-      id: event.id,
+      id: event.project?.id || event.id, // プロジェクトIDを使用（存在しない場合はイベントID）
       title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,
       start: new Date(event.startDate),
       end: new Date(event.endDate),
