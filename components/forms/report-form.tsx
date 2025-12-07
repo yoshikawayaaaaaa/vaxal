@@ -436,12 +436,26 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="existingManufacturer">既設メーカー</Label>
-                  <Input
+                  <select
                     id="existingManufacturer"
+                    className="w-full h-10 px-3 rounded-md border border-gray-300"
                     value={formData.existingManufacturer}
                     onChange={(e) => handleChange('existingManufacturer', e.target.value)}
-                    placeholder="例: パナソニック"
-                  />
+                  >
+                    <option value="">選択してください</option>
+                    <option value="Panasonic">Panasonic</option>
+                    <option value="ダイキン">ダイキン</option>
+                    <option value="日立">日立</option>
+                    <option value="三菱">三菱</option>
+                    <option value="コロナ">コロナ</option>
+                    <option value="タカラスタンダード">タカラスタンダード</option>
+                    <option value="ハウステック">ハウステック</option>
+                    <option value="長府製作所">長府製作所</option>
+                    <option value="キューヘン">キューヘン</option>
+                    <option value="東芝">東芝</option>
+                    <option value="デンソー">デンソー</option>
+                    <option value="その他">その他</option>
+                  </select>
                 </div>
 
                 <div className="space-y-2">
@@ -475,12 +489,26 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="replacementManufacturer">交換メーカー</Label>
-                  <Input
+                  <select
                     id="replacementManufacturer"
+                    className="w-full h-10 px-3 rounded-md border border-gray-300"
                     value={formData.replacementManufacturer}
                     onChange={(e) => handleChange('replacementManufacturer', e.target.value)}
-                    placeholder="例: 三菱"
-                  />
+                  >
+                    <option value="">選択してください</option>
+                    <option value="Panasonic">Panasonic</option>
+                    <option value="ダイキン">ダイキン</option>
+                    <option value="日立">日立</option>
+                    <option value="三菱">三菱</option>
+                    <option value="コロナ">コロナ</option>
+                    <option value="タカラスタンダード">タカラスタンダード</option>
+                    <option value="ハウステック">ハウステック</option>
+                    <option value="長府製作所">長府製作所</option>
+                    <option value="キューヘン">キューヘン</option>
+                    <option value="東芝">東芝</option>
+                    <option value="デンソー">デンソー</option>
+                    <option value="その他">その他</option>
+                  </select>
                 </div>
               </div>
 
