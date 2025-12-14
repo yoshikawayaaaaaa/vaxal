@@ -72,7 +72,12 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     warrantyPeriod: 'FIVE_YEARS',
     paymentMethod: 'CASH',
     subsidyAmount: '',
-    sellingPrice: '',
+    sellingPriceType1: '',
+    sellingPrice1: '',
+    sellingPriceType2: '',
+    sellingPrice2: '',
+    sellingPriceType3: '',
+    sellingPrice3: '',
     costPrice: '',
     contractAmount: '',
     hasHandMoney: false,
@@ -568,27 +573,49 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subsidyAmount">補助金金額</Label>
-              <Input
-                id="subsidyAmount"
-                type="number"
-                value={formData.subsidyAmount}
-                onChange={(e) => handleChange('subsidyAmount', e.target.value)}
-                placeholder="円"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice">売価</Label>
-              <Input
-                id="sellingPrice"
-                type="number"
-                value={formData.sellingPrice}
-                onChange={(e) => handleChange('sellingPrice', e.target.value)}
-                placeholder="円"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="subsidyAmount">補助金金額</Label>
+            <Input
+              id="subsidyAmount"
+              type="number"
+              value={formData.subsidyAmount}
+              onChange={(e) => handleChange('subsidyAmount', e.target.value)}
+              placeholder="円"
+            />
+          </div>
+
+          {/* 売価 */}
+          <div className="space-y-2">
+            <Label htmlFor="sellingPrice1">売価：交換できるくん</Label>
+            <Input
+              id="sellingPrice1"
+              type="number"
+              value={formData.sellingPrice1}
+              onChange={(e) => handleChange('sellingPrice1', e.target.value)}
+              placeholder="円"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sellingPrice2">売価：キンライサー</Label>
+            <Input
+              id="sellingPrice2"
+              type="number"
+              value={formData.sellingPrice2}
+              onChange={(e) => handleChange('sellingPrice2', e.target.value)}
+              placeholder="円"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sellingPrice3">売価：cools</Label>
+            <Input
+              id="sellingPrice3"
+              type="number"
+              value={formData.sellingPrice3}
+              onChange={(e) => handleChange('sellingPrice3', e.target.value)}
+              placeholder="円"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

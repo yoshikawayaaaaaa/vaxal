@@ -240,7 +240,9 @@ model Project {
   warrantyPeriod        WarrantyPeriod? // 商品保証期間
   paymentMethod         PaymentMethod?
   subsidyAmount         Int?     // 補助金金額
-  sellingPrice          Int?     // 売価
+  sellingPrice          Int?     // 売価：交換できるくん
+  sellingPrice2         Int?     // 売価：キンライサー
+  sellingPrice3         Int?     // 売価：cools
   costPrice             Int?     // 原価
   hasHandMoney          Boolean  @default(false) // 手元の有無
   handMoneyAmount       Int?     // 手元の代金

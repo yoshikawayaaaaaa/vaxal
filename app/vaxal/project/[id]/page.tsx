@@ -262,6 +262,24 @@ export default async function ProjectDetailPage({
                 <p className="text-sm text-gray-600 mb-1">商品保証</p>
                 <p className="text-base">{project.productWarranty ? 'あり' : 'なし'}</p>
               </div>
+              {project.sellingPrice !== null && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">売価：交換できるくん</p>
+                  <p className="text-base">¥{project.sellingPrice.toLocaleString()}</p>
+                </div>
+              )}
+              {project.sellingPrice2 !== null && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">売価：キンライサー</p>
+                  <p className="text-base">¥{project.sellingPrice2.toLocaleString()}</p>
+                </div>
+              )}
+              {project.sellingPrice3 !== null && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">売価：cools</p>
+                  <p className="text-base">¥{project.sellingPrice3.toLocaleString()}</p>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-gray-600 mb-1">身分証</p>
                 <p className="text-base">
