@@ -546,3 +546,24 @@ model ReportFile {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
+
+// 月次管理
+model MonthlyExpense {
+  id                    String   @id @default(cuid())
+  year                  Int      // 年
+  month                 Int      // 月（1-12）
+  
+  // 経費項目
+  wasteDisposalFee      Int?     // 産廃処分費
+  vehicleFee            Int?     // 車両費
+  laborCost             Int?     // 人件費
+  warehouseFee          Int?     // 倉庫管理費
+  officeFee             Int?     // 事務所費
+  communicationFee      Int?     // 通信費
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // 年月の組み合わせをユニークにする
+  @@unique([year, month])
+}
