@@ -54,6 +54,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     workContent: 'ECO_CUTE',
     workType: 'REPLACEMENT',
     workTime: '09:00~17:00',
+    buildingType: 'DETACHED_HOUSE',
     
     // 商品情報（エコキュート）
     productSetNumber: '',
@@ -420,13 +421,30 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="workTime">施工時間</Label>
-            <Input
-              id="workTime"
-              value={formData.workTime}
-              onChange={(e) => handleChange('workTime', e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="workTime">施工時間</Label>
+              <Input
+                id="workTime"
+                value={formData.workTime}
+                onChange={(e) => handleChange('workTime', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="buildingType">建物区分名 *</Label>
+              <select
+                id="buildingType"
+                className="w-full h-10 px-3 rounded-md border border-gray-300"
+                value={formData.buildingType}
+                onChange={(e) => handleChange('buildingType', e.target.value)}
+                required
+              >
+                <option value="DETACHED_HOUSE">戸建て</option>
+                <option value="MANSION">マンション</option>
+                <option value="APARTMENT">アパート</option>
+                <option value="OTHER">その他</option>
+              </select>
+            </div>
           </div>
         </CardContent>
       </Card>

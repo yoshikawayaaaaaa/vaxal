@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
         workType: body.workType,
         workCategory: 'MAIN_WORK', // デフォルト値
         workTime: body.workTime,
+        buildingType: body.buildingType || null,
         
         // 商品情報
         productSetNumber: body.productSetNumber || null,

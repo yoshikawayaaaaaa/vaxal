@@ -132,20 +132,31 @@ export default async function ProjectDetailPage({
           <h2 className="text-2xl font-bold text-gray-900 mb-6">工事情報</h2>
           
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">工事内容</p>
-                <p className="text-base">{workContentLabels[project.workContent]}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">用途</p>
-                <p className="text-base">{workTypeLabels[project.workType]}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">施工時間</p>
-                <p className="text-base">{project.workTime}</p>
-              </div>
+          <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">工事内容</p>
+              <p className="text-base">{workContentLabels[project.workContent]}</p>
             </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">用途</p>
+              <p className="text-base">{workTypeLabels[project.workType]}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 mb-1">施工時間</p>
+              <p className="text-base">{project.workTime}</p>
+            </div>
+            {project.buildingType && (
+              <div>
+                <p className="text-sm text-gray-600 mb-1">建物区分名</p>
+                <p className="text-base">
+                  {project.buildingType === 'DETACHED_HOUSE' && '戸建て'}
+                  {project.buildingType === 'MANSION' && 'マンション'}
+                  {project.buildingType === 'APARTMENT' && 'アパート'}
+                  {project.buildingType === 'OTHER' && 'その他'}
+                </p>
+              </div>
+            )}
+          </div>
           </div>
         </section>
 

@@ -297,31 +297,14 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="buildingType">建物区分名</Label>
-              <select
-                id="buildingType"
-                className="w-full h-10 px-3 rounded-md border border-gray-300"
-                value={formData.buildingType}
-                onChange={(e) => handleChange('buildingType', e.target.value)}
-              >
-                <option value="">選択してください</option>
-                <option value="MANSION">マンション</option>
-                <option value="DETACHED_HOUSE">戸建て</option>
-                <option value="APARTMENT">アパート</option>
-                <option value="OTHER">その他</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="installationFloor">設置階数</Label>
-              <Input
-                id="installationFloor"
-                value={formData.installationFloor}
-                onChange={(e) => handleChange('installationFloor', e.target.value)}
-                placeholder="例: 1F, 2F, 3F"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="installationFloor">設置階数</Label>
+            <Input
+              id="installationFloor"
+              value={formData.installationFloor}
+              onChange={(e) => handleChange('installationFloor', e.target.value)}
+              placeholder="例: 1F, 2F, 3F"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
