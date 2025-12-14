@@ -22,6 +22,11 @@ export default async function MainInfoPage({
     where: { id },
     include: {
       mainInfo: true,
+      assignedEngineer: {
+        include: {
+          company: true,
+        },
+      },
     },
   })
 
@@ -54,6 +59,9 @@ export default async function MainInfoPage({
           projectNumber={project.projectNumber}
           initialData={project.mainInfo}
           constructionNotesFromProject={project.constructionNotes || undefined}
+          contractAmount={project.contractAmount}
+          userRole={session.user.role}
+          engineerRole={session.user.role === 'ENGINEER' ? session.user.engineerRole : undefined}
         />
       </div>
     </div>

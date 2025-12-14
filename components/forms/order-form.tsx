@@ -73,6 +73,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     subsidyAmount: '',
     sellingPrice: '',
     costPrice: '',
+    contractAmount: '',
     hasHandMoney: false,
     handMoneyAmount: '',
     idCardRequired: false,
@@ -581,18 +582,29 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="warrantyPeriod">商品保証期間</Label>
-              <select
-                id="warrantyPeriod"
-                className="w-full h-10 px-3 rounded-md border border-gray-300"
-                value={formData.warrantyPeriod}
-                onChange={(e) => handleChange('warrantyPeriod', e.target.value)}
-              >
-                <option value="FIVE_YEARS">5年</option>
-                <option value="SEVEN_YEARS">7年</option>
-                <option value="TEN_YEARS">10年</option>
-              </select>
+              <Label htmlFor="contractAmount">請負金額（マスターのみ閲覧可）</Label>
+              <Input
+                id="contractAmount"
+                type="number"
+                value={formData.contractAmount}
+                onChange={(e) => handleChange('contractAmount', e.target.value)}
+                placeholder="円"
+              />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="warrantyPeriod">商品保証期間</Label>
+            <select
+              id="warrantyPeriod"
+              className="w-full h-10 px-3 rounded-md border border-gray-300"
+              value={formData.warrantyPeriod}
+              onChange={(e) => handleChange('warrantyPeriod', e.target.value)}
+            >
+              <option value="FIVE_YEARS">5年</option>
+              <option value="SEVEN_YEARS">7年</option>
+              <option value="TEN_YEARS">10年</option>
+            </select>
           </div>
 
           <div className="flex items-center space-x-2">

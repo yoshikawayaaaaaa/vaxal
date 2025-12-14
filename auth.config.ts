@@ -51,6 +51,7 @@ export default {
             userType: 'engineer',
             companyId: engineerUser.companyId,
             masterCompanyId: engineerUser.masterCompanyId,
+            engineerRole: engineerUser.role,
           }
         }
 
@@ -100,6 +101,7 @@ export default {
               userType: 'engineer',
               companyId: engineerUser.companyId,
               masterCompanyId: engineerUser.masterCompanyId,
+              engineerRole: engineerUser.role,
             }
           }
         }
@@ -119,6 +121,7 @@ export default {
         token.userType = user.userType
         token.companyId = user.companyId ?? null
         token.masterCompanyId = user.masterCompanyId ?? null
+        token.engineerRole = user.engineerRole
       }
       return token
     },
@@ -129,6 +132,7 @@ export default {
         session.user.userType = token.userType as string
         session.user.companyId = token.companyId
         session.user.masterCompanyId = token.masterCompanyId
+        session.user.engineerRole = token.engineerRole
       }
       return session
     },

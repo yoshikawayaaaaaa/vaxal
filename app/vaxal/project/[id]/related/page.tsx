@@ -446,30 +446,6 @@ export default async function RelatedInfoPage({
             </Card>
           )}
 
-          {/* 請負金額（マスターアカウントのみ） */}
-          {isMasterAccount && (
-            <Card>
-              <CardHeader>
-                <CardTitle>請負金額</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">請負金額:</span>
-                    <span className="text-2xl font-bold text-blue-600">
-                      {project.contractAmount
-                        ? `¥${project.contractAmount.toLocaleString()}`
-                        : '未設定'}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    ※ この情報はマスターアカウントのみ閲覧可能です
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* 事故品登録（今後実装予定） */}
           <Card>
             <CardHeader>

@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
         
         // 支払い情報
         paymentAmount: body.paymentAmount ? parseInt(body.paymentAmount) : null,
+        contractAmount: body.contractAmount ? parseInt(body.contractAmount) : null,
         productWarranty: body.productWarranty,
         warrantyPeriod: body.warrantyPeriod || null,
         paymentMethod: body.paymentMethod || null,

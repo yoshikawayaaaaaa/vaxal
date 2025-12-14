@@ -12,13 +12,19 @@ interface MainInfoFormProps {
   projectNumber: string
   initialData?: any
   constructionNotesFromProject?: string
+  contractAmount?: number | null
+  userRole?: string
+  engineerRole?: string
 }
 
 export function MainInfoForm({ 
   projectId, 
   projectNumber, 
   initialData,
-  constructionNotesFromProject 
+  constructionNotesFromProject,
+  contractAmount,
+  userRole,
+  engineerRole
 }: MainInfoFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)

@@ -224,6 +224,12 @@ export default async function EngineerProjectDetailPage({
                   <p className="text-base">¥{project.paymentAmount.toLocaleString()}</p>
                 </div>
               )}
+              {session.user.engineerRole === 'MASTER' && project.contractAmount !== null && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">請負金額（マスターのみ）</p>
+                  <p className="text-base font-bold text-blue-600">¥{project.contractAmount.toLocaleString()}</p>
+                </div>
+              )}
               {project.paymentMethod && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">支払い方法</p>

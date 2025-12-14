@@ -215,6 +215,12 @@ export default async function ProjectDetailPage({
                   <p className="text-base">¥{project.paymentAmount.toLocaleString()}</p>
                 </div>
               )}
+              {project.contractAmount !== null && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">請負金額</p>
+                  <p className="text-base">¥{project.contractAmount.toLocaleString()}</p>
+                </div>
+              )}
               {project.paymentMethod && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">支払い方法</p>
