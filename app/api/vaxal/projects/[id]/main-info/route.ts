@@ -43,6 +43,13 @@ export async function GET(
       )
     }
 
+    // MainInfoが存在しない場合、Projectの施工指示を初期値として返す
+    if (!project.mainInfo) {
+      return NextResponse.json({
+        constructionNotes: project.constructionNotes,
+      })
+    }
+
     return NextResponse.json(project.mainInfo)
   } catch (error) {
     console.error('主要情報取得エラー:', error)

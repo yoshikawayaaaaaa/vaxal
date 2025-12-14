@@ -178,6 +178,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // MainInfoレコードを作成（施工指示を引き継ぐ）
+    if (body.constructionNotes) {
+      await prisma.mainInfo.create({
+        data: {
+          projectId: project.id,
+          projectNumber: projectNumber,
+          constructionNotes: body.constructionNotes,
+        },
+      })
+    }
+
     return NextResponse.json(project, { status: 201 })
   } catch (error) {
     console.error('注文登録エラー:', error)
