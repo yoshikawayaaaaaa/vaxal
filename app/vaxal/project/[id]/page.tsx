@@ -218,8 +218,28 @@ export default async function ProjectDetailPage({
               {project.contractAmount !== null && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">請負金額</p>
-                  <p className="text-base">¥{project.contractAmount.toLocaleString()}</p>
+                  <p className="text-base font-bold text-blue-600">¥{project.contractAmount.toLocaleString()}</p>
                 </div>
+              )}
+              {project.hasRemoteTravelFee && (
+                <>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">遠方出張費</p>
+                    <p className="text-base">あり</p>
+                  </div>
+                  {project.remoteTravelDistance && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">距離</p>
+                      <p className="text-base">{project.remoteTravelDistance}km</p>
+                    </div>
+                  )}
+                  {project.remoteTravelFee && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">遠方出張費金額</p>
+                      <p className="text-base">¥{project.remoteTravelFee.toLocaleString()}</p>
+                    </div>
+                  )}
+                </>
               )}
               {project.paymentMethod && (
                 <div>

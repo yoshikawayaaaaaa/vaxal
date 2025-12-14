@@ -76,6 +76,9 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     contractAmount: '',
     hasHandMoney: false,
     handMoneyAmount: '',
+    hasRemoteTravelFee: false,
+    remoteTravelDistance: '',
+    remoteTravelFee: '',
     idCardRequired: false,
     bankbookRequired: false,
     
@@ -628,6 +631,42 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
                 onChange={(e) => handleChange('handMoneyAmount', e.target.value)}
                 placeholder="円"
               />
+            </div>
+          )}
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="hasRemoteTravelFee"
+              checked={formData.hasRemoteTravelFee}
+              onChange={(e) => handleChange('hasRemoteTravelFee', e.target.checked)}
+              className="w-4 h-4"
+            />
+            <Label htmlFor="hasRemoteTravelFee">遠方出張費</Label>
+          </div>
+
+          {formData.hasRemoteTravelFee && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="remoteTravelDistance">距離（km）</Label>
+                <Input
+                  id="remoteTravelDistance"
+                  type="number"
+                  value={formData.remoteTravelDistance}
+                  onChange={(e) => handleChange('remoteTravelDistance', e.target.value)}
+                  placeholder="km"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="remoteTravelFee">金額</Label>
+                <Input
+                  id="remoteTravelFee"
+                  type="number"
+                  value={formData.remoteTravelFee}
+                  onChange={(e) => handleChange('remoteTravelFee', e.target.value)}
+                  placeholder="円"
+                />
+              </div>
             </div>
           )}
 

@@ -331,6 +331,11 @@ model Project {
   // 請負金額(マスターのみ閲覧可能)
   contractAmount        Int?
   
+  // 遠方出張費
+  hasRemoteTravelFee    Boolean  @default(false) // 遠方出張費の有無
+  remoteTravelDistance  Int?     // 距離(km)
+  remoteTravelFee       Int?     // 金額
+  
   // ステータス
   status                ProjectStatus @default(PENDING)
   
