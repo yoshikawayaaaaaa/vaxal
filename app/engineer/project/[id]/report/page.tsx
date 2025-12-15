@@ -146,7 +146,9 @@ export default async function EngineerReportPage({
                         report.hasSpecialSpec ||
                         report.materialUnitPrice ||
                         report.highwayFee ||
-                        report.gasolineFee) && (
+                        report.gasolineFee ||
+                        report.saleType ||
+                        report.saleFee) && (
                         <div className="border-t pt-4">
                           <p className="text-sm font-medium text-gray-700 mb-2">
                             エンジニア入力情報
@@ -209,6 +211,20 @@ export default async function EngineerReportPage({
                               <div>
                                 <span className="text-gray-500">ガソリン代:</span> ¥
                                 {report.gasolineFee.toLocaleString()}
+                              </div>
+                            )}
+                            {report.saleType && (
+                              <div>
+                                <span className="text-gray-500">売却種別:</span>{' '}
+                                {report.saleType === 'ECO_CUTE' ? 'エコキュート' :
+                                 report.saleType === 'GAS_WATER_HEATER' ? 'ガス給湯器' :
+                                 report.saleType === 'ELECTRIC_HEATER' ? '電気温水器' : 'その他'}
+                              </div>
+                            )}
+                            {report.saleFee && (
+                              <div>
+                                <span className="text-gray-500">売却費:</span> ¥
+                                {report.saleFee.toLocaleString()}
                               </div>
                             )}
                           </div>

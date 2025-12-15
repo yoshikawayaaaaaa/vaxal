@@ -203,6 +203,13 @@ enum ReplacementType {
   OTHER             // その他
 }
 
+enum SaleType {
+  ECO_CUTE          // エコキュート
+  GAS_WATER_HEATER  // ガス給湯器
+  ELECTRIC_HEATER   // 電気温水器
+  OTHER             // その他
+}
+
 model Project {
   id                    String   @id @default(cuid())
   projectNumber         String   @unique // 案件番号
@@ -490,6 +497,8 @@ model Report {
   materialUnitPrice     Int?              // 部材単価
   highwayFee            Int?              // 高速代
   gasolineFee           Int?              // ガソリン代
+  saleType              SaleType?         // 売却種別
+  saleFee               Int?              // 売却費
   
   projectId   String
   project     Project      @relation(fields: [projectId], references: [id])

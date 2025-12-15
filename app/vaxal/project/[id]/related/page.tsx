@@ -430,6 +430,23 @@ export default async function RelatedInfoPage({
                       <p className="font-medium">¥{latestReport.gasolineFee.toLocaleString()}</p>
                     </div>
                   )}
+                  {latestReport.saleType && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">売却種別</p>
+                      <p className="font-medium">
+                        {latestReport.saleType === 'ECO_CUTE' && 'エコキュート'}
+                        {latestReport.saleType === 'GAS_WATER_HEATER' && 'ガス給湯器'}
+                        {latestReport.saleType === 'ELECTRIC_HEATER' && '電気温水器'}
+                        {latestReport.saleType === 'OTHER' && 'その他'}
+                      </p>
+                    </div>
+                  )}
+                  {latestReport.saleFee && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">売却費</p>
+                      <p className="font-medium">¥{latestReport.saleFee.toLocaleString()}</p>
+                    </div>
+                  )}
                 </div>
                 {!latestReport.existingManufacturer &&
                   !latestReport.yearsOfUse &&
@@ -439,7 +456,9 @@ export default async function RelatedInfoPage({
                   !latestReport.tankType &&
                   !latestReport.materialUnitPrice &&
                   !latestReport.highwayFee &&
-                  !latestReport.gasolineFee && (
+                  !latestReport.gasolineFee &&
+                  !latestReport.saleType &&
+                  !latestReport.saleFee && (
                     <p className="text-gray-400">エンジニア入力情報がまだ登録されていません</p>
                   )}
               </CardContent>

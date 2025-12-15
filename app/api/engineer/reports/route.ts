@@ -50,6 +50,8 @@ export async function POST(request: NextRequest) {
       materialUnitPrice: formData.get('materialUnitPrice') ? parseInt(formData.get('materialUnitPrice') as string) : null,
       highwayFee: formData.get('highwayFee') ? parseInt(formData.get('highwayFee') as string) : null,
       gasolineFee: formData.get('gasolineFee') ? parseInt(formData.get('gasolineFee') as string) : null,
+      saleType: formData.get('saleType') as string || null,
+      saleFee: formData.get('saleFee') ? parseInt(formData.get('saleFee') as string) : null,
     }
 
     // 報告タイプのリスト
@@ -90,14 +92,16 @@ export async function POST(request: NextRequest) {
             // エンジニア入力情報（すべての報告に同じ情報を保存）
             existingManufacturer: engineerInfo.existingManufacturer,
             yearsOfUse: engineerInfo.yearsOfUse,
-            replacementType: engineerInfo.replacementType,
+            replacementType: engineerInfo.replacementType as any,
             replacementManufacturer: engineerInfo.replacementManufacturer,
             tankCapacity: engineerInfo.tankCapacity,
-            tankType: engineerInfo.tankType,
+            tankType: engineerInfo.tankType as any,
             hasSpecialSpec: engineerInfo.hasSpecialSpec,
             materialUnitPrice: engineerInfo.materialUnitPrice,
             highwayFee: engineerInfo.highwayFee,
             gasolineFee: engineerInfo.gasolineFee,
+            saleType: engineerInfo.saleType as any,
+            saleFee: engineerInfo.saleFee,
           },
         })
 
@@ -145,7 +149,9 @@ export async function POST(request: NextRequest) {
       engineerInfo.hasSpecialSpec ||
       engineerInfo.materialUnitPrice ||
       engineerInfo.highwayFee ||
-      engineerInfo.gasolineFee
+      engineerInfo.gasolineFee ||
+      engineerInfo.saleType ||
+      engineerInfo.saleFee
 
     if (!hasAnyData && hasEngineerInfo) {
       // エンジニア入力情報のみの報告を作成（SITE_SURVEYタイプで保存）
@@ -158,14 +164,16 @@ export async function POST(request: NextRequest) {
           notes: engineerInfo.notes,
           existingManufacturer: engineerInfo.existingManufacturer,
           yearsOfUse: engineerInfo.yearsOfUse,
-          replacementType: engineerInfo.replacementType,
+          replacementType: engineerInfo.replacementType as any,
           replacementManufacturer: engineerInfo.replacementManufacturer,
           tankCapacity: engineerInfo.tankCapacity,
-          tankType: engineerInfo.tankType,
+          tankType: engineerInfo.tankType as any,
           hasSpecialSpec: engineerInfo.hasSpecialSpec,
           materialUnitPrice: engineerInfo.materialUnitPrice,
           highwayFee: engineerInfo.highwayFee,
           gasolineFee: engineerInfo.gasolineFee,
+          saleType: engineerInfo.saleType as any,
+          saleFee: engineerInfo.saleFee,
         },
       })
       createdReports.push(report)

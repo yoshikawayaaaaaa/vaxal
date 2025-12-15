@@ -47,6 +47,8 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     materialUnitPrice: '',
     highwayFee: '',
     gasolineFee: '',
+    saleType: '',
+    saleFee: '',
   })
 
   const tabs = [
@@ -119,6 +121,8 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
       submitData.append('materialUnitPrice', formData.materialUnitPrice)
       submitData.append('highwayFee', formData.highwayFee)
       submitData.append('gasolineFee', formData.gasolineFee)
+      submitData.append('saleType', formData.saleType)
+      submitData.append('saleFee', formData.saleFee)
 
       // 各報告タイプの画像を追加
       Object.entries(images).forEach(([reportType, data]) => {
@@ -584,6 +588,35 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                     value={formData.gasolineFee}
                     onChange={(e) => handleChange('gasolineFee', e.target.value)}
                     placeholder="例: 2000"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="saleType">売却種別（任意）</Label>
+                  <select
+                    id="saleType"
+                    className="w-full h-10 px-3 rounded-md border border-gray-300"
+                    value={formData.saleType}
+                    onChange={(e) => handleChange('saleType', e.target.value)}
+                  >
+                    <option value="">選択してください</option>
+                    <option value="ECO_CUTE">エコキュート</option>
+                    <option value="GAS_WATER_HEATER">ガス給湯器</option>
+                    <option value="ELECTRIC_HEATER">電気温水器</option>
+                    <option value="OTHER">その他</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="saleFee">売却費（円）（任意）</Label>
+                  <Input
+                    id="saleFee"
+                    type="number"
+                    value={formData.saleFee}
+                    onChange={(e) => handleChange('saleFee', e.target.value)}
+                    placeholder="例: 10000"
                   />
                 </div>
               </div>
