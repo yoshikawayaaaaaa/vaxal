@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
     const engineerInfo = {
       pickupMaterials: formData.get('pickupMaterials') as string || null,
       notes: formData.get('notes') as string || null,
+      isWorkCompleted: formData.get('isWorkCompleted') === 'true' ? true : formData.get('isWorkCompleted') === 'false' ? false : null,
+      remainingWorkDate: formData.get('remainingWorkDate') as string || null,
       existingManufacturer: formData.get('existingManufacturer') as string || null,
       yearsOfUse: formData.get('yearsOfUse') ? parseInt(formData.get('yearsOfUse') as string) : null,
       replacementType: formData.get('replacementType') as string || null,
@@ -89,6 +91,9 @@ export async function POST(request: NextRequest) {
             engineerUserId: session.user.id,
             notes: engineerInfo.notes,
             pickupMaterials: reportType === 'PICKUP' ? engineerInfo.pickupMaterials : null,
+            // 工事完了報告用
+            isWorkCompleted: reportType === 'COMPLETION' ? engineerInfo.isWorkCompleted : null,
+            remainingWorkDate: reportType === 'COMPLETION' && engineerInfo.remainingWorkDate ? new Date(engineerInfo.remainingWorkDate) : null,
             // エンジニア入力情報（すべての報告に同じ情報を保存）
             existingManufacturer: engineerInfo.existingManufacturer,
             yearsOfUse: engineerInfo.yearsOfUse,

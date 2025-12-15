@@ -486,6 +486,10 @@ model Report {
   // 集荷報告用
   pickupMaterials String?   // 持ち出し部材
   
+  // 工事完了報告用
+  isWorkCompleted   Boolean?  // 工事完了/未完了
+  remainingWorkDate DateTime? // 残工事日
+  
   // エンジニア入力情報
   existingManufacturer  String?           // 既設メーカー
   yearsOfUse            Int?              // 使用年数

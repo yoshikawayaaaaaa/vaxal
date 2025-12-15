@@ -136,6 +136,24 @@ export default async function EngineerReportPage({
                         </div>
                       )}
 
+                      {/* 工事完了ステータス（工事完了報告の場合） */}
+                      {report.reportType === 'COMPLETION' && (report as any).isWorkCompleted !== null && (report as any).isWorkCompleted !== undefined && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">工事完了ステータス</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {(report as any).isWorkCompleted ? '完了' : '未完了'}
+                          </p>
+                          {!(report as any).isWorkCompleted && (report as any).remainingWorkDate && (
+                            <div className="mt-2">
+                              <p className="text-sm font-medium text-gray-700">残工事日</p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                {new Date((report as any).remainingWorkDate).toLocaleDateString('ja-JP')}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {/* エンジニア入力情報 */}
                       {(report.existingManufacturer ||
                         report.yearsOfUse ||

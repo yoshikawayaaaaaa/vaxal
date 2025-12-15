@@ -37,6 +37,8 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
   const [formData, setFormData] = useState({
     pickupMaterials: '',
     notes: '',
+    isWorkCompleted: 'true', // 工事完了/未完了
+    remainingWorkDate: '', // 残工事日
     existingManufacturer: '',
     yearsOfUse: '',
     replacementType: '',
@@ -111,6 +113,8 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
       // エンジニア入力情報を追加
       submitData.append('pickupMaterials', formData.pickupMaterials)
       submitData.append('notes', formData.notes)
+      submitData.append('isWorkCompleted', formData.isWorkCompleted)
+      submitData.append('remainingWorkDate', formData.remainingWorkDate)
       submitData.append('existingManufacturer', formData.existingManufacturer)
       submitData.append('yearsOfUse', formData.yearsOfUse)
       submitData.append('replacementType', formData.replacementType)
@@ -345,6 +349,31 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               <CardTitle>工事完了報告</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="isWorkCompleted">工事完了ステータス</Label>
+                <select
+                  id="isWorkCompleted"
+                  className="w-full h-10 px-3 rounded-md border border-gray-300"
+                  value={formData.isWorkCompleted}
+                  onChange={(e) => handleChange('isWorkCompleted', e.target.value)}
+                >
+                  <option value="true">完了</option>
+                  <option value="false">未完了</option>
+                </select>
+              </div>
+
+              {formData.isWorkCompleted === 'false' && (
+                <div className="space-y-2">
+                  <Label htmlFor="remainingWorkDate">残工事日</Label>
+                  <Input
+                    id="remainingWorkDate"
+                    type="date"
+                    value={formData.remainingWorkDate}
+                    onChange={(e) => handleChange('remainingWorkDate', e.target.value)}
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="completion-images">画像を選択</Label>
                 <Input
