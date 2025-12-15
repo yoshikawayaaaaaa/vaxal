@@ -87,7 +87,6 @@ export function MainInfoForm({
     constructionStaffName: initialData?.constructionStaffName || '',
     constructionPhone: initialData?.constructionPhone || '',
     constructionEmail: initialData?.constructionEmail || '',
-    remainingWorkDate: initialData?.remainingWorkDate ? new Date(initialData.remainingWorkDate).toISOString().split('T')[0] : '',
     constructionInfoNotes: initialData?.constructionInfoNotes || '',
   })
 
@@ -590,25 +589,14 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="constructionEmail">E-mail</Label>
-              <Input
-                id="constructionEmail"
-                type="email"
-                value={formData.constructionEmail}
-                onChange={(e) => handleChange('constructionEmail', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="remainingWorkDate">残工事日</Label>
-              <Input
-                id="remainingWorkDate"
-                type="date"
-                value={formData.remainingWorkDate}
-                onChange={(e) => handleChange('remainingWorkDate', e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="constructionEmail">E-mail</Label>
+            <Input
+              id="constructionEmail"
+              type="email"
+              value={formData.constructionEmail}
+              onChange={(e) => handleChange('constructionEmail', e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
