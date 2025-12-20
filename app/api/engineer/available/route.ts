@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // 指定日に既に割り振られている案件数をエンジニアごとにカウント
+    // 指定日に既に割り振られている案件をエンジニアごとに取得
     const assignedProjects = await prisma.project.findMany({
       where: {
         workDate: {
@@ -85,26 +85,50 @@ export async function GET(request: NextRequest) {
         },
       },
       select: {
+        id: true,
+        projectNumber: true,
+        siteName: true,
+        siteAddress: true,
+        workContent: true,
         assignedEngineerId: true,
       },
     })
 
-    // エンジニアごとの案件数をカウント
-    const projectCountByEngineer = assignedProjects.reduce((acc, project) => {
+    // エンジニアごとの案件情報を整理
+    const projectsByEngineer = assignedProjects.reduce((acc, project) => {
       const engineerId = project.assignedEngineerId!
-      acc[engineerId] = (acc[engineerId] || 0) + 1
+      if (!acc[engineerId]) {
+        acc[engineerId] = []
+      }
+      acc[engineerId].push({
+        id: project.id,
+        projectNumber: project.projectNumber,
+        siteName: project.siteName,
+        siteAddress: project.siteAddress,
+        workContent: project.workContent,
+      })
       return acc
-    }, {} as Record<string, number>)
+    }, {} as Record<string, any[]>)
 
     // エンジニア情報を整形（MAX5案件まで）
     const MAX_PROJECTS_PER_DAY = 5
+    
+    const workContentLabels: Record<string, string> = {
+      ECO_CUTE: 'エコキュート',
+      GAS_WATER_HEATER: 'ガス給湯器',
+      ELECTRIC_HEATER: '電気温水器',
+      BATHROOM_DRYER: '浴室乾燥機',
+      SOLAR_PANEL: '太陽光パネル',
+      OTHER: 'その他',
+    }
     
     const availableEngineers = availableEvents
       .filter(event => event.engineerUser)
       .map(event => {
         const engineer = event.engineerUser!
         const company = engineer.masterCompany || engineer.company
-        const assignedCount = projectCountByEngineer[engineer.id] || 0
+        const assignedProjects = projectsByEngineer[engineer.id] || []
+        const assignedCount = assignedProjects.length
         
         return {
           id: engineer.id,
@@ -114,6 +138,10 @@ export async function GET(request: NextRequest) {
           companyName: company?.companyName,
           assignedCount,
           remainingSlots: MAX_PROJECTS_PER_DAY - assignedCount,
+          assignedProjects: assignedProjects.map(p => ({
+            ...p,
+            workContentLabel: workContentLabels[p.workContent] || p.workContent,
+          })),
         }
       })
       // 重複を除去

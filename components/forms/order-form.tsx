@@ -257,13 +257,61 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
                       <optgroup key={company.companyId} label={company.companyName}>
                         {company.engineers.map((engineer: any) => (
                           <option key={engineer.id} value={engineer.id}>
-                            {engineer.name}
+                            {engineer.name} (残り{engineer.remainingSlots}枠)
                           </option>
                         ))}
                       </optgroup>
                     ))}
                   </select>
                 </div>
+
+                {/* 選択されたエンジニアの案件情報を表示 */}
+                {formData.assignedEngineerId && availableEngineers.length > 0 && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-semibold text-blue-900 mb-3">選択したエンジニアの当日案件</h4>
+                    {(() => {
+                      const selectedEngineer = availableEngineers
+                        .flatMap(c => c.engineers)
+                        .find((e: any) => e.id === formData.assignedEngineerId)
+                      
+                      if (!selectedEngineer) return null
+                      
+                      if (selectedEngineer.assignedProjects.length === 0) {
+                        return (
+                          <p className="text-sm text-blue-700">
+                            この日はまだ案件が割り振られていません（0/5）
+                          </p>
+                        )
+                      }
+                      
+                      return (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-blue-900 mb-2">
+                            既に{selectedEngineer.assignedCount}件の案件が割り振られています（残り{selectedEngineer.remainingSlots}枠）
+                          </p>
+                          {selectedEngineer.assignedProjects.map((project: any, index: number) => (
+                            <div key={project.id} className="text-sm bg-white p-3 rounded border border-blue-100">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <span className="font-medium text-gray-700">案件{index + 1}:</span>
+                                  <span className="ml-2 text-gray-900">{project.siteName}</span>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-gray-700">工事内容:</span>
+                                  <span className="ml-2 text-gray-900">{project.workContentLabel}</span>
+                                </div>
+                                <div className="col-span-2">
+                                  <span className="font-medium text-gray-700">現場住所:</span>
+                                  <span className="ml-2 text-gray-900">{project.siteAddress}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )}
               </>
             ) : (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
