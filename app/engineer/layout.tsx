@@ -1,23 +1,13 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
+import { requireEngineerAuth } from '@/lib/auth-helpers'
 
 export default async function EngineerDashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-
-  if (!session) {
-    redirect('/login?type=engineer')
-  }
-
-  // エンジニア以外はVAXALダッシュボードへ
-  if (session.user.userType !== 'engineer') {
-    redirect('/vaxal')
-  }
+  const session = await requireEngineerAuth()
 
   const companyName = session.user.masterCompanyId 
     ? 'MIAMU TIGERS' // TODO: 実際の会社名を取得

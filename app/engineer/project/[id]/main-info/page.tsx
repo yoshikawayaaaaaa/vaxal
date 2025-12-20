@@ -19,15 +19,8 @@ export default async function EngineerMainInfoPage({
   params: Promise<{ id: string }>
 }) {
   const session = await auth()
-
-  if (!session) {
-    redirect('/login?type=engineer')
-  }
-
-  if (session.user.userType !== 'engineer') {
-    redirect('/dashboard')
-  }
-
+  if (!session) redirect('/engineer')
+  
   const { id } = await params
 
   const project = await prisma.project.findUnique({

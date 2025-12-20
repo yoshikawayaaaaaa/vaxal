@@ -1,27 +1,18 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { WORK_CONTENT_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
+import { requireVaxalAdminAuth } from '@/lib/auth-helpers'
 
 export default async function CalendarDatePage({
   params,
 }: {
   params: Promise<{ date: string }>
 }) {
-  const session = await auth()
-
-  if (!session) {
-    redirect('/login')
-  }
-
-  // VAXAL社員のみアクセス可能
-  if (session.user.role !== 'VAXAL_ADMIN') {
-    redirect('/engineer')
-  }
+  // VAXAL管理者権限チェック
+  await requireVaxalAdminAuth()
 
   const { date } = await params
   const selectedDate = new Date(date)

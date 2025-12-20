@@ -1,18 +1,13 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
+import { requireVaxalAuth } from '@/lib/auth-helpers'
 
-export default async function DashboardLayout({
+export default async function VaxalDashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-
-  if (!session) {
-    redirect('/login')
-  }
+  const session = await requireVaxalAuth()
 
   const companyName = session.user.masterCompanyId 
     ? 'MIAMU TIGERS' // TODO: 実際の会社名を取得

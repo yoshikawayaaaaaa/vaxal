@@ -9,7 +9,10 @@ export default auth((req) => {
   const isAuthPage = nextUrl.pathname.startsWith('/login') || 
                      nextUrl.pathname.startsWith('/register')
   const isPublicPage = nextUrl.pathname === '/'
+  const isEngineerPage = nextUrl.pathname.startsWith('/engineer')
+  const isVaxalPage = nextUrl.pathname.startsWith('/vaxal')
 
+  // 認証ページへのアクセス
   if (isAuthPage) {
     if (isLoggedIn) {
       // ユーザータイプに応じて適切なダッシュボードにリダイレクト
@@ -21,8 +24,22 @@ export default auth((req) => {
     return NextResponse.next()
   }
 
+  // 未ログインユーザーのチェック
   if (!isLoggedIn && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', nextUrl))
+  }
+
+  // ユーザータイプによるアクセス制御
+  if (isLoggedIn) {
+    // エンジニアがVAXALページにアクセスしようとした場合
+    if (isVaxalPage && userType === 'engineer') {
+      return NextResponse.redirect(new URL('/engineer', nextUrl))
+    }
+
+    // VAXAL社員がエンジニアページにアクセスしようとした場合
+    if (isEngineerPage && userType === 'vaxal') {
+      return NextResponse.redirect(new URL('/vaxal', nextUrl))
+    }
   }
 
   return NextResponse.next()
