@@ -63,7 +63,7 @@ export default function EngineerRegisterPage() {
         throw new Error(error.error || '登録に失敗しました')
       }
 
-      router.push('/login?type=engineer&registered=true')
+      router.push('/login/engineer?registered=true')
     } catch (err) {
       setError(err instanceof Error ? err.message : '登録に失敗しました')
     } finally {
@@ -310,12 +310,18 @@ export default function EngineerRegisterPage() {
             {isLoading ? '登録中...' : '登録'}
           </Button>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <a
-              href="/login?type=engineer"
-              className="text-sm text-green-600 hover:text-green-700"
+              href="/login/engineer"
+              className="block text-sm text-green-600 hover:text-green-700"
             >
               既にアカウントをお持ちの方はこちら
+            </a>
+            <a
+              href="/login/vaxal"
+              className="block text-sm text-gray-600 hover:text-gray-900"
+            >
+              ← VAXAL社員の方はこちら
             </a>
           </div>
         </form>

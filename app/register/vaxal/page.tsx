@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-export default function RegisterPage() {
+export default function VaxalRegisterPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -140,7 +140,7 @@ export default function RegisterPage() {
 
           <Button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full bg-blue-600 hover:bg-blue-700"
             disabled={isLoading}
           >
             {isLoading ? '登録中...' : '登録'}
@@ -149,7 +149,7 @@ export default function RegisterPage() {
           <div className="text-center space-y-2">
             <Link
               href="/login/vaxal"
-              className="block text-sm text-purple-600 hover:text-purple-700"
+              className="block text-sm text-blue-600 hover:text-blue-700"
             >
               既にアカウントをお持ちの方はこちら
             </Link>

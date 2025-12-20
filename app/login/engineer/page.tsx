@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -8,18 +8,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function EngineerLoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const accountType = searchParams.get('type') || 'vaxal'
   const registered = searchParams.get('registered')
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-
-  const isVaxal = accountType === 'vaxal'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,16 +27,14 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email,
         password,
-        userType: accountType, // vaxal or engineer
+        userType: 'engineer',
         redirect: false,
       })
 
       if (result?.error) {
         setError('メールアドレスまたはパスワードが正しくありません')
       } else {
-        // ユーザータイプに応じて適切なダッシュボードにリダイレクト
-        const redirectPath = accountType === 'engineer' ? '/engineer' : '/vaxal'
-        router.push(redirectPath)
+        router.push('/engineer')
         router.refresh()
       }
     } catch (error) {
@@ -65,7 +60,7 @@ export default function LoginPage() {
         {/* ログインカード */}
         <div className="bg-white rounded-lg shadow-md p-8">
           <h2 className="text-xl font-semibold text-center mb-6">
-            {isVaxal ? 'VAXAL社員ログイン' : 'エンジニアログイン'}
+            エンジニアログイン
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,7 +69,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder={isVaxal ? 'example@vaxal.co.jp' : 'engineer@example.com'}
+                placeholder="engineer@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -110,11 +105,7 @@ export default function LoginPage() {
 
             <Button 
               type="submit" 
-              className={`w-full h-12 text-base font-medium text-white ${
-                isVaxal 
-                  ? 'bg-blue-600 hover:bg-blue-700' 
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
+              className="w-full h-12 text-base font-medium text-white bg-green-600 hover:bg-green-700"
               disabled={isLoading}
             >
               {isLoading ? 'ログイン中...' : 'ログイン'}
@@ -123,10 +114,10 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <Link 
-              href="/" 
+              href="/login/vaxal" 
               className="text-sm text-gray-600 hover:text-gray-900"
             >
-              ← トップページに戻る
+              ← VAXAL社員の方はこちら
             </Link>
           </div>
         </div>
@@ -137,10 +128,8 @@ export default function LoginPage() {
             アカウントをお持ちでない方は
           </p>
           <Link 
-            href={isVaxal ? '/register' : '/register/engineer'}
-            className={`text-sm font-medium ${
-              isVaxal ? 'text-blue-600 hover:text-blue-700' : 'text-green-600 hover:text-green-700'
-            }`}
+            href="/register/engineer"
+            className="text-sm font-medium text-green-600 hover:text-green-700"
           >
             新規登録はこちら
           </Link>
