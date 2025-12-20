@@ -580,3 +580,16 @@ model MonthlyExpense {
   // 年月の組み合わせをユニークにする
   @@unique([year, month])
 }
+
+// 在庫管理
+model InventoryItem {
+  id                    String   @id @default(cuid())
+  name                  String   // 部材名
+  unitPrice             Int      // 単価
+  currentStock          Int      @default(0) // 現在の在庫数
+  threshold             Int      @default(0) // 閾値
+  displayOrder          Int      @default(0) // 表示順序
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
