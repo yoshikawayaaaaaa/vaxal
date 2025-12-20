@@ -33,6 +33,11 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       icon: LayoutDashboard,
     },
     {
+      title: '顧客カルテ',
+      href: '/vaxal/customers',
+      icon: FileText,
+    },
+    {
       title: '月次管理',
       href: '/vaxal/monthly',
       icon: ClipboardList,
