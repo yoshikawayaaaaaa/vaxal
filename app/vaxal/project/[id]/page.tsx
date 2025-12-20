@@ -1,50 +1,154 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
-import { notFound } from 'next/navigation'
-import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
+'use client'
 
-export default async function ProjectDetailPage({
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+
+interface Project {
+  id: string
+  projectNumber: string
+  siteName: string
+  siteAddress: string
+  customerName: string
+  customerBirthDate: string
+  applicantRelationship: string | null
+  customerAddress: string
+  customerPhone: string
+  firstInquiryDate: string
+  workContent: string
+  workType: string
+  workTime: string
+  buildingType: string | null
+  overview: string | null
+  productSetNumber: string | null
+  productTankNumber: string | null
+  productHeatPumpNumber: string | null
+  productRemoteNumber: string | null
+  productBaseNumber: string | null
+  productFallNumber: string | null
+  productUlbroNumber: string | null
+  productOtherNumber: string | null
+  paymentAmount: number | null
+  contractAmount: number | null
+  productWarranty: boolean
+  warrantyPeriod: string | null
+  paymentMethod: string | null
+  subsidyAmount: number | null
+  sellingPrice: number | null
+  sellingPrice2: number | null
+  sellingPrice3: number | null
+  costPrice: number | null
+  hasHandMoney: boolean
+  handMoneyAmount: number | null
+  hasRemoteTravelFee: boolean
+  remoteTravelDistance: number | null
+  remoteTravelFee: number | null
+  idCardRequired: boolean
+  idCardObtained: boolean
+  bankbookRequired: boolean
+  bankbookObtained: boolean
+  additionalWork: string | null
+  existingProductInfo: string | null
+  constructionNotes: string | null
+  workDate: string | null
+  receptionDate: string | null
+  orderDate: string | null
+  expectedCompletionDate: string | null
+  completionDate: string | null
+  firstContactMethod: string | null
+  communicationTool: string | null
+  internalNotes: string | null
+  revisitType: string | null
+  revisitDateTime: string | null
+  revisitCount: number | null
+  crossSellContent: string | null
+  assignedEngineerId: string | null
+  createdByVaxal: {
+    name: string
+    email: string
+  }
+  assignedEngineer: {
+    name: string
+    email: string
+  } | null
+}
+
+export default function ProjectDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const session = await auth()
+  const router = useRouter()
+  const [projectId, setProjectId] = useState<string>('')
+  const [project, setProject] = useState<Project | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [formData, setFormData] = useState<Partial<Project>>({})
 
-  if (!session) {
-    redirect('/login')
+  useEffect(() => {
+    params.then(({ id }) => {
+      setProjectId(id)
+      fetchProject(id)
+    })
+  }, [])
+
+  const fetchProject = async (id: string) => {
+    try {
+      const response = await fetch(`/api/vaxal/projects/${id}`)
+      if (!response.ok) throw new Error('Failed to fetch project')
+      const data = await response.json()
+      setProject(data)
+      setFormData(data)
+    } catch (error) {
+      console.error('Error fetching project:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const { id } = await params
+  const handleSave = async () => {
+    if (!projectId) return
+    
+    setIsSaving(true)
+    try {
+      const response = await fetch(`/api/vaxal/projects/${projectId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-  const project = await prisma.project.findUnique({
-    where: { id },
-    include: {
-      createdByVaxal: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-      assignedEngineer: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
-    },
-  })
+      if (!response.ok) throw new Error('Failed to update project')
+
+      const updatedProject = await response.json()
+      setProject(updatedProject)
+      setFormData(updatedProject)
+      setIsEditing(false)
+      alert('保存しました')
+    } catch (error) {
+      console.error('Error updating project:', error)
+      alert('保存に失敗しました')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setFormData(project || {})
+    setIsEditing(false)
+  }
+
+  if (isLoading) {
+    return <div className="p-8">読み込み中...</div>
+  }
 
   if (!project) {
-    notFound()
-  }
-
-  // エンジニアは自分に割り当てられた案件のみ閲覧可能
-  if (
-    session.user.role !== 'VAXAL_ADMIN' &&
-    project.assignedEngineerId !== session.user.id
-  ) {
-    redirect('/dashboard')
+    return <div className="p-8">プロジェクトが見つかりません</div>
   }
 
   const workContentLabels: Record<string, string> = {
@@ -73,13 +177,31 @@ export default async function ProjectDetailPage({
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
+            <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+          </div>
+          <div className="flex gap-2">
+            {!isEditing ? (
+              <Button onClick={() => setIsEditing(true)} className="bg-blue-600 hover:bg-blue-700">
+                編集
+              </Button>
+            ) : (
+              <>
+                <Button onClick={handleCancel} variant="outline">
+                  キャンセル
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700">
+                  {isSaving ? '保存中...' : '保存'}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* タブナビゲーション */}
-        <ProjectDetailTabs projectId={id} activeTab="basic" />
+        <ProjectDetailTabs projectId={projectId} activeTab="basic" />
 
         {/* 施工主基本情報 */}
         <section className="mb-8">
@@ -89,16 +211,40 @@ export default async function ProjectDetailPage({
             <div className="grid grid-cols-2 gap-x-12 gap-y-6">
               <div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">現場名</p>
-                  <p className="text-base font-medium">{project.siteName}</p>
+                  <Label className="text-sm text-gray-600 mb-1">現場名</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.siteName || ''}
+                      onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base font-medium">{project.siteName}</p>
+                  )}
                 </div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">名前</p>
-                  <p className="text-base font-medium">{project.customerName}</p>
+                  <Label className="text-sm text-gray-600 mb-1">名前</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.customerName || ''}
+                      onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base font-medium">{project.customerName}</p>
+                  )}
                 </div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">電話番号</p>
-                  <p className="text-base font-medium">{project.customerPhone}</p>
+                  <Label className="text-sm text-gray-600 mb-1">電話番号</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.customerPhone || ''}
+                      onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base font-medium">{project.customerPhone}</p>
+                  )}
                 </div>
               </div>
 
@@ -108,22 +254,44 @@ export default async function ProjectDetailPage({
                   <p className="text-base font-medium">{project.projectNumber}</p>
                 </div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">現場住所</p>
-                  <p className="text-base font-medium">{project.siteAddress}</p>
+                  <Label className="text-sm text-gray-600 mb-1">現場住所</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.siteAddress || ''}
+                      onChange={(e) => setFormData({ ...formData, siteAddress: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base font-medium">{project.siteAddress}</p>
+                  )}
                 </div>
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-1">住所</p>
-                  <p className="text-base font-medium">{project.customerAddress}</p>
+                  <Label className="text-sm text-gray-600 mb-1">住所</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.customerAddress || ''}
+                      onChange={(e) => setFormData({ ...formData, customerAddress: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base font-medium">{project.customerAddress}</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {project.overview && (
-              <div className="mt-6">
-                <p className="text-sm text-gray-600 mb-1">概要</p>
-                <p className="text-base">{project.overview}</p>
-              </div>
-            )}
+            <div className="mt-6">
+              <Label className="text-sm text-gray-600 mb-1">概要</Label>
+              {isEditing ? (
+                <textarea
+                  value={formData.overview || ''}
+                  onChange={(e) => setFormData({ ...formData, overview: e.target.value })}
+                  className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                />
+              ) : (
+                <p className="text-base">{project.overview || '-'}</p>
+              )}
+            </div>
           </div>
         </section>
 
@@ -132,31 +300,63 @@ export default async function ProjectDetailPage({
           <h2 className="text-2xl font-bold text-gray-900 mb-6">工事情報</h2>
           
           <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">工事内容</p>
-              <p className="text-base">{workContentLabels[project.workContent]}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">用途</p>
-              <p className="text-base">{workTypeLabels[project.workType]}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-1">施工時間</p>
-              <p className="text-base">{project.workTime}</p>
-            </div>
-            {project.buildingType && (
+            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">建物区分名</p>
-                <p className="text-base">
-                  {project.buildingType === 'DETACHED_HOUSE' && '戸建て'}
-                  {project.buildingType === 'MANSION' && 'マンション'}
-                  {project.buildingType === 'APARTMENT' && 'アパート'}
-                  {project.buildingType === 'OTHER' && 'その他'}
-                </p>
+                <Label className="text-sm text-gray-600 mb-1">工事内容</Label>
+                {isEditing ? (
+                  <select
+                    value={formData.workContent || ''}
+                    onChange={(e) => setFormData({ ...formData, workContent: e.target.value })}
+                    className="mt-1 w-full h-10 px-3 rounded-md border border-gray-300"
+                  >
+                    {Object.entries(workContentLabels).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-base">{workContentLabels[project.workContent]}</p>
+                )}
               </div>
-            )}
-          </div>
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">用途</Label>
+                {isEditing ? (
+                  <select
+                    value={formData.workType || ''}
+                    onChange={(e) => setFormData({ ...formData, workType: e.target.value })}
+                    className="mt-1 w-full h-10 px-3 rounded-md border border-gray-300"
+                  >
+                    {Object.entries(workTypeLabels).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-base">{workTypeLabels[project.workType]}</p>
+                )}
+              </div>
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">施工時間</Label>
+                {isEditing ? (
+                  <Input
+                    value={formData.workTime || ''}
+                    onChange={(e) => setFormData({ ...formData, workTime: e.target.value })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base">{project.workTime}</p>
+                )}
+              </div>
+              {project.buildingType && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">建物区分名</p>
+                  <p className="text-base">
+                    {project.buildingType === 'DETACHED_HOUSE' && '戸建て'}
+                    {project.buildingType === 'MANSION' && 'マンション'}
+                    {project.buildingType === 'APARTMENT' && 'アパート'}
+                    {project.buildingType === 'OTHER' && 'その他'}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
@@ -167,48 +367,54 @@ export default async function ProjectDetailPage({
             
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-                {project.productSetNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">セット品番</p>
-                    <p className="text-base">{project.productSetNumber}</p>
-                  </div>
-                )}
-                {project.productTankNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">タンク品番</p>
-                    <p className="text-base">{project.productTankNumber}</p>
-                  </div>
-                )}
-                {project.productHeatPumpNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">ヒートポンプ品番</p>
-                    <p className="text-base">{project.productHeatPumpNumber}</p>
-                  </div>
-                )}
-                {project.productRemoteNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">リモコン品番</p>
-                    <p className="text-base">{project.productRemoteNumber}</p>
-                  </div>
-                )}
-                {project.productBaseNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">脚部カバー品番</p>
-                    <p className="text-base">{project.productBaseNumber}</p>
-                  </div>
-                )}
-                {project.productFallNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">転倒防止品番</p>
-                    <p className="text-base">{project.productFallNumber}</p>
-                  </div>
-                )}
-                {project.productUlbroNumber && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">ウルブロ品番</p>
-                    <p className="text-base">{project.productUlbroNumber}</p>
-                  </div>
-                )}
+                <div>
+                  <Label className="text-sm text-gray-600 mb-1">セット品番</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.productSetNumber || ''}
+                      onChange={(e) => setFormData({ ...formData, productSetNumber: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base">{project.productSetNumber || '-'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600 mb-1">タンク品番</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.productTankNumber || ''}
+                      onChange={(e) => setFormData({ ...formData, productTankNumber: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base">{project.productTankNumber || '-'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600 mb-1">ヒートポンプ品番</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.productHeatPumpNumber || ''}
+                      onChange={(e) => setFormData({ ...formData, productHeatPumpNumber: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base">{project.productHeatPumpNumber || '-'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-600 mb-1">リモコン品番</Label>
+                  {isEditing ? (
+                    <Input
+                      value={formData.productRemoteNumber || ''}
+                      onChange={(e) => setFormData({ ...formData, productRemoteNumber: e.target.value })}
+                      className="mt-1"
+                    />
+                  ) : (
+                    <p className="text-base">{project.productRemoteNumber || '-'}</p>
+                  )}
+                </div>
               </div>
             </div>
           </section>
@@ -220,111 +426,81 @@ export default async function ProjectDetailPage({
           
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-              {project.paymentAmount && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">金額</p>
-                  <p className="text-base">¥{project.paymentAmount.toLocaleString()}</p>
-                </div>
-              )}
-              {project.contractAmount !== null && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">請負金額</p>
-                  <p className="text-base font-bold text-blue-600">¥{project.contractAmount.toLocaleString()}</p>
-                </div>
-              )}
-              {project.hasRemoteTravelFee && (
-                <>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">遠方出張費</p>
-                    <p className="text-base">あり</p>
-                  </div>
-                  {project.remoteTravelDistance && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">距離</p>
-                      <p className="text-base">{project.remoteTravelDistance}km</p>
-                    </div>
-                  )}
-                  {project.remoteTravelFee && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">遠方出張費金額</p>
-                      <p className="text-base">¥{project.remoteTravelFee.toLocaleString()}</p>
-                    </div>
-                  )}
-                </>
-              )}
-              {project.paymentMethod && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">支払い方法</p>
-                  <p className="text-base">{paymentMethodLabels[project.paymentMethod]}</p>
-                </div>
-              )}
               <div>
-                <p className="text-sm text-gray-600 mb-1">商品保証</p>
-                <p className="text-base">{project.productWarranty ? 'あり' : 'なし'}</p>
-              </div>
-              {project.sellingPrice !== null && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">売価：交換できるくん</p>
-                  <p className="text-base">¥{project.sellingPrice.toLocaleString()}</p>
-                </div>
-              )}
-              {project.sellingPrice2 !== null && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">売価：キンライサー</p>
-                  <p className="text-base">¥{project.sellingPrice2.toLocaleString()}</p>
-                </div>
-              )}
-              {project.sellingPrice3 !== null && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">売価：cools</p>
-                  <p className="text-base">¥{project.sellingPrice3.toLocaleString()}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-600 mb-1">身分証</p>
-                <p className="text-base">
-                  {project.idCardRequired ? '現場で頂く必要あり' : '不要'}
-                  {project.idCardObtained && ' (取得済)'}
-                </p>
+                <Label className="text-sm text-gray-600 mb-1">金額</Label>
+                {isEditing ? (
+                  <Input
+                    type="number"
+                    value={formData.paymentAmount || ''}
+                    onChange={(e) => setFormData({ ...formData, paymentAmount: parseInt(e.target.value) || null })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base">{project.paymentAmount ? `¥${project.paymentAmount.toLocaleString()}` : '-'}</p>
+                )}
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">通帳</p>
-                <p className="text-base">
-                  {project.bankbookRequired ? '現場で頂く必要あり' : '不要'}
-                  {project.bankbookObtained && ' (取得済)'}
-                </p>
+                <Label className="text-sm text-gray-600 mb-1">請負金額</Label>
+                {isEditing ? (
+                  <Input
+                    type="number"
+                    value={formData.contractAmount || ''}
+                    onChange={(e) => setFormData({ ...formData, contractAmount: parseInt(e.target.value) || null })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base font-bold text-blue-600">
+                    {project.contractAmount !== null ? `¥${project.contractAmount.toLocaleString()}` : '-'}
+                  </p>
+                )}
               </div>
             </div>
           </div>
         </section>
 
         {/* メモ */}
-        {(project.additionalWork || project.existingProductInfo || project.constructionNotes) && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">メモ</h2>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-              {project.additionalWork && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">追加工事</p>
-                  <p className="text-base whitespace-pre-wrap">{project.additionalWork}</p>
-                </div>
-              )}
-              {project.existingProductInfo && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">既存商品情報</p>
-                  <p className="text-base whitespace-pre-wrap">{project.existingProductInfo}</p>
-                </div>
-              )}
-              {project.constructionNotes && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">施工指示</p>
-                  <p className="text-base whitespace-pre-wrap">{project.constructionNotes}</p>
-                </div>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">メモ</h2>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <div>
+              <Label className="text-sm text-gray-600 mb-1">追加工事</Label>
+              {isEditing ? (
+                <textarea
+                  value={formData.additionalWork || ''}
+                  onChange={(e) => setFormData({ ...formData, additionalWork: e.target.value })}
+                  className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                />
+              ) : (
+                <p className="text-base whitespace-pre-wrap">{project.additionalWork || '-'}</p>
               )}
             </div>
-          </section>
-        )}
+            <div>
+              <Label className="text-sm text-gray-600 mb-1">既存商品情報</Label>
+              {isEditing ? (
+                <textarea
+                  value={formData.existingProductInfo || ''}
+                  onChange={(e) => setFormData({ ...formData, existingProductInfo: e.target.value })}
+                  className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                />
+              ) : (
+                <p className="text-base whitespace-pre-wrap">{project.existingProductInfo || '-'}</p>
+              )}
+            </div>
+            <div>
+              <Label className="text-sm text-gray-600 mb-1">施工指示</Label>
+              {isEditing ? (
+                <textarea
+                  value={formData.constructionNotes || ''}
+                  onChange={(e) => setFormData({ ...formData, constructionNotes: e.target.value })}
+                  className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                />
+              ) : (
+                <p className="text-base whitespace-pre-wrap">{project.constructionNotes || '-'}</p>
+              )}
+            </div>
+          </div>
+        </section>
 
         {/* 日程 */}
         <section className="mb-8">
@@ -332,69 +508,81 @@ export default async function ProjectDetailPage({
           
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-              {project.workDate && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">工事日</p>
-                  <p className="text-base">{new Date(project.workDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-              )}
-              {project.receptionDate && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">受付日</p>
-                  <p className="text-base">{new Date(project.receptionDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-              )}
-              {project.orderDate && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">受注日</p>
-                  <p className="text-base">{new Date(project.orderDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-              )}
-              {project.expectedCompletionDate && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">完了予定日</p>
-                  <p className="text-base">{new Date(project.expectedCompletionDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-              )}
-              {project.completionDate && (
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">完了日</p>
-                  <p className="text-base">{new Date(project.completionDate).toLocaleDateString('ja-JP')}</p>
-                </div>
-              )}
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">工事日</Label>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    value={formData.workDate ? new Date(formData.workDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData({ ...formData, workDate: e.target.value })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base">{project.workDate ? new Date(project.workDate).toLocaleDateString('ja-JP') : '-'}</p>
+                )}
+              </div>
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">受付日</Label>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    value={formData.receptionDate ? new Date(formData.receptionDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setFormData({ ...formData, receptionDate: e.target.value })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base">{project.receptionDate ? new Date(project.receptionDate).toLocaleDateString('ja-JP') : '-'}</p>
+                )}
+              </div>
             </div>
           </div>
         </section>
 
         {/* 社内メモ（VAXAL専用） */}
-        {session.user.role === 'VAXAL_ADMIN' && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">社内メモ（VAXAL専用）</h2>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-6">
-              <div className="space-y-4">
-                {project.firstContactMethod && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">ファーストコンタクトの連絡手段</p>
-                    <p className="text-base">{project.firstContactMethod}</p>
-                  </div>
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">社内メモ（VAXAL専用）</h2>
+          
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-6">
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">ファーストコンタクトの連絡手段</Label>
+                {isEditing ? (
+                  <Input
+                    value={formData.firstContactMethod || ''}
+                    onChange={(e) => setFormData({ ...formData, firstContactMethod: e.target.value })}
+                    className="mt-1"
+                  />
+                ) : (
+                  <p className="text-base">{project.firstContactMethod || '-'}</p>
                 )}
-                {project.communicationTool && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">連絡ツール</p>
-                    <p className="text-base whitespace-pre-wrap">{project.communicationTool}</p>
-                  </div>
+              </div>
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">連絡ツール</Label>
+                {isEditing ? (
+                  <textarea
+                    value={formData.communicationTool || ''}
+                    onChange={(e) => setFormData({ ...formData, communicationTool: e.target.value })}
+                    className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="text-base whitespace-pre-wrap">{project.communicationTool || '-'}</p>
                 )}
-                {project.internalNotes && (
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">備考欄</p>
-                    <p className="text-base whitespace-pre-wrap">{project.internalNotes}</p>
-                  </div>
+              </div>
+              <div>
+                <Label className="text-sm text-gray-600 mb-1">備考欄</Label>
+                {isEditing ? (
+                  <textarea
+                    value={formData.internalNotes || ''}
+                    onChange={(e) => setFormData({ ...formData, internalNotes: e.target.value })}
+                    className="mt-1 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="text-base whitespace-pre-wrap">{project.internalNotes || '-'}</p>
                 )}
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
       </div>
     </div>
   )
