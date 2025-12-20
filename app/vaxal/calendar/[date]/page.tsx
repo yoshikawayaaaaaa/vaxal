@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { WORK_CONTENT_LABELS } from '@/lib/constants'
+import { WORK_CONTENT_LABELS, STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
 
 export default async function CalendarDatePage({
   params,
@@ -85,19 +85,6 @@ export default async function CalendarDatePage({
   }, {} as Record<string, { engineer: any; projects: any[] }>)
 
 
-  const statusLabels: Record<string, string> = {
-    PENDING: '保留中',
-    IN_PROGRESS: '作業中',
-    COMPLETED: '完了',
-    CANCELLED: 'キャンセル',
-  }
-
-  const statusColors: Record<string, string> = {
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    IN_PROGRESS: 'bg-blue-100 text-blue-800',
-    COMPLETED: 'bg-green-100 text-green-800',
-    CANCELLED: 'bg-red-100 text-red-800',
-  }
 
   return (
     <div className="p-8">
@@ -173,10 +160,10 @@ export default async function CalendarDatePage({
                               </span>
                               <span
                                 className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  statusColors[project.status]
+                                  STATUS_COLORS[project.status]
                                 }`}
                               >
-                                {statusLabels[project.status]}
+                                {STATUS_LABELS[project.status]}
                               </span>
                             </div>
                             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
