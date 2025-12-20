@@ -46,7 +46,20 @@ export function CalendarView({ events }: CalendarViewProps) {
   const router = useRouter()
 
   const handleSelectEvent = (event: CalendarEvent) => {
-    router.push(`/vaxal/project/${event.id}`)
+    // 確定予定の場合は案件詳細へ
+    if (event.resource.type === 'CONFIRMED') {
+      router.push(`/vaxal/project/${event.id}`)
+    }
+  }
+
+  const handleSelectSlot = ({ start }: { start: Date }) => {
+    // 日付を選択した場合、その日の案件一覧ページへ
+    // タイムゾーンのずれを防ぐため、ローカル日付を使用
+    const year = start.getFullYear()
+    const month = String(start.getMonth() + 1).padStart(2, '0')
+    const day = String(start.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+    router.push(`/vaxal/calendar/${dateStr}`)
   }
 
   const eventStyleGetter = (event: CalendarEvent) => {
@@ -112,6 +125,7 @@ export function CalendarView({ events }: CalendarViewProps) {
         endAccessor="end"
         style={{ height: '100%' }}
         onSelectEvent={handleSelectEvent}
+        onSelectSlot={handleSelectSlot}
         eventPropGetter={eventStyleGetter}
         messages={messages}
         culture="ja"
@@ -119,6 +133,7 @@ export function CalendarView({ events }: CalendarViewProps) {
         defaultView="month"
         toolbar={true}
         popup={true}
+        selectable={true}
       />
     </div>
   )
