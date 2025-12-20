@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { WORK_CONTENT_LABELS } from '@/lib/constants'
 
 interface Project {
   id: string
@@ -56,14 +57,6 @@ export default function CustomersPage() {
     }
   }
 
-  const workContentLabels: Record<string, string> = {
-    ECO_CUTE: 'エコキュート',
-    GAS_WATER_HEATER: 'ガス給湯器',
-    ELECTRIC_HEATER: '電気温水器',
-    BATHROOM_DRYER: '浴室乾燥機',
-    SOLAR_PANEL: '太陽光パネル',
-    OTHER: 'その他',
-  }
 
   const statusLabels: Record<string, string> = {
     PENDING: '保留中',
@@ -195,7 +188,7 @@ export default function CustomersPage() {
                         <div>
                           <span className="text-gray-600">工事内容:</span>
                           <span className="ml-2 text-gray-900">
-                            {workContentLabels[project.workContent]}
+                            {WORK_CONTENT_LABELS[project.workContent]}
                           </span>
                         </div>
                         <div className="col-span-2">

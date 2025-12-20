@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BUILDING_TYPE_LABELS } from '@/lib/constants'
 
 interface BuildingInfoCardProps {
   roofingDate: Date | null
@@ -10,12 +11,6 @@ interface BuildingInfoCardProps {
   installationLocation: string | null
   parkingSpace: string | null
   buildingNotes: string | null
-}
-
-const buildingTypeLabels: Record<string, string> = {
-  MANSION: 'マンション',
-  DETACHED_HOUSE: '戸建て',
-  APARTMENT: 'アパート',
 }
 
 export function BuildingInfoCard({
@@ -59,7 +54,7 @@ export function BuildingInfoCard({
             <div>
               <p className="text-sm text-gray-600">建物区分名</p>
               <p className="font-medium">
-                {buildingTypeLabels[buildingType] || 'その他'}
+                {BUILDING_TYPE_LABELS[buildingType] || 'その他'}
               </p>
             </div>
           )}

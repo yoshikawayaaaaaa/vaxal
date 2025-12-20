@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { WORK_CONTENT_LABELS } from '@/lib/constants'
 
 export default async function CalendarDatePage({
   params,
@@ -83,14 +84,6 @@ export default async function CalendarDatePage({
     return acc
   }, {} as Record<string, { engineer: any; projects: any[] }>)
 
-  const workContentLabels: Record<string, string> = {
-    ECO_CUTE: 'エコキュート',
-    GAS_WATER_HEATER: 'ガス給湯器',
-    ELECTRIC_HEATER: '電気温水器',
-    BATHROOM_DRYER: '浴室乾燥機',
-    SOLAR_PANEL: '太陽光パネル',
-    OTHER: 'その他',
-  }
 
   const statusLabels: Record<string, string> = {
     PENDING: '保留中',
@@ -194,7 +187,7 @@ export default async function CalendarDatePage({
                               <div>
                                 <span className="text-gray-600">工事内容:</span>
                                 <span className="ml-2 text-gray-900">
-                                  {workContentLabels[project.workContent]}
+                                  {WORK_CONTENT_LABELS[project.workContent]}
                                 </span>
                               </div>
                               <div className="col-span-2">

@@ -1,33 +1,12 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { WORK_CONTENT_LABELS, WORK_TYPE_LABELS, BUILDING_TYPE_LABELS } from '@/lib/constants'
 
 interface WorkInfoSectionProps {
   project: any
   formData: any
   isEditing: boolean
   onUpdate: (data: any) => void
-}
-
-const workContentLabels: Record<string, string> = {
-  ECO_CUTE: 'エコキュート',
-  GAS_WATER_HEATER: 'ガス給湯器',
-  ELECTRIC_HEATER: '電気温水器',
-  BATHROOM_DRYER: '浴室乾燥機',
-  SOLAR_PANEL: '太陽光パネル',
-  OTHER: 'その他',
-}
-
-const workTypeLabels: Record<string, string> = {
-  NEW_INSTALLATION: '新設',
-  REFORM: 'リフォーム',
-  REPLACEMENT: '交換',
-}
-
-const buildingTypeLabels: Record<string, string> = {
-  DETACHED_HOUSE: '戸建て',
-  MANSION: 'マンション',
-  APARTMENT: 'アパート',
-  OTHER: 'その他',
 }
 
 export function WorkInfoSection({ project, formData, isEditing, onUpdate }: WorkInfoSectionProps) {
@@ -45,12 +24,12 @@ export function WorkInfoSection({ project, formData, isEditing, onUpdate }: Work
                 onChange={(e) => onUpdate({ ...formData, workContent: e.target.value })}
                 className="mt-1 w-full h-10 px-3 rounded-md border border-gray-300"
               >
-                {Object.entries(workContentLabels).map(([value, label]) => (
+                {Object.entries(WORK_CONTENT_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             ) : (
-              <p className="text-base">{workContentLabels[project.workContent]}</p>
+              <p className="text-base">{WORK_CONTENT_LABELS[project.workContent]}</p>
             )}
           </div>
           <div>
@@ -61,12 +40,12 @@ export function WorkInfoSection({ project, formData, isEditing, onUpdate }: Work
                 onChange={(e) => onUpdate({ ...formData, workType: e.target.value })}
                 className="mt-1 w-full h-10 px-3 rounded-md border border-gray-300"
               >
-                {Object.entries(workTypeLabels).map(([value, label]) => (
+                {Object.entries(WORK_TYPE_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             ) : (
-              <p className="text-base">{workTypeLabels[project.workType]}</p>
+              <p className="text-base">{WORK_TYPE_LABELS[project.workType]}</p>
             )}
           </div>
           <div>
@@ -84,7 +63,7 @@ export function WorkInfoSection({ project, formData, isEditing, onUpdate }: Work
           {project.buildingType && (
             <div>
               <p className="text-sm text-gray-600 mb-1">建物区分名</p>
-              <p className="text-base">{buildingTypeLabels[project.buildingType] || project.buildingType}</p>
+              <p className="text-base">{BUILDING_TYPE_LABELS[project.buildingType] || project.buildingType}</p>
             </div>
           )}
         </div>

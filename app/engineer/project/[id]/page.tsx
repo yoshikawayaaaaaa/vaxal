@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import Link from 'next/link'
+import { WORK_CONTENT_LABELS, WORK_TYPE_LABELS, BUILDING_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '@/lib/constants'
 
 export default async function EngineerProjectDetailPage({
   params,
@@ -50,28 +51,6 @@ export default async function EngineerProjectDetailPage({
     redirect('/engineer')
   }
 
-  const workContentLabels: Record<string, string> = {
-    ECO_CUTE: 'エコキュート',
-    GAS_WATER_HEATER: 'ガス給湯器',
-    ELECTRIC_HEATER: '電気温水器',
-    BATHROOM_DRYER: '浴室乾燥機',
-    SOLAR_PANEL: '太陽光パネル',
-    OTHER: 'その他',
-  }
-
-  const workTypeLabels: Record<string, string> = {
-    NEW_INSTALLATION: '新設',
-    REFORM: 'リフォーム',
-    REPLACEMENT: '交換',
-  }
-
-  const paymentMethodLabels: Record<string, string> = {
-    CASH: '現金',
-    CARD: 'カード',
-    LOAN: 'ローン',
-    BANK_TRANSFER: '銀行振込',
-    ELECTRONIC_MONEY: '電子マネー',
-  }
 
   return (
     <div className="p-8">
@@ -144,11 +123,11 @@ export default async function EngineerProjectDetailPage({
           <div className="grid grid-cols-2 gap-x-12 gap-y-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">工事内容</p>
-              <p className="text-base">{workContentLabels[project.workContent]}</p>
+              <p className="text-base">{WORK_CONTENT_LABELS[project.workContent]}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">用途</p>
-              <p className="text-base">{workTypeLabels[project.workType]}</p>
+              <p className="text-base">{WORK_TYPE_LABELS[project.workType]}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">施工時間</p>
@@ -158,10 +137,7 @@ export default async function EngineerProjectDetailPage({
               <div>
                 <p className="text-sm text-gray-600 mb-1">建物区分名</p>
                 <p className="text-base">
-                  {project.buildingType === 'DETACHED_HOUSE' && '戸建て'}
-                  {project.buildingType === 'MANSION' && 'マンション'}
-                  {project.buildingType === 'APARTMENT' && 'アパート'}
-                  {project.buildingType === 'OTHER' && 'その他'}
+                  {BUILDING_TYPE_LABELS[project.buildingType] || 'その他'}
                 </p>
               </div>
             )}
@@ -264,7 +240,7 @@ export default async function EngineerProjectDetailPage({
               {project.paymentMethod && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">支払い方法</p>
-                  <p className="text-base">{paymentMethodLabels[project.paymentMethod]}</p>
+                  <p className="text-base">{PAYMENT_METHOD_LABELS[project.paymentMethod]}</p>
                 </div>
               )}
               <div>
