@@ -84,7 +84,7 @@ export default function CustomersPage() {
       <div className="max-w-7xl mx-auto">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">顧客カルテ</h1>
+          <h1 className="text-3xl font-bold text-gray-900">顧客検索</h1>
           <p className="text-gray-600 mt-2">お客様の過去の案件を検索できます</p>
         </div>
 
