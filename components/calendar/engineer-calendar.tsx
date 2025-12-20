@@ -43,15 +43,26 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
   const [isLoading, setIsLoading] = useState(false)
 
   // データを統合してカレンダーイベント形式に変換
+  // 確定予定がある日は、対応可能日を表示しない
+  const confirmedDates = new Set(
+    confirmedEvents.map(event => 
+      startOfDay(new Date(event.startDate)).getTime()
+    )
+  )
+
   const events: CalendarEvent[] = [
-    ...availableDates.map((date) => ({
-      id: date.id,
-      title: date.engineerUser ? `${date.engineerUser.name} - 対応可能` : '対応可能',
-      start: new Date(date.startDate),
-      end: new Date(date.endDate),
-      eventType: 'AVAILABLE' as const,
-      engineerUser: date.engineerUser,
-    })),
+    // 確定予定がない日のみ対応可能日を表示
+    ...availableDates
+      .filter(date => !confirmedDates.has(startOfDay(new Date(date.startDate)).getTime()))
+      .map((date) => ({
+        id: date.id,
+        title: date.engineerUser ? `${date.engineerUser.name} - 対応可能` : '対応可能',
+        start: new Date(date.startDate),
+        end: new Date(date.endDate),
+        eventType: 'AVAILABLE' as const,
+        engineerUser: date.engineerUser,
+      })),
+    // 確定予定は常に表示
     ...confirmedEvents.map((event) => ({
       id: event.id,
       title: event.engineerUser 

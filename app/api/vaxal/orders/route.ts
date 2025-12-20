@@ -137,45 +137,18 @@ export async function POST(request: NextRequest) {
       const endOfDay = new Date(workDate)
       endOfDay.setHours(23, 59, 59, 999)
 
-      // 既存の「対応可能」イベントを検索
-      const existingAvailableEvent = await prisma.calendarEvent.findFirst({
-        where: {
+      // 確定予定イベントを新規作成（対応可能イベントは変更しない）
+      await prisma.calendarEvent.create({
+        data: {
+          title: `${body.siteName} - 確定予定`,
+          description: `案件番号: ${projectNumber}`,
+          startDate: startOfDay,
+          endDate: endOfDay,
+          eventType: 'CONFIRMED',
           engineerUserId: body.assignedEngineerId,
-          eventType: 'AVAILABLE',
-          startDate: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
+          projectId: project.id,
         },
       })
-
-      if (existingAvailableEvent) {
-        // 既存の「対応可能」イベントを「確定予定」に更新
-        await prisma.calendarEvent.update({
-          where: {
-            id: existingAvailableEvent.id,
-          },
-          data: {
-            title: `${body.siteName} - 確定予定`,
-            description: `案件番号: ${projectNumber}`,
-            eventType: 'CONFIRMED',
-            projectId: project.id,
-          },
-        })
-      } else {
-        // 「対応可能」イベントがない場合は新規作成
-        await prisma.calendarEvent.create({
-          data: {
-            title: `${body.siteName} - 確定予定`,
-            description: `案件番号: ${projectNumber}`,
-            startDate: startOfDay,
-            endDate: endOfDay,
-            eventType: 'CONFIRMED',
-            engineerUserId: body.assignedEngineerId,
-            projectId: project.id,
-          },
-        })
-      }
     }
 
     // MainInfoレコードを作成（施工指示を引き継ぐ）

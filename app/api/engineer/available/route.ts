@@ -73,12 +73,38 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // エンジニア情報を整形
+    // 指定日に既に割り振られている案件数をエンジニアごとにカウント
+    const assignedProjects = await prisma.project.findMany({
+      where: {
+        workDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+        assignedEngineerId: {
+          not: null,
+        },
+      },
+      select: {
+        assignedEngineerId: true,
+      },
+    })
+
+    // エンジニアごとの案件数をカウント
+    const projectCountByEngineer = assignedProjects.reduce((acc, project) => {
+      const engineerId = project.assignedEngineerId!
+      acc[engineerId] = (acc[engineerId] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+
+    // エンジニア情報を整形（MAX5案件まで）
+    const MAX_PROJECTS_PER_DAY = 5
+    
     const availableEngineers = availableEvents
       .filter(event => event.engineerUser)
       .map(event => {
         const engineer = event.engineerUser!
         const company = engineer.masterCompany || engineer.company
+        const assignedCount = projectCountByEngineer[engineer.id] || 0
         
         return {
           id: engineer.id,
@@ -86,12 +112,16 @@ export async function GET(request: NextRequest) {
           email: engineer.email,
           companyId: company?.id,
           companyName: company?.companyName,
+          assignedCount,
+          remainingSlots: MAX_PROJECTS_PER_DAY - assignedCount,
         }
       })
       // 重複を除去
       .filter((engineer, index, self) => 
         index === self.findIndex(e => e.id === engineer.id)
       )
+      // MAX5案件未満のエンジニアのみ表示
+      .filter(engineer => engineer.assignedCount < MAX_PROJECTS_PER_DAY)
 
     // 会社ごとにグループ化
     const groupedByCompany = availableEngineers.reduce((acc, engineer) => {

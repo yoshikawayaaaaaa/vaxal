@@ -37,11 +37,10 @@ export async function POST(request: NextRequest) {
     const startDate = startOfDay(selectedDate)
     const endDate = endOfDay(selectedDate)
 
-    // 既に同じ日に登録されているか確認
+    // 既に同じ日に登録されているか確認（対応可能日または確定予定）
     const existingEvent = await prisma.calendarEvent.findFirst({
       where: {
         engineerUserId: session.user.id,
-        eventType: 'AVAILABLE',
         startDate: {
           gte: startDate,
           lt: endDate,
