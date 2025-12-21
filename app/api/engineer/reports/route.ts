@@ -192,9 +192,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // プロジェクトのステータスを更新
+    // 残工事日がある場合はREMAINING_WORK、それ以外はREPORTED
+    const newStatus = engineerInfo.remainingWorkDate ? 'REMAINING_WORK' : 'REPORTED'
+    
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        status: newStatus,
+      },
+    })
+
     return NextResponse.json({
       message: '報告を作成しました',
       reports: createdReports,
+      projectStatus: newStatus,
     })
   } catch (error) {
     console.error('報告作成エラー:', error)

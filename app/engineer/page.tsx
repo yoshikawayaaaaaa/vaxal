@@ -15,10 +15,13 @@ export default async function EngineerDashboardPage() {
     redirect('/dashboard')
   }
 
-  // 自分に割り振られた案件を取得
+  // 自分に割り振られた案件を取得（ステータス2以降のみ）
   const projects = await prisma.project.findMany({
     where: {
       assignedEngineerId: session.user.id,
+      status: {
+        in: ['ASSIGNED', 'REPORTED', 'COMPLETED', 'REMAINING_WORK'],
+      },
     },
     include: {
       createdByVaxal: {
@@ -33,8 +36,9 @@ export default async function EngineerDashboardPage() {
   })
 
   // ステータスごとに分類
-  const pendingProjects = projects.filter(p => p.status === 'PENDING')
-  const inProgressProjects = projects.filter(p => p.status === 'IN_PROGRESS')
+  const assignedProjects = projects.filter(p => p.status === 'ASSIGNED')
+  const reportedProjects = projects.filter(p => p.status === 'REPORTED')
+  const remainingWorkProjects = projects.filter(p => p.status === 'REMAINING_WORK')
   const completedProjects = projects.filter(p => p.status === 'COMPLETED')
 
   return (
@@ -45,16 +49,16 @@ export default async function EngineerDashboardPage() {
         </h1>
 
         {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-600">
-                未着手
+                注文本登録
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-yellow-600">
-                {pendingProjects.length}
+              <div className="text-3xl font-bold text-blue-600">
+                {assignedProjects.length}
               </div>
               <p className="text-xs text-gray-500 mt-1">件</p>
             </CardContent>
@@ -63,12 +67,26 @@ export default async function EngineerDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-600">
-                進行中
+                報告済み
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">
-                {inProgressProjects.length}
+              <div className="text-3xl font-bold text-purple-600">
+                {reportedProjects.length}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">件</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-gray-600">
+                残工事あり
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-orange-600">
+                {remainingWorkProjects.length}
               </div>
               <p className="text-xs text-gray-500 mt-1">件</p>
             </CardContent>
@@ -119,17 +137,21 @@ export default async function EngineerDashboardPage() {
                             </h3>
                             <span
                               className={`px-2 py-1 text-xs rounded-full ${
-                                project.status === 'PENDING'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : project.status === 'IN_PROGRESS'
+                                project.status === 'ASSIGNED'
                                   ? 'bg-blue-100 text-blue-800'
+                                  : project.status === 'REPORTED'
+                                  ? 'bg-purple-100 text-purple-800'
+                                  : project.status === 'REMAINING_WORK'
+                                  ? 'bg-orange-100 text-orange-800'
                                   : 'bg-green-100 text-green-800'
                               }`}
                             >
-                              {project.status === 'PENDING'
-                                ? '未着手'
-                                : project.status === 'IN_PROGRESS'
-                                ? '進行中'
+                              {project.status === 'ASSIGNED'
+                                ? '注文本登録'
+                                : project.status === 'REPORTED'
+                                ? '報告済み'
+                                : project.status === 'REMAINING_WORK'
+                                ? '残工事あり'
                                 : '完了'}
                             </span>
                           </div>

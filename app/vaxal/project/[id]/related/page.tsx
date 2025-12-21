@@ -4,7 +4,9 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { STATUS_LABELS } from '@/lib/constants'
 
 export default async function RelatedInfoPage({
   params,
@@ -86,6 +88,58 @@ export default async function RelatedInfoPage({
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="related" userType="vaxal" />
+
+        {/* ステータス表示と完了ボタン */}
+        {(project.status === 'REPORTED' || project.status === 'REMAINING_WORK') && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-blue-900 mb-2">
+                    報告確認待ち
+                  </h3>
+                  <p className="text-blue-800">
+                    エンジニアから報告が提出されました。内容を確認して問題なければ完了してください。
+                  </p>
+                  {project.status === 'REMAINING_WORK' && (
+                    <p className="text-orange-800 mt-2 font-medium">
+                      ⚠️ 残工事があります
+                    </p>
+                  )}
+                </div>
+                <form action={`/api/vaxal/projects/${id}/complete`} method="POST">
+                  <Button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white px-8"
+                  >
+                    案件を完了する
+                  </Button>
+                </form>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {project.status === 'COMPLETED' && (
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">✓</div>
+                <div>
+                  <h3 className="text-lg font-bold text-green-900">案件完了</h3>
+                  <p className="text-green-800">
+                    この案件は完了しました。
+                    {project.completionDate && (
+                      <span className="ml-2">
+                        完了日: {new Date(project.completionDate).toLocaleDateString('ja-JP')}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="space-y-6">
           {/* 現場調査報告フォルダ */}

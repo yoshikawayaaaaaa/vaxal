@@ -299,12 +299,10 @@ export default async function EngineerReportPage({
           ) : (
             <Card>
               <CardContent className="text-center py-12">
-                <p className="text-gray-400 mb-4">まだ報告が作成されていません</p>
-                <Link href={`/engineer/project/${id}/report/new`}>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                    最初の報告を作成
-                  </Button>
-                </Link>
+                <p className="text-gray-400">まだ報告が作成されていません</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  上部の「新規報告作成」ボタンから報告を作成してください
+                </p>
               </CardContent>
             </Card>
           )}

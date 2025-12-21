@@ -32,18 +32,29 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   ELECTRONIC_MONEY: '電子マネー',
 }
 
-// ステータスのラベル
+// ステータスのラベル (1=注文仮登録, 2=注文本登録, 3=注文完了確認, 4=完了, 5=残工事あり)
 export const STATUS_LABELS: Record<string, string> = {
-  PENDING: '保留中',
-  IN_PROGRESS: '作業中',
+  PENDING: '注文仮登録',
+  ASSIGNED: '注文本登録',
+  REPORTED: '注文完了確認',
   COMPLETED: '完了',
-  CANCELLED: 'キャンセル',
+  REMAINING_WORK: '残工事あり',
 }
 
 // ステータスの色
 export const STATUS_COLORS: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+  ASSIGNED: 'bg-blue-100 text-blue-800',
+  REPORTED: 'bg-purple-100 text-purple-800',
   COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
+  REMAINING_WORK: 'bg-orange-100 text-orange-800',
+}
+
+// ステータスの数値マッピング
+export const STATUS_TO_NUMBER: Record<string, number> = {
+  PENDING: 1,
+  ASSIGNED: 2,
+  REPORTED: 3,
+  COMPLETED: 4,
+  REMAINING_WORK: 5,
 }

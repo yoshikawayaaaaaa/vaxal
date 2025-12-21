@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { BasicInfoSection } from '@/components/project/sections/BasicInfoSection'
 import { WorkInfoSection } from '@/components/project/sections/WorkInfoSection'
 import { ProductInfoSection } from '@/components/project/sections/ProductInfoSection'
@@ -11,9 +12,11 @@ import { PaymentInfoSection } from '@/components/project/sections/PaymentInfoSec
 import { NotesSection } from '@/components/project/sections/NotesSection'
 import { ScheduleSection } from '@/components/project/sections/ScheduleSection'
 import { InternalNotesSection } from '@/components/project/sections/InternalNotesSection'
+import Link from 'next/link'
 
 interface Project {
   id: string
+  status: string
   projectNumber: string
   siteName: string
   siteAddress: string
@@ -184,6 +187,30 @@ export default function ProjectDetailPage({
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={projectId} activeTab="basic" />
+
+        {/* 案件割り振り確定ボタン（ステータスがPENDINGの場合のみ表示） */}
+        {project.status === 'PENDING' && (
+          <Card className="mb-6 bg-yellow-50 border-yellow-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-yellow-900 mb-2">
+                    案件割り振り確定が必要です
+                  </h3>
+                  <p className="text-yellow-800">
+                    必須項目を入力後、案件割り振り確定を行ってください。
+                    確定後、エンジニアに案件が表示されます。
+                  </p>
+                </div>
+                <Link href={`/vaxal/project/${projectId}/assign`}>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8">
+                    案件割り振り確定へ
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* 各セクション */}
         <BasicInfoSection 

@@ -104,6 +104,23 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     setIsLoading(true)
 
     try {
+      // 画像アップロード必須チェック（エンジニア入力情報以外）
+      const requiredReportTypes = ['SITE_SURVEY', 'PICKUP', 'CHECK_IN', 'COMPLETION', 'UNLOADING']
+      const missingImages: string[] = []
+
+      requiredReportTypes.forEach((type) => {
+        if (images[type].files.length === 0) {
+          const label = tabs.find(t => t.id === type)?.label || type
+          missingImages.push(label)
+        }
+      })
+
+      if (missingImages.length > 0) {
+        setError(`以下の報告に画像をアップロードしてください: ${missingImages.join(', ')}`)
+        setIsLoading(false)
+        return
+      }
+
       // FormDataを作成
       const submitData = new FormData()
       
