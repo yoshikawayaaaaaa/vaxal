@@ -125,25 +125,7 @@ export default async function CalendarPage({
   )
 
   const events = [
-    // 確定予定がない日のみ対応可能日を表示
-    ...availableDates
-      .filter(date => {
-        const dateTime = new Date(date.startDate)
-        dateTime.setHours(0, 0, 0, 0)
-        return !confirmedDates.has(dateTime.getTime())
-      })
-      .map((date) => ({
-        id: date.id,
-        title: `${date.engineerUser?.company?.companyName || '不明'} - ${date.engineerUser?.name || '不明'} - 対応可能`,
-        start: new Date(date.startDate),
-        end: new Date(date.endDate),
-        resource: {
-          type: 'AVAILABLE' as const,
-          engineerName: date.engineerUser?.name,
-          companyName: date.engineerUser?.company?.companyName,
-        },
-      })),
-    // 確定予定は常に表示
+    // 確定予定のみ表示（対応可能日は表示しない）
     ...confirmedEvents.map((event) => ({
       id: event.project?.id || event.id, // プロジェクトIDを使用（存在しない場合はイベントID）
       title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,

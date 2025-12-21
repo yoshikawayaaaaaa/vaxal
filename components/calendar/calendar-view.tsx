@@ -65,30 +65,25 @@ export function CalendarView({ events }: CalendarViewProps) {
   const eventStyleGetter = (event: CalendarEvent) => {
     let backgroundColor = '#3b82f6' // デフォルト: 青
 
-    // イベントタイプに応じて色を変更
-    if (event.resource.type === 'AVAILABLE') {
-      backgroundColor = '#22c55e' // 緑（対応可能日）
-    } else if (event.resource.type === 'CONFIRMED') {
-      // 確定予定の場合はステータスに応じて色を変更
-      switch (event.resource.status) {
-        case 'PENDING':
-          backgroundColor = '#eab308' // 黄色（注文仮登録）
-          break
-        case 'ASSIGNED':
-          backgroundColor = '#3b82f6' // 青色（注文本登録）
-          break
-        case 'REPORTED':
-          backgroundColor = '#a855f7' // 紫色（注文完了確認）
-          break
-        case 'COMPLETED':
-          backgroundColor = '#22c55e' // 緑色（完了）
-          break
-        case 'REMAINING_WORK':
-          backgroundColor = '#f97316' // オレンジ色（残工事あり）
-          break
-        default:
-          backgroundColor = '#6b7280' // グレー（その他）
-      }
+    // 確定予定の場合はステータスに応じて色を変更
+    switch (event.resource.status) {
+      case 'PENDING':
+        backgroundColor = '#eab308' // 黄色（注文仮登録）
+        break
+      case 'ASSIGNED':
+        backgroundColor = '#3b82f6' // 青色（注文本登録）
+        break
+      case 'REPORTED':
+        backgroundColor = '#a855f7' // 紫色（報告済み）
+        break
+      case 'COMPLETED':
+        backgroundColor = '#22c55e' // 緑色（完了）
+        break
+      case 'REMAINING_WORK':
+        backgroundColor = '#f97316' // オレンジ色（残工事あり）
+        break
+      default:
+        backgroundColor = '#6b7280' // グレー（その他）
     }
 
     return {
