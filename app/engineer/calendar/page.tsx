@@ -45,6 +45,11 @@ export default async function EngineerCalendarPage() {
         engineerUserId: session.user.id,
       }
 
+  // 当月の開始日と終了日を計算
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+
   // エンジニアの出勤可能日を取得
   const availableDates = await prisma.calendarEvent.findMany({
     where: {
@@ -92,12 +97,83 @@ export default async function EngineerCalendarPage() {
     },
   })
 
+  // 当月の統計を計算
+  const monthlyAvailableDates = availableDates.filter(date => {
+    const startDate = new Date(date.startDate)
+    return startDate >= monthStart && startDate <= monthEnd
+  })
+
+  const monthlyConfirmedEvents = confirmedEvents.filter(event => {
+    const startDate = new Date(event.startDate)
+    return startDate >= monthStart && startDate <= monthEnd
+  })
+
+  // ステータス別の件数を集計
+  const stats = {
+    available: monthlyAvailableDates.length,
+    assigned: monthlyConfirmedEvents.filter(e => e.project?.status === 'ASSIGNED').length,
+    reported: monthlyConfirmedEvents.filter(e => e.project?.status === 'REPORTED').length,
+    remainingWork: monthlyConfirmedEvents.filter(e => e.project?.status === 'REMAINING_WORK').length,
+    completed: monthlyConfirmedEvents.filter(e => e.project?.status === 'COMPLETED').length,
+  }
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">カレンダー</h1>
           <p className="text-gray-600 mt-2">出勤可能日の登録と確定予定の確認</p>
+        </div>
+
+        {/* 当月の統計 */}
+        <div className="mb-6 grid grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">注文本登録</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.assigned}</span>
+                <span className="text-sm text-gray-500">件</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">報告済み</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.reported}</span>
+                <span className="text-sm text-gray-500">件</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">残工事あり</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.remainingWork}</span>
+                <span className="text-sm text-gray-500">件</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">完了</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.completed}</span>
+                <span className="text-sm text-gray-500">件</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
