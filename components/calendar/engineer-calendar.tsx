@@ -30,6 +30,7 @@ interface CalendarEvent {
     projectNumber: string
     siteName: string
     siteAddress: string
+    status?: string
   }
 }
 
@@ -150,10 +151,31 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
 
   // イベントのスタイル設定
   const eventStyleGetter = (event: CalendarEvent) => {
-    let backgroundColor = '#22c55e' // デフォルト: 緑（対応可能）
+    let backgroundColor = '#eab308' // デフォルト: 黄色（対応可能日）
 
     if (event.eventType === 'CONFIRMED') {
-      backgroundColor = '#3b82f6' // 青（確定予定）
+      // 確定予定の場合はプロジェクトのステータスに応じて色を変更
+      const status = event.project?.status
+      
+      switch (status) {
+        case 'PENDING':
+          backgroundColor = '#6b7280' // グレー（注文仮登録 - 通常表示されない）
+          break
+        case 'ASSIGNED':
+          backgroundColor = '#3b82f6' // 青色（注文本登録）
+          break
+        case 'REPORTED':
+          backgroundColor = '#a855f7' // 紫色（報告済み）
+          break
+        case 'COMPLETED':
+          backgroundColor = '#22c55e' // 緑色（完了）
+          break
+        case 'REMAINING_WORK':
+          backgroundColor = '#f97316' // オレンジ色（残工事あり）
+          break
+        default:
+          backgroundColor = '#3b82f6' // デフォルト: 青色
+      }
     }
 
     return {

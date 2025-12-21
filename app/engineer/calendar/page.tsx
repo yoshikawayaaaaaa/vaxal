@@ -83,6 +83,7 @@ export default async function EngineerCalendarPage() {
           projectNumber: true,
           siteName: true,
           siteAddress: true,
+          status: true,
         },
       },
     },
@@ -122,14 +123,26 @@ export default async function EngineerCalendarPage() {
               <CardHeader>
                 <CardTitle>凡例</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <div className="w-4 h-4 bg-yellow-500 rounded"></div>
                   <span className="text-sm">対応可能日</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                  <span className="text-sm">確定予定（割り振られた案件）</span>
+                  <span className="text-sm">注文本登録</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                  <span className="text-sm">報告済み</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                  <span className="text-sm">残工事あり</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <span className="text-sm">完了</span>
                 </div>
               </CardContent>
             </Card>
@@ -180,10 +193,10 @@ export default async function EngineerCalendarPage() {
                   </p>
                 </div>
                 
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-green-900 mb-2">✅ 登録済みの日付</p>
-                  <p className="text-sm text-green-700">
-                    緑色で表示されます。再度クリックすると削除確認ダイアログが表示されます。
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm font-medium text-yellow-900 mb-2">✅ 登録済みの日付</p>
+                  <p className="text-sm text-yellow-700">
+                    黄色で表示されます。再度クリックすると削除確認ダイアログが表示されます。
                   </p>
                 </div>
                 
