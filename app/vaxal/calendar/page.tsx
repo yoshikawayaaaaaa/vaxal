@@ -2,8 +2,15 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { CalendarView } from '@/components/calendar/calendar-view'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
+import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
 
-export default async function CalendarPage() {
+export default async function CalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>
+}) {
   const session = await auth()
 
   if (!session) {
@@ -14,6 +21,43 @@ export default async function CalendarPage() {
   if (session.user.role !== 'VAXAL_ADMIN') {
     redirect('/engineer')
   }
+
+  // 表示月を取得（デフォルトは当月）
+  const params = await searchParams
+  const currentDate = params.month ? new Date(params.month) : new Date()
+  const year = currentDate.getFullYear()
+  const month = currentDate.getMonth()
+  
+  // 月の開始日と終了日を計算
+  const monthStart = new Date(year, month, 1)
+  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999)
+
+  // 当月のステータス別案件数を取得
+  const statusCounts = await prisma.project.groupBy({
+    by: ['status'],
+    where: {
+      workDate: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+    },
+    _count: {
+      status: true,
+    },
+  })
+
+  // ステータス別の件数をマップに変換
+  const countsByStatus: Record<string, number> = {
+    PENDING: 0,
+    ASSIGNED: 0,
+    REPORTED: 0,
+    COMPLETED: 0,
+    REMAINING_WORK: 0,
+  }
+
+  statusCounts.forEach((item) => {
+    countsByStatus[item.status] = item._count.status
+  })
 
   // 全エンジニアの出勤可能日を取得
   const availableDates = await prisma.calendarEvent.findMany({
@@ -121,7 +165,36 @@ export default async function CalendarPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">カレンダー</h1>
-          <p className="text-gray-600 mt-2">工事予定を確認できます</p>
+          <p className="text-gray-600 mt-2">
+            {year}年{month + 1}月の工事予定を確認できます
+          </p>
+        </div>
+
+        {/* ステータス別案件数 */}
+        <div className="mb-6 grid grid-cols-5 gap-4">
+          {Object.entries(countsByStatus).map(([status, count]) => (
+            <Link
+              key={status}
+              href={`/vaxal/project?status=${status}&month=${year}-${String(month + 1).padStart(2, '0')}`}
+            >
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    {STATUS_LABELS[status]}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold">{count}</span>
+                    <span className="text-sm text-gray-500">件</span>
+                  </div>
+                  <div className={`mt-2 inline-block px-2 py-1 rounded text-xs ${STATUS_COLORS[status]}`}>
+                    クリックで一覧表示
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
 
         {/* 使い方の説明 */}
