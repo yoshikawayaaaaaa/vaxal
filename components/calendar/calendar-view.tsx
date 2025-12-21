@@ -72,19 +72,22 @@ export function CalendarView({ events }: CalendarViewProps) {
       // 確定予定の場合はステータスに応じて色を変更
       switch (event.resource.status) {
         case 'PENDING':
-          backgroundColor = '#eab308' // 黄色
+          backgroundColor = '#eab308' // 黄色（注文仮登録）
           break
-        case 'IN_PROGRESS':
-          backgroundColor = '#3b82f6' // 青
+        case 'ASSIGNED':
+          backgroundColor = '#3b82f6' // 青色（注文本登録）
+          break
+        case 'REPORTED':
+          backgroundColor = '#a855f7' // 紫色（注文完了確認）
           break
         case 'COMPLETED':
-          backgroundColor = '#22c55e' // 緑
+          backgroundColor = '#22c55e' // 緑色（完了）
           break
-        case 'CANCELLED':
-          backgroundColor = '#ef4444' // 赤
+        case 'REMAINING_WORK':
+          backgroundColor = '#f97316' // オレンジ色（残工事あり）
           break
         default:
-          backgroundColor = '#3b82f6' // デフォルト: 青
+          backgroundColor = '#6b7280' // グレー（その他）
       }
     }
 
