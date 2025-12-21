@@ -194,10 +194,10 @@ export default async function EngineerCalendarPage() {
 
           {/* サイドバー */}
           <div className="space-y-6">
-            {/* 凡例 */}
+            {/* ステータス */}
             <Card>
               <CardHeader>
-                <CardTitle>凡例</CardTitle>
+                <CardTitle>ステータス</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -220,39 +220,6 @@ export default async function EngineerCalendarPage() {
                   <div className="w-4 h-4 bg-green-500 rounded"></div>
                   <span className="text-sm">完了</span>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* 確定予定一覧 */}
-            <Card>
-              <CardHeader>
-                <CardTitle>確定予定</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {confirmedEvents.length > 0 ? (
-                  <div className="space-y-3">
-                    {confirmedEvents.map((event) => (
-                      <div
-                        key={event.id}
-                        className="p-3 bg-blue-50 rounded-lg border border-blue-200"
-                      >
-                        <p className="font-medium text-sm">
-                          {event.project?.projectNumber}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {event.project?.siteName}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(event.startDate).toLocaleDateString('ja-JP')}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-400">
-                    確定予定はありません
-                  </p>
-                )}
               </CardContent>
             </Card>
 
