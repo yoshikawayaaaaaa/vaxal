@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
+import { notifyOrderReceived } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -161,6 +162,9 @@ export async function POST(request: NextRequest) {
         },
       })
     }
+
+    // 通知を作成
+    await notifyOrderReceived(project.id, projectNumber, session.user.id)
 
     return NextResponse.json(project, { status: 201 })
   } catch (error) {

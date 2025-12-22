@@ -1,6 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+import { notifyProjectAssigned } from '@/lib/notifications'
 
 export async function POST(
   request: NextRequest,
@@ -79,6 +80,11 @@ export async function POST(
         status: 'ASSIGNED',
       },
     })
+
+    // エンジニアに通知を送信
+    if (project.assignedEngineerId) {
+      await notifyProjectAssigned(id, project.projectNumber, project.assignedEngineerId)
+    }
 
     return NextResponse.redirect(new URL(`/vaxal/project/${id}`, request.url))
   } catch (error) {

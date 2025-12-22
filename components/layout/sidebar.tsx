@@ -8,8 +8,10 @@ import {
   FileText, 
   Link as LinkIcon, 
   Image, 
-  ClipboardList 
+  ClipboardList,
+  Bell
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface SidebarProps {
   companyName?: string
@@ -19,9 +21,36 @@ interface SidebarProps {
 
 export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false }: SidebarProps) {
   const pathname = usePathname()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  // 未読通知数を取得
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/notifications')
+        if (response.ok) {
+          const notifications = await response.json()
+          const unread = notifications.filter((n: any) => !n.isRead).length
+          setUnreadCount(unread)
+        }
+      } catch (error) {
+        console.error('通知取得エラー:', error)
+      }
+    }
+
+    fetchUnreadCount()
+    
+    // pathnameが変わるたびに再取得
+  }, [pathname])
 
   // メニュー項目
   const menuItems = isVaxalAdmin ? [
+    {
+      title: '通知',
+      href: '/vaxal/notifications',
+      icon: Bell,
+      badge: unreadCount,
+    },
     {
       title: 'カレンダー',
       href: '/vaxal/calendar',
@@ -53,6 +82,12 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       icon: ClipboardList,
     },
   ] : [
+    {
+      title: '通知',
+      href: '/engineer/notifications',
+      icon: Bell,
+      badge: unreadCount,
+    },
     {
       title: 'ダッシュボード',
       href: '/engineer',
@@ -101,6 +136,11 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
                 >
                   <Icon className="w-5 h-5" />
                   <span className="text-sm font-medium">{item.title}</span>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               </li>
             )

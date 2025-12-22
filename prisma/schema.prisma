@@ -86,6 +86,7 @@ model VaxalUser {
   // リレーション
   createdProjects       Project[] @relation("CreatedByVaxal")
   vaxalCalendarEvents   CalendarEvent[] @relation("VaxalCalendar")
+  notifications         Notification[]
 }
 
 // エンジニア
@@ -124,6 +125,7 @@ model EngineerUser {
   assignedProjects      Project[] @relation("AssignedEngineer")
   reports               Report[]
   engineerCalendarEvents CalendarEvent[] @relation("EngineerCalendar")
+  notifications         Notification[]
 }
 
 // 案件管理
@@ -364,6 +366,7 @@ model Project {
   files                 ProjectFile[]
   calendarEvents        CalendarEvent[]
   mainInfo              MainInfo?
+  notifications         Notification[]
 }
 
 // 主要情報
@@ -594,4 +597,36 @@ model InventoryItem {
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+// 通知管理
+enum NotificationType {
+  REPORT_SUBMITTED      // エンジニアから報告が提出された
+  ORDER_RECEIVED        // 注文を受け付けた
+  PROJECT_ASSIGNED      // 案件が割り振られた
+  PROJECT_COMPLETED     // 案件が完了した
+}
+
+model Notification {
+  id                    String   @id @default(cuid())
+  type                  NotificationType
+  title                 String   // 通知タイトル
+  message               String   @db.Text // 通知メッセージ
+  isRead                Boolean  @default(false) // 既読フラグ
+  
+  // 関連情報
+  projectId             String?
+  project               Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // 通知先ユーザー（VaxalUserまたはEngineerUserのどちらか）
+  vaxalUserId           String?
+  vaxalUser             VaxalUser? @relation(fields: [vaxalUserId], references: [id], onDelete: Cascade)
+  engineerUserId        String?
+  engineerUser          EngineerUser? @relation(fields: [engineerUserId], references: [id], onDelete: Cascade)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([vaxalUserId, isRead])
+  @@index([engineerUserId, isRead])
 }
