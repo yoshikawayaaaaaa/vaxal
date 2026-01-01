@@ -72,11 +72,9 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     warrantyPeriod: 'FIVE_YEARS',
     paymentMethod: 'CASH',
     subsidyAmount: '',
-    sellingPriceType1: '',
+    sellingPriceTypes: [] as string[], // 選択された売価タイプの配列
     sellingPrice1: '',
-    sellingPriceType2: '',
     sellingPrice2: '',
-    sellingPriceType3: '',
     sellingPrice3: '',
     costPrice: '',
     contractAmount: '',
@@ -632,39 +630,97 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             />
           </div>
 
-          {/* 売価 */}
-          <div className="space-y-2">
-            <Label htmlFor="sellingPrice1">売価：交換できるくん</Label>
-            <Input
-              id="sellingPrice1"
-              type="number"
-              value={formData.sellingPrice1}
-              onChange={(e) => handleChange('sellingPrice1', e.target.value)}
-              placeholder="円"
-            />
+          {/* 売価タイプ選択 */}
+          <div className="space-y-3">
+            <Label>売価タイプ（複数選択可）</Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="sellingPriceType1"
+                  checked={formData.sellingPriceTypes.includes('交換できるくん')}
+                  onChange={(e) => {
+                    const types = e.target.checked
+                      ? [...formData.sellingPriceTypes, '交換できるくん']
+                      : formData.sellingPriceTypes.filter(t => t !== '交換できるくん')
+                    handleChange('sellingPriceTypes', types)
+                  }}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="sellingPriceType1" className="cursor-pointer">交換できるくん</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="sellingPriceType2"
+                  checked={formData.sellingPriceTypes.includes('キンライサー')}
+                  onChange={(e) => {
+                    const types = e.target.checked
+                      ? [...formData.sellingPriceTypes, 'キンライサー']
+                      : formData.sellingPriceTypes.filter(t => t !== 'キンライサー')
+                    handleChange('sellingPriceTypes', types)
+                  }}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="sellingPriceType2" className="cursor-pointer">キンライサー</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="sellingPriceType3"
+                  checked={formData.sellingPriceTypes.includes('cools')}
+                  onChange={(e) => {
+                    const types = e.target.checked
+                      ? [...formData.sellingPriceTypes, 'cools']
+                      : formData.sellingPriceTypes.filter(t => t !== 'cools')
+                    handleChange('sellingPriceTypes', types)
+                  }}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="sellingPriceType3" className="cursor-pointer">cools</Label>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="sellingPrice2">売価：キンライサー</Label>
-            <Input
-              id="sellingPrice2"
-              type="number"
-              value={formData.sellingPrice2}
-              onChange={(e) => handleChange('sellingPrice2', e.target.value)}
-              placeholder="円"
-            />
-          </div>
+          {/* 選択された売価タイプの金額入力フォーム */}
+          {formData.sellingPriceTypes.includes('交換できるくん') && (
+            <div className="space-y-2">
+              <Label htmlFor="sellingPrice1">売価：交換できるくん</Label>
+              <Input
+                id="sellingPrice1"
+                type="number"
+                value={formData.sellingPrice1}
+                onChange={(e) => handleChange('sellingPrice1', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="sellingPrice3">売価：cools</Label>
-            <Input
-              id="sellingPrice3"
-              type="number"
-              value={formData.sellingPrice3}
-              onChange={(e) => handleChange('sellingPrice3', e.target.value)}
-              placeholder="円"
-            />
-          </div>
+          {formData.sellingPriceTypes.includes('キンライサー') && (
+            <div className="space-y-2">
+              <Label htmlFor="sellingPrice2">売価：キンライサー</Label>
+              <Input
+                id="sellingPrice2"
+                type="number"
+                value={formData.sellingPrice2}
+                onChange={(e) => handleChange('sellingPrice2', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+          )}
+
+          {formData.sellingPriceTypes.includes('cools') && (
+            <div className="space-y-2">
+              <Label htmlFor="sellingPrice3">売価：cools</Label>
+              <Input
+                id="sellingPrice3"
+                type="number"
+                value={formData.sellingPrice3}
+                onChange={(e) => handleChange('sellingPrice3', e.target.value)}
+                placeholder="円"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
