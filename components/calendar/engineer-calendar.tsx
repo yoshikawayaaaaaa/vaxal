@@ -162,7 +162,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
           backgroundColor = '#6b7280' // グレー（注文仮登録 - 通常表示されない）
           break
         case 'ASSIGNED':
-          backgroundColor = '#3b82f6' // 青色（注文本登録）
+          backgroundColor = '#3b82f6' // 青色（注文依頼）
           break
         case 'REPORTED':
           backgroundColor = '#a855f7' // 紫色（報告済み）

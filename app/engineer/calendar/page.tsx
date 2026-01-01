@@ -129,7 +129,7 @@ export default async function EngineerCalendarPage() {
         <div className="mb-6 grid grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">注文本登録</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">注文依頼</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-baseline gap-2">
@@ -206,7 +206,7 @@ export default async function EngineerCalendarPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                  <span className="text-sm">注文本登録</span>
+                  <span className="text-sm">注文依頼</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 bg-purple-500 rounded"></div>

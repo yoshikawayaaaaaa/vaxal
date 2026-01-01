@@ -32,10 +32,10 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   ELECTRONIC_MONEY: '電子マネー',
 }
 
-// ステータスのラベル (1=注文仮登録, 2=注文本登録, 3=注文完了確認, 4=完了, 5=残工事あり)
+// ステータスのラベル (1=注文仮登録, 2=注文依頼, 3=注文完了確認, 4=完了, 5=残工事あり)
 export const STATUS_LABELS: Record<string, string> = {
   PENDING: '注文仮登録',
-  ASSIGNED: '注文本登録',
+  ASSIGNED: '注文依頼',
   REPORTED: '注文完了確認',
   COMPLETED: '完了',
   REMAINING_WORK: '残工事あり',

@@ -152,7 +152,7 @@ export default async function AssignProjectPage({
         <Card className="p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">注意事項</h2>
           <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-            <li>案件割り振り確定後、ステータスが「注文本登録」に変更されます</li>
+            <li>案件割り振り確定後、ステータスが「注文依頼」に変更されます</li>
             <li>エンジニアが案件を閲覧できるようになります</li>
             <li>確定後も案件情報の編集は可能です</li>
           </ul>

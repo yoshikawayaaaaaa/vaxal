@@ -73,7 +73,7 @@ export async function POST(
       )
     }
 
-    // ステータスを「注文本登録」に更新
+    // ステータスを「注文依頼」に更新
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {

@@ -53,7 +53,7 @@ export default async function EngineerDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-600">
-                注文本登録
+                注文依頼
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -147,7 +147,7 @@ export default async function EngineerDashboardPage() {
                               }`}
                             >
                               {project.status === 'ASSIGNED'
-                                ? '注文本登録'
+                                ? '注文依頼'
                                 : project.status === 'REPORTED'
                                 ? '報告済み'
                                 : project.status === 'REMAINING_WORK'
