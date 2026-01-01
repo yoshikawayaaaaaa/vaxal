@@ -70,11 +70,18 @@ model Company {
   projects              Project[]
 }
 
+// アカウントタイプ
+enum VaxalAccountType {
+  STAFF         // VAXAL社員
+  CALL_CENTER   // コールセンター
+}
+
 // VAXAL社員
 model VaxalUser {
   id                    String   @id @default(cuid())
   email                 String   @unique
   password              String
+  accountType           VaxalAccountType @default(STAFF) // アカウントタイプ
   
   // 基本情報
   name                  String

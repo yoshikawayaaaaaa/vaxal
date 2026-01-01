@@ -26,6 +26,7 @@ export default async function VaxalDashboardLayout({
         companyName={companyName} 
         userRole={userRole} 
         isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
+        accountType={session.user.accountType}
       />
 
       {/* メインコンテンツ */}

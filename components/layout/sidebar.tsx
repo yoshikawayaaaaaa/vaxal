@@ -18,9 +18,10 @@ interface SidebarProps {
   companyName?: string
   userRole?: string
   isVaxalAdmin?: boolean
+  accountType?: string
 }
 
-export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false }: SidebarProps) {
+export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false, accountType }: SidebarProps) {
   const pathname = usePathname()
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -45,49 +46,59 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
   }, [pathname])
 
   // メニュー項目
-  const menuItems = isVaxalAdmin ? [
-    {
-      title: '通知',
-      href: '/vaxal/notifications',
-      icon: Bell,
-      badge: unreadCount,
-    },
-    {
-      title: 'カレンダー',
-      href: '/vaxal/calendar',
-      icon: LayoutDashboard,
-    },
-    {
-      title: '注文受付',
-      href: '/vaxal/orders/new',
-      icon: LayoutDashboard,
-    },
-    {
-      title: '顧客検索',
-      href: '/vaxal/customers',
-      icon: FileText,
-    },
-    {
-      title: 'エンジニア検索',
-      href: '/vaxal/engineers',
-      icon: LinkIcon,
-    },
-    {
-      title: '在庫管理',
-      href: '/vaxal/inventory',
-      icon: Image,
-    },
-    {
-      title: '月次管理',
-      href: '/vaxal/monthly',
-      icon: ClipboardList,
-    },
-    {
-      title: '売価タイプ管理',
-      href: '/vaxal/settings/selling-price-types',
-      icon: Settings,
-    },
-  ] : [
+  const menuItems = isVaxalAdmin ? (
+    accountType === 'CALL_CENTER' ? [
+      // コールセンターユーザーは注文受付のみ
+      {
+        title: '注文受付',
+        href: '/vaxal/orders/new',
+        icon: LayoutDashboard,
+      },
+    ] : [
+      // VAXAL社員は全メニュー
+      {
+        title: '通知',
+        href: '/vaxal/notifications',
+        icon: Bell,
+        badge: unreadCount,
+      },
+      {
+        title: 'カレンダー',
+        href: '/vaxal/calendar',
+        icon: LayoutDashboard,
+      },
+      {
+        title: '注文受付',
+        href: '/vaxal/orders/new',
+        icon: LayoutDashboard,
+      },
+      {
+        title: '顧客検索',
+        href: '/vaxal/customers',
+        icon: FileText,
+      },
+      {
+        title: 'エンジニア検索',
+        href: '/vaxal/engineers',
+        icon: LinkIcon,
+      },
+      {
+        title: '在庫管理',
+        href: '/vaxal/inventory',
+        icon: Image,
+      },
+      {
+        title: '月次管理',
+        href: '/vaxal/monthly',
+        icon: ClipboardList,
+      },
+      {
+        title: '売価タイプ管理',
+        href: '/vaxal/settings/selling-price-types',
+        icon: Settings,
+      },
+    ]
+  ) : [
     {
       title: '通知',
       href: '/engineer/notifications',

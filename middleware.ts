@@ -5,12 +5,14 @@ export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
   const userType = req.auth?.user?.userType
+  const accountType = req.auth?.user?.accountType
 
   const isAuthPage = nextUrl.pathname.startsWith('/login') || 
                      nextUrl.pathname.startsWith('/register')
   const isPublicPage = nextUrl.pathname === '/'
   const isEngineerPage = nextUrl.pathname.startsWith('/engineer')
   const isVaxalPage = nextUrl.pathname.startsWith('/vaxal')
+  const isOrderPage = nextUrl.pathname === '/vaxal/orders/new' || nextUrl.pathname.startsWith('/vaxal/orders/new/')
 
   // 認証ページへのアクセス
   if (isAuthPage) {
@@ -39,6 +41,14 @@ export default auth((req) => {
     // VAXAL社員がエンジニアページにアクセスしようとした場合
     if (isEngineerPage && userType === 'vaxal') {
       return NextResponse.redirect(new URL('/vaxal', nextUrl))
+    }
+
+    // コールセンターユーザーのアクセス制限
+    if (userType === 'vaxal' && accountType === 'CALL_CENTER') {
+      // 注文受付ページ以外へのアクセスを制限
+      if (isVaxalPage && !isOrderPage) {
+        return NextResponse.redirect(new URL('/vaxal/orders/new', nextUrl))
+      }
     }
   }
 

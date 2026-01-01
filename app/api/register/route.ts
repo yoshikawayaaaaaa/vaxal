@@ -8,6 +8,7 @@ const registerSchema = z.object({
   email: z.string().email('有効なメールアドレスを入力してください'),
   password: z.string().min(6, 'パスワードは6文字以上である必要があります'),
   phoneNumber: z.string().min(1, '電話番号は必須です'),
+  accountType: z.enum(['STAFF', 'CALL_CENTER']).optional(),
 })
 
 export async function POST(request: NextRequest) {
@@ -39,12 +40,14 @@ export async function POST(request: NextRequest) {
         email: validatedData.email,
         password: hashedPassword,
         phoneNumber: validatedData.phoneNumber,
+        accountType: validatedData.accountType || 'STAFF',
       },
       select: {
         id: true,
         name: true,
         email: true,
         phoneNumber: true,
+        accountType: true,
         createdAt: true,
       },
     })

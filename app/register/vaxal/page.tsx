@@ -24,6 +24,7 @@ export default function VaxalRegisterPage() {
       email: formData.get('email'),
       password: formData.get('password'),
       phoneNumber: formData.get('phoneNumber'),
+      accountType: formData.get('accountType'),
     }
 
     // パスワード確認
@@ -110,6 +111,20 @@ export default function VaxalRegisterPage() {
               placeholder="03-1234-5678"
               className="mt-1"
             />
+          </div>
+
+          <div>
+            <Label htmlFor="accountType">アカウントステータス *</Label>
+            <select
+              id="accountType"
+              name="accountType"
+              required
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              defaultValue="STAFF"
+            >
+              <option value="STAFF">VAXAL社員</option>
+              <option value="CALL_CENTER">コールセンター</option>
+            </select>
           </div>
 
           <div>

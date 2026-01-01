@@ -73,6 +73,7 @@ export default {
             name: vaxalUser.name,
             role: 'VAXAL_ADMIN',
             userType: 'vaxal',
+            accountType: vaxalUser.accountType,
           }
         }
 
@@ -122,6 +123,7 @@ export default {
         token.companyId = user.companyId ?? null
         token.masterCompanyId = user.masterCompanyId ?? null
         token.engineerRole = user.engineerRole
+        token.accountType = user.accountType
       }
       return token
     },
@@ -133,6 +135,7 @@ export default {
         session.user.companyId = token.companyId
         session.user.masterCompanyId = token.masterCompanyId
         session.user.engineerRole = token.engineerRole
+        session.user.accountType = token.accountType
       }
       return session
     },
