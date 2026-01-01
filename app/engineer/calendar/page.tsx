@@ -4,7 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EngineerCalendar } from '@/components/calendar/engineer-calendar'
 
-export default async function EngineerCalendarPage() {
+export default async function EngineerCalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>
+}) {
   const session = await auth()
 
   if (!session) {
@@ -14,6 +18,9 @@ export default async function EngineerCalendarPage() {
   if (session.user.userType !== 'engineer') {
     redirect('/dashboard')
   }
+
+  const params = await searchParams
+  const monthParam = params.month
 
   // マスターの場合は自社の全スタッフ、スタッフの場合は自分のみ
   const isMaster = session.user.role === 'ENGINEER_MASTER'
@@ -45,10 +52,21 @@ export default async function EngineerCalendarPage() {
         engineerUserId: session.user.id,
       }
 
-  // 当月の開始日と終了日を計算
-  const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+  // 選択月または当月の開始日と終了日を計算
+  let monthStart: Date
+  let monthEnd: Date
+
+  if (monthParam) {
+    // URLパラメータから年月を取得
+    const [year, month] = monthParam.split('-').map(Number)
+    monthStart = new Date(year, month - 1, 1)
+    monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
+  } else {
+    // パラメータがない場合は当月
+    const now = new Date()
+    monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+  }
 
   // エンジニアの出勤可能日を取得
   const availableDates = await prisma.calendarEvent.findMany({
@@ -180,10 +198,7 @@ export default async function EngineerCalendarPage() {
           {/* カレンダー */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader>
-                <CardTitle>カレンダー</CardTitle>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <EngineerCalendar
                   availableDates={availableDates}
                   confirmedEvents={confirmedEvents}

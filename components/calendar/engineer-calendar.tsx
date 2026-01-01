@@ -42,6 +42,7 @@ interface EngineerCalendarProps {
 export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCalendarProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [currentDate, setCurrentDate] = useState(new Date())
 
   // データを統合してカレンダーイベント形式に変換
   // 確定予定がある日は、対応可能日を表示しない
@@ -206,22 +207,91 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
     showMore: (total: number) => `+${total} 件`,
   }
 
+  // 年月選択の変更ハンドラー（URLパラメータを更新）
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newYear = parseInt(e.target.value)
+    const newDate = new Date(newYear, currentDate.getMonth(), 1)
+    setCurrentDate(newDate)
+    
+    // URLパラメータを更新してページをリロード
+    const yearMonth = `${newYear}-${String(newDate.getMonth() + 1).padStart(2, '0')}`
+    router.push(`/engineer/calendar?month=${yearMonth}`)
+  }
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMonth = parseInt(e.target.value)
+    const newDate = new Date(currentDate.getFullYear(), newMonth, 1)
+    setCurrentDate(newDate)
+    
+    // URLパラメータを更新してページをリロード
+    const yearMonth = `${newDate.getFullYear()}-${String(newMonth + 1).padStart(2, '0')}`
+    router.push(`/engineer/calendar?month=${yearMonth}`)
+  }
+
+  // 年の選択肢を生成（現在年の前後5年）
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i)
+  const months = Array.from({ length: 12 }, (_, i) => i)
+
   return (
-    <div className="relative" style={{ height: '600px' }}>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: '100%' }}
-        eventPropGetter={eventStyleGetter}
-        messages={messages}
-        culture="ja"
-        views={['month']}
-        defaultView="month"
-        selectable
-        onSelectSlot={handleSelectSlot}
-        onSelectEvent={async (event) => {
+    <div className="space-y-4">
+      {/* 年月選択プルダウン */}
+      <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-2">
+          <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
+            年:
+          </label>
+          <select
+            id="year-select"
+            value={currentDate.getFullYear()}
+            onChange={handleYearChange}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}年
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <label htmlFor="month-select" className="text-sm font-medium text-gray-700">
+            月:
+          </label>
+          <select
+            id="month-select"
+            value={currentDate.getMonth()}
+            onChange={handleMonthChange}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {months.map((month) => (
+              <option key={month} value={month}>
+                {month + 1}月
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* カレンダー */}
+      <div className="relative" style={{ height: '600px' }}>
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: '100%' }}
+          eventPropGetter={eventStyleGetter}
+          messages={messages}
+          culture="ja"
+          views={['month']}
+          defaultView="month"
+          date={currentDate}
+          onNavigate={(newDate) => setCurrentDate(newDate)}
+          selectable
+          onSelectSlot={handleSelectSlot}
+          onSelectEvent={async (event) => {
           if (isLoading) return
 
           // 確定予定の場合は案件詳細に遷移
@@ -256,15 +326,16 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
               }
             }
           }
-        }}
-      />
-      {isLoading && (
-        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center rounded-lg z-10">
-          <div className="bg-white px-6 py-4 rounded-lg shadow-lg">
-            <p className="text-gray-700 font-medium">処理中...</p>
+          }}
+        />
+        {isLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center rounded-lg z-10">
+            <div className="bg-white px-6 py-4 rounded-lg shadow-lg">
+              <p className="text-gray-700 font-medium">処理中...</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
