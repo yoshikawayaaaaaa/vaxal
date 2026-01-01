@@ -596,7 +596,7 @@ model InventoryItem {
   productName           String?  // 商品名（任意）
   manufacturer          String?  // メーカー（任意）
   partNumber            String?  // 品番（任意）
-  unitPrice             Int      // 単価（必須）
+  unitPrice             Int      // 現在の単価（必須）
   unitType              UnitType @default(PIECE) // 個数 or メートル（必須）
   currentStock          Int      @default(0) // 現在の在庫数（ステータス）
   threshold             Int      @default(0) // 閾値（必須）
@@ -604,6 +604,26 @@ model InventoryItem {
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  
+  // リレーション
+  priceHistory          InventoryPriceHistory[]
+}
+
+// 在庫単価履歴
+model InventoryPriceHistory {
+  id                    String   @id @default(cuid())
+  inventoryItemId       String
+  inventoryItem         InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  
+  price                 Int      // 単価
+  effectiveFrom         DateTime // 適用開始日
+  effectiveTo           DateTime? // 適用終了日（nullの場合は現在も有効）
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([inventoryItemId])
+  @@index([effectiveFrom])
 }
 
 // 売価タイプマスタ

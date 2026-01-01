@@ -28,6 +28,45 @@ export async function PUT(
     const body = await request.json()
     const { productName, manufacturer, partNumber, unitPrice, unitType, currentStock, threshold } = body
 
+    // 現在の在庫アイテムを取得
+    const currentItem = await prisma.inventoryItem.findUnique({
+      where: { id }
+    })
+
+    if (!currentItem) {
+      return NextResponse.json(
+        { error: '在庫アイテムが見つかりません' },
+        { status: 404 }
+      )
+    }
+
+    const newUnitPrice = parseInt(unitPrice)
+    const now = new Date()
+
+    // 単価が変更された場合、履歴を記録
+    if (currentItem.unitPrice !== newUnitPrice) {
+      // 現在有効な履歴の終了日を設定
+      await prisma.inventoryPriceHistory.updateMany({
+        where: {
+          inventoryItemId: id,
+          effectiveTo: null, // 現在有効な履歴
+        },
+        data: {
+          effectiveTo: now,
+        },
+      })
+
+      // 新しい単価の履歴を作成
+      await prisma.inventoryPriceHistory.create({
+        data: {
+          inventoryItemId: id,
+          price: newUnitPrice,
+          effectiveFrom: now,
+          effectiveTo: null, // 現在有効
+        },
+      })
+    }
+
     // 在庫を更新
     const updatedItem = await prisma.inventoryItem.update({
       where: { id },
@@ -35,7 +74,7 @@ export async function PUT(
         productName: productName || null,
         manufacturer: manufacturer || null,
         partNumber: partNumber || null,
-        unitPrice: parseInt(unitPrice),
+        unitPrice: newUnitPrice,
         unitType: unitType || 'PIECE',
         currentStock: parseInt(currentStock),
         threshold: parseInt(threshold),

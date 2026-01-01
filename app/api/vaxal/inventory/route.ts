@@ -73,6 +73,9 @@ export async function POST(request: Request) {
       },
     })
 
+    const newUnitPrice = parseInt(unitPrice)
+    const now = new Date()
+
     // 新しい部材を追加
     const newItem = await prisma.inventoryItem.create({
       data: {
@@ -80,11 +83,21 @@ export async function POST(request: Request) {
         productName: productName || null,
         manufacturer: manufacturer || null,
         partNumber: partNumber || null,
-        unitPrice: parseInt(unitPrice),
+        unitPrice: newUnitPrice,
         unitType: unitType || 'PIECE',
         currentStock: parseInt(currentStock),
         threshold: parseInt(threshold),
         displayOrder: (maxOrder?.displayOrder || 0) + 1,
+      },
+    })
+
+    // 初期単価の履歴を作成
+    await prisma.inventoryPriceHistory.create({
+      data: {
+        inventoryItemId: newItem.id,
+        price: newUnitPrice,
+        effectiveFrom: now,
+        effectiveTo: null, // 現在有効
       },
     })
 
