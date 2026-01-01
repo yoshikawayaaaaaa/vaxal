@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button'
 interface InventoryItem {
   id: string
   name: string
+  productName: string | null
+  manufacturer: string | null
+  partNumber: string | null
   unitPrice: number
+  unitType: 'PIECE' | 'METER'
   currentStock: number
   threshold: number
 }
@@ -19,17 +23,42 @@ export default function InventoryPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{
+    productName: string
+    manufacturer: string
+    partNumber: string
     unitPrice: number
+    unitType: 'PIECE' | 'METER'
     currentStock: number
     threshold: number
-  }>({ unitPrice: 0, currentStock: 0, threshold: 0 })
+  }>({ 
+    productName: '', 
+    manufacturer: '', 
+    partNumber: '', 
+    unitPrice: 0, 
+    unitType: 'PIECE',
+    currentStock: 0, 
+    threshold: 0 
+  })
   const [isAdding, setIsAdding] = useState(false)
   const [newItem, setNewItem] = useState<{
     name: string
+    productName: string
+    manufacturer: string
+    partNumber: string
     unitPrice: number
+    unitType: 'PIECE' | 'METER'
     currentStock: number
     threshold: number
-  }>({ name: '', unitPrice: 0, currentStock: 0, threshold: 0 })
+  }>({ 
+    name: '', 
+    productName: '', 
+    manufacturer: '', 
+    partNumber: '', 
+    unitPrice: 0, 
+    unitType: 'PIECE',
+    currentStock: 0, 
+    threshold: 0 
+  })
 
   useEffect(() => {
     fetchInventory()
@@ -52,7 +81,11 @@ export default function InventoryPage() {
   const handleEdit = (item: InventoryItem) => {
     setEditingId(item.id)
     setEditValues({
+      productName: item.productName || '',
+      manufacturer: item.manufacturer || '',
+      partNumber: item.partNumber || '',
       unitPrice: item.unitPrice,
+      unitType: item.unitType,
       currentStock: item.currentStock,
       threshold: item.threshold,
     })
@@ -102,7 +135,16 @@ export default function InventoryPage() {
       if (response.ok) {
         await fetchInventory()
         setIsAdding(false)
-        setNewItem({ name: '', unitPrice: 0, currentStock: 0, threshold: 0 })
+        setNewItem({ 
+          name: '', 
+          productName: '', 
+          manufacturer: '', 
+          partNumber: '', 
+          unitPrice: 0, 
+          unitType: 'PIECE',
+          currentStock: 0, 
+          threshold: 0 
+        })
       } else {
         alert('追加に失敗しました')
       }
@@ -114,7 +156,16 @@ export default function InventoryPage() {
 
   const handleCancelAdd = () => {
     setIsAdding(false)
-    setNewItem({ name: '', unitPrice: 0, currentStock: 0, threshold: 0 })
+    setNewItem({ 
+      name: '', 
+      productName: '', 
+      manufacturer: '', 
+      partNumber: '', 
+      unitPrice: 0, 
+      unitType: 'PIECE',
+      currentStock: 0, 
+      threshold: 0 
+    })
   }
 
   if (isLoading) {
@@ -178,20 +229,55 @@ export default function InventoryPage() {
         {isAdding && (
           <Card className="p-6 mb-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">新しい部材を追加</h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-4 mb-4">
               <div>
-                <Label htmlFor="newName">部材名</Label>
+                <Label htmlFor="newName">部材名 *</Label>
                 <Input
                   id="newName"
                   type="text"
                   value={newItem.name}
                   onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  placeholder="例: 新部材"
+                  placeholder="例: 配管部材"
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label htmlFor="newUnitPrice">単価</Label>
+                <Label htmlFor="newProductName">商品名</Label>
+                <Input
+                  id="newProductName"
+                  type="text"
+                  value={newItem.productName}
+                  onChange={(e) => setNewItem({ ...newItem, productName: e.target.value })}
+                  placeholder="例: エコキュート用配管"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newManufacturer">メーカー</Label>
+                <Input
+                  id="newManufacturer"
+                  type="text"
+                  value={newItem.manufacturer}
+                  onChange={(e) => setNewItem({ ...newItem, manufacturer: e.target.value })}
+                  placeholder="例: パナソニック"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newPartNumber">品番</Label>
+                <Input
+                  id="newPartNumber"
+                  type="text"
+                  value={newItem.partNumber}
+                  onChange={(e) => setNewItem({ ...newItem, partNumber: e.target.value })}
+                  placeholder="例: ABC-123"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="newUnitPrice">単価 *</Label>
                 <Input
                   id="newUnitPrice"
                   type="number"
@@ -206,6 +292,18 @@ export default function InventoryPage() {
                   className="mt-1"
                   min="0"
                 />
+              </div>
+              <div>
+                <Label htmlFor="newUnitType">単位 *</Label>
+                <select
+                  id="newUnitType"
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 mt-1"
+                  value={newItem.unitType}
+                  onChange={(e) => setNewItem({ ...newItem, unitType: e.target.value as 'PIECE' | 'METER' })}
+                >
+                  <option value="PIECE">個数</option>
+                  <option value="METER">メートル</option>
+                </select>
               </div>
               <div>
                 <Label htmlFor="newCurrentStock">現在の在庫数</Label>
@@ -225,7 +323,7 @@ export default function InventoryPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="newThreshold">閾値</Label>
+                <Label htmlFor="newThreshold">閾値 *</Label>
                 <Input
                   id="newThreshold"
                   type="number"
@@ -269,10 +367,22 @@ export default function InventoryPage() {
                     部材名
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    商品名
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    メーカー
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    品番
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     単価
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    現在の在庫数
+                    単位
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    在庫数
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     閾値
@@ -291,6 +401,45 @@ export default function InventoryPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {item.name}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {editingId === item.id ? (
+                        <Input
+                          type="text"
+                          value={editValues.productName}
+                          onChange={(e) => setEditValues({ ...editValues, productName: e.target.value })}
+                          placeholder="商品名"
+                          className="w-32"
+                        />
+                      ) : (
+                        <span>{item.productName || '-'}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {editingId === item.id ? (
+                        <Input
+                          type="text"
+                          value={editValues.manufacturer}
+                          onChange={(e) => setEditValues({ ...editValues, manufacturer: e.target.value })}
+                          placeholder="メーカー"
+                          className="w-32"
+                        />
+                      ) : (
+                        <span>{item.manufacturer || '-'}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {editingId === item.id ? (
+                        <Input
+                          type="text"
+                          value={editValues.partNumber}
+                          onChange={(e) => setEditValues({ ...editValues, partNumber: e.target.value })}
+                          placeholder="品番"
+                          className="w-32"
+                        />
+                      ) : (
+                        <span>{item.partNumber || '-'}</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {editingId === item.id ? (
                         <Input
@@ -308,6 +457,20 @@ export default function InventoryPage() {
                         />
                       ) : (
                         <span>¥{item.unitPrice.toLocaleString()}</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {editingId === item.id ? (
+                        <select
+                          className="w-24 h-8 px-2 rounded-md border border-gray-300"
+                          value={editValues.unitType}
+                          onChange={(e) => setEditValues({ ...editValues, unitType: e.target.value as 'PIECE' | 'METER' })}
+                        >
+                          <option value="PIECE">個数</option>
+                          <option value="METER">メートル</option>
+                        </select>
+                      ) : (
+                        <span>{item.unitType === 'PIECE' ? '個数' : 'メートル'}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

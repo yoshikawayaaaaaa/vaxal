@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { name, unitPrice, currentStock, threshold } = body
+    const { name, productName, manufacturer, partNumber, unitPrice, unitType, currentStock, threshold } = body
 
     // 最大のdisplayOrderを取得
     const maxOrder = await prisma.inventoryItem.findFirst({
@@ -77,7 +77,11 @@ export async function POST(request: Request) {
     const newItem = await prisma.inventoryItem.create({
       data: {
         name,
+        productName: productName || null,
+        manufacturer: manufacturer || null,
+        partNumber: partNumber || null,
         unitPrice: parseInt(unitPrice),
+        unitType: unitType || 'PIECE',
         currentStock: parseInt(currentStock),
         threshold: parseInt(threshold),
         displayOrder: (maxOrder?.displayOrder || 0) + 1,

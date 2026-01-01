@@ -26,13 +26,17 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { unitPrice, currentStock, threshold } = body
+    const { productName, manufacturer, partNumber, unitPrice, unitType, currentStock, threshold } = body
 
     // 在庫を更新
     const updatedItem = await prisma.inventoryItem.update({
       where: { id },
       data: {
+        productName: productName || null,
+        manufacturer: manufacturer || null,
+        partNumber: partNumber || null,
         unitPrice: parseInt(unitPrice),
+        unitType: unitType || 'PIECE',
         currentStock: parseInt(currentStock),
         threshold: parseInt(threshold),
       },

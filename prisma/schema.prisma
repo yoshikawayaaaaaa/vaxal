@@ -585,12 +585,21 @@ model MonthlyExpense {
 }
 
 // 在庫管理
+enum UnitType {
+  PIECE   // 個数
+  METER   // メートル
+}
+
 model InventoryItem {
   id                    String   @id @default(cuid())
-  name                  String   // 部材名
-  unitPrice             Int      // 単価
-  currentStock          Int      @default(0) // 現在の在庫数
-  threshold             Int      @default(0) // 閾値
+  name                  String   // 部材名（必須）
+  productName           String?  // 商品名（任意）
+  manufacturer          String?  // メーカー（任意）
+  partNumber            String?  // 品番（任意）
+  unitPrice             Int      // 単価（必須）
+  unitType              UnitType @default(PIECE) // 個数 or メートル（必須）
+  currentStock          Int      @default(0) // 現在の在庫数（ステータス）
+  threshold             Int      @default(0) // 閾値（必須）
   displayOrder          Int      @default(0) // 表示順序
   
   createdAt             DateTime @default(now())
