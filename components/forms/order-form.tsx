@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +23,13 @@ interface EngineerCompany {
   }[]
 }
 
+interface SellingPriceType {
+  id: string
+  name: string
+  displayOrder: number
+  isActive: boolean
+}
+
 interface OrderFormProps {
   engineerCompanies: EngineerCompany[]
 }
@@ -33,6 +40,27 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
   const [error, setError] = useState('')
   const [availableEngineers, setAvailableEngineers] = useState<any[]>([])
   const [loadingEngineers, setLoadingEngineers] = useState(false)
+  const [sellingPriceTypes, setSellingPriceTypes] = useState<SellingPriceType[]>([])
+  const [sellingPrices, setSellingPrices] = useState<Record<string, string>>({})
+  const [selectedSellingPriceTypes, setSelectedSellingPriceTypes] = useState<string[]>([])
+
+  // 売価タイプをAPIから取得
+  useEffect(() => {
+    const fetchSellingPriceTypes = async () => {
+      try {
+        const response = await fetch('/api/vaxal/selling-price-types')
+        if (response.ok) {
+          const data = await response.json()
+          // 有効な売価タイプのみを取得
+          setSellingPriceTypes(data.filter((type: SellingPriceType) => type.isActive))
+        }
+      } catch (error) {
+        console.error('売価タイプ取得エラー:', error)
+      }
+    }
+
+    fetchSellingPriceTypes()
+  }, [])
 
   // フォームの状態管理
   const [formData, setFormData] = useState({
@@ -115,12 +143,25 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     setIsLoading(true)
 
     try {
+      // 売価データをJSON形式に変換
+      const sellingPricesData: Record<string, number> = {}
+      Object.entries(sellingPrices).forEach(([key, value]) => {
+        if (value) {
+          sellingPricesData[key] = parseInt(value)
+        }
+      })
+
+      const submitData = {
+        ...formData,
+        sellingPrices: Object.keys(sellingPricesData).length > 0 ? sellingPricesData : null
+      }
+
       const response = await fetch('/api/vaxal/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       })
 
       if (!response.ok) {
@@ -630,96 +671,53 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             />
           </div>
 
-          {/* 売価タイプ選択 */}
-          <div className="space-y-3">
-            <Label>売価タイプ（複数選択可）</Label>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="sellingPriceType1"
-                  checked={formData.sellingPriceTypes.includes('交換できるくん')}
-                  onChange={(e) => {
-                    const types = e.target.checked
-                      ? [...formData.sellingPriceTypes, '交換できるくん']
-                      : formData.sellingPriceTypes.filter(t => t !== '交換できるくん')
-                    handleChange('sellingPriceTypes', types)
-                  }}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="sellingPriceType1" className="cursor-pointer">交換できるくん</Label>
+          {/* 売価タイプ選択（動的） */}
+          {sellingPriceTypes.length > 0 && (
+            <>
+              <div className="space-y-3">
+                <Label>売価タイプ（複数選択可）</Label>
+                <div className="space-y-2">
+                  {sellingPriceTypes.map((type) => (
+                    <div key={type.id} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`sellingPriceType-${type.id}`}
+                        checked={selectedSellingPriceTypes.includes(type.name)}
+                        onChange={(e) => {
+                          const newTypes = e.target.checked
+                            ? [...selectedSellingPriceTypes, type.name]
+                            : selectedSellingPriceTypes.filter(t => t !== type.name)
+                          setSelectedSellingPriceTypes(newTypes)
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor={`sellingPriceType-${type.id}`} className="cursor-pointer">
+                        {type.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="sellingPriceType2"
-                  checked={formData.sellingPriceTypes.includes('キンライサー')}
-                  onChange={(e) => {
-                    const types = e.target.checked
-                      ? [...formData.sellingPriceTypes, 'キンライサー']
-                      : formData.sellingPriceTypes.filter(t => t !== 'キンライサー')
-                    handleChange('sellingPriceTypes', types)
-                  }}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="sellingPriceType2" className="cursor-pointer">キンライサー</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="sellingPriceType3"
-                  checked={formData.sellingPriceTypes.includes('cools')}
-                  onChange={(e) => {
-                    const types = e.target.checked
-                      ? [...formData.sellingPriceTypes, 'cools']
-                      : formData.sellingPriceTypes.filter(t => t !== 'cools')
-                    handleChange('sellingPriceTypes', types)
-                  }}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="sellingPriceType3" className="cursor-pointer">cools</Label>
-              </div>
-            </div>
-          </div>
 
-          {/* 選択された売価タイプの金額入力フォーム */}
-          {formData.sellingPriceTypes.includes('交換できるくん') && (
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice1">売価：交換できるくん</Label>
-              <Input
-                id="sellingPrice1"
-                type="number"
-                value={formData.sellingPrice1}
-                onChange={(e) => handleChange('sellingPrice1', e.target.value)}
-                placeholder="円"
-              />
-            </div>
-          )}
-
-          {formData.sellingPriceTypes.includes('キンライサー') && (
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice2">売価：キンライサー</Label>
-              <Input
-                id="sellingPrice2"
-                type="number"
-                value={formData.sellingPrice2}
-                onChange={(e) => handleChange('sellingPrice2', e.target.value)}
-                placeholder="円"
-              />
-            </div>
-          )}
-
-          {formData.sellingPriceTypes.includes('cools') && (
-            <div className="space-y-2">
-              <Label htmlFor="sellingPrice3">売価：cools</Label>
-              <Input
-                id="sellingPrice3"
-                type="number"
-                value={formData.sellingPrice3}
-                onChange={(e) => handleChange('sellingPrice3', e.target.value)}
-                placeholder="円"
-              />
-            </div>
+              {/* 選択された売価タイプの金額入力フォーム（動的） */}
+              {selectedSellingPriceTypes.map((typeName) => (
+                <div key={typeName} className="space-y-2">
+                  <Label htmlFor={`sellingPrice-${typeName}`}>売価：{typeName}</Label>
+                  <Input
+                    id={`sellingPrice-${typeName}`}
+                    type="number"
+                    value={sellingPrices[typeName] || ''}
+                    onChange={(e) => {
+                      setSellingPrices(prev => ({
+                        ...prev,
+                        [typeName]: e.target.value
+                      }))
+                    }}
+                    placeholder="円"
+                  />
+                </div>
+              ))}
+            </>
           )}
 
           <div className="grid grid-cols-2 gap-4">

@@ -251,9 +251,7 @@ model Project {
   warrantyPeriod        WarrantyPeriod? // 商品保証期間
   paymentMethod         PaymentMethod?
   subsidyAmount         Int?     // 補助金金額
-  sellingPrice          Int?     // 売価：交換できるくん
-  sellingPrice2         Int?     // 売価：キンライサー
-  sellingPrice3         Int?     // 売価：cools
+  sellingPrices         Json?    // 動的売価データ { "交換できるくん": 100000, "キンライサー": 95000, ... }
   costPrice             Int?     // 原価
   hasHandMoney          Boolean  @default(false) // 手元の有無
   handMoneyAmount       Int?     // 手元の代金
@@ -597,6 +595,19 @@ model InventoryItem {
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+// 売価タイプマスタ
+model SellingPriceType {
+  id           String   @id @default(cuid())
+  name         String   @unique  // 売価タイプ名（例: "交換できるくん"）
+  displayOrder Int      @default(0) // 表示順序
+  isActive     Boolean  @default(true) // 有効/無効
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([displayOrder])
 }
 
 // 通知管理

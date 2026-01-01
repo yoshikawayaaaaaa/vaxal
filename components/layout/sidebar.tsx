@@ -9,7 +9,8 @@ import {
   Link as LinkIcon, 
   Image, 
   ClipboardList,
-  Bell
+  Bell,
+  Settings
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -80,6 +81,11 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       title: '月次管理',
       href: '/vaxal/monthly',
       icon: ClipboardList,
+    },
+    {
+      title: '売価タイプ管理',
+      href: '/vaxal/settings/selling-price-types',
+      icon: Settings,
     },
   ] : [
     {

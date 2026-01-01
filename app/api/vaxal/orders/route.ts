@@ -82,9 +82,7 @@ export async function POST(request: NextRequest) {
         warrantyPeriod: body.warrantyPeriod || null,
         paymentMethod: body.paymentMethod || null,
         subsidyAmount: body.subsidyAmount ? parseInt(body.subsidyAmount) : null,
-        sellingPrice: body.sellingPrice1 ? parseInt(body.sellingPrice1) : null,
-        sellingPrice2: body.sellingPrice2 ? parseInt(body.sellingPrice2) : null,
-        sellingPrice3: body.sellingPrice3 ? parseInt(body.sellingPrice3) : null,
+        sellingPrices: body.sellingPrices || null, // JSON形式の売価データ
         costPrice: body.costPrice ? parseInt(body.costPrice) : null,
         hasHandMoney: body.hasHandMoney,
         handMoneyAmount: body.handMoneyAmount ? parseInt(body.handMoneyAmount) : null,
