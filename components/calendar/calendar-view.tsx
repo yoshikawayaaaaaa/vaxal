@@ -40,10 +40,25 @@ interface CalendarEvent {
 
 interface CalendarViewProps {
   events: CalendarEvent[]
+  currentDate?: Date
 }
 
-export function CalendarView({ events }: CalendarViewProps) {
+export function CalendarView({ events, currentDate }: CalendarViewProps) {
   const router = useRouter()
+  
+  // カスタムツールバーコンポーネント
+  const CustomToolbar = ({ date }: { date: Date }) => {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    
+    return (
+      <div className="rbc-toolbar mb-4">
+        <span className="rbc-toolbar-label text-xl font-bold">
+          {year}年{month}月
+        </span>
+      </div>
+    )
+  }
 
   const handleSelectEvent = (event: CalendarEvent) => {
     // 確定予定の場合は案件詳細へ
@@ -116,6 +131,7 @@ export function CalendarView({ events }: CalendarViewProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6" style={{ height: '700px' }}>
+      {currentDate && <CustomToolbar date={currentDate} />}
       <Calendar
         localizer={localizer}
         events={events}
@@ -127,9 +143,10 @@ export function CalendarView({ events }: CalendarViewProps) {
         eventPropGetter={eventStyleGetter}
         messages={messages}
         culture="ja"
-        views={['month', 'week', 'day', 'agenda']}
+        views={['month']}
         defaultView="month"
-        toolbar={true}
+        date={currentDate}
+        toolbar={false}
         popup={true}
         selectable={true}
       />

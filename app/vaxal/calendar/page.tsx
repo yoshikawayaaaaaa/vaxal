@@ -2,6 +2,8 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { CalendarView } from '@/components/calendar/calendar-view'
+import { CompanyFilter } from '@/components/calendar/company-filter'
+import { MonthFilter } from '@/components/calendar/month-filter'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
@@ -9,7 +11,7 @@ import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
 export default async function CalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string }>
+  searchParams: Promise<{ month?: string; company?: string }>
 }) {
   const session = await auth()
 
@@ -22,11 +24,12 @@ export default async function CalendarPage({
     redirect('/engineer')
   }
 
-  // 表示月を取得（デフォルトは当月）
+  // 表示月と会社フィルターを取得
   const params = await searchParams
   const currentDate = params.month ? new Date(params.month) : new Date()
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
+  const companyFilter = params.company
   
   // 月の開始日と終了日を計算
   const monthStart = new Date(year, month, 1)
@@ -59,10 +62,34 @@ export default async function CalendarPage({
     countsByStatus[item.status] = item._count.status
   })
 
-  // 全エンジニアの出勤可能日を取得
+  // エンジニア会社一覧を取得
+  const companies = await prisma.company.findMany({
+    select: {
+      id: true,
+      companyName: true,
+    },
+    orderBy: {
+      companyName: 'asc',
+    },
+  })
+
+  // 会社フィルター条件を構築
+  const companyWhere = companyFilter
+    ? {
+        engineerUser: {
+          OR: [
+            { companyId: companyFilter },
+            { masterCompanyId: companyFilter },
+          ],
+        },
+      }
+    : {}
+
+  // 全エンジニアの出勤可能日を取得（会社フィルター適用）
   const availableDates = await prisma.calendarEvent.findMany({
     where: {
       eventType: 'AVAILABLE',
+      ...companyWhere,
     },
     include: {
       engineerUser: {
@@ -82,10 +109,11 @@ export default async function CalendarPage({
     },
   })
 
-  // 確定予定（割り振られた案件）を取得
+  // 確定予定（割り振られた案件）を取得（会社フィルター適用）
   const confirmedEvents = await prisma.calendarEvent.findMany({
     where: {
       eventType: 'CONFIRMED',
+      ...companyWhere,
     },
     include: {
       engineerUser: {
@@ -152,6 +180,12 @@ export default async function CalendarPage({
           </p>
         </div>
 
+        {/* フィルター */}
+        <div className="mb-6 flex gap-4 items-center">
+          <MonthFilter />
+          <CompanyFilter companies={companies} />
+        </div>
+
         {/* ステータス別案件数 */}
         <div className="mb-6 grid grid-cols-5 gap-4">
           {Object.entries(countsByStatus).map(([status, count]) => (
@@ -195,7 +229,7 @@ export default async function CalendarPage({
           </div>
         </div>
 
-        <CalendarView events={events} />
+        <CalendarView events={events} currentDate={currentDate} />
       </div>
     </div>
   )
