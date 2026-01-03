@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,11 +19,36 @@ interface ImageData {
   previews: string[]
 }
 
+interface PickupMaterialRow {
+  id: string
+  inventoryItemId: string
+  inventoryItemName: string
+  productName: string
+  manufacturer: string
+  partNumber: string
+  quantity: number
+  unitType: 'PIECE' | 'METER'
+  unitPrice: number
+}
+
+interface InventoryItem {
+  id: string
+  name: string
+  productName: string | null
+  manufacturer: string | null
+  partNumber: string | null
+  unitPrice: number
+  unitType: 'PIECE' | 'METER'
+  currentStock: number
+}
+
 export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabId>('SITE_SURVEY')
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
+  const [pickupMaterials, setPickupMaterials] = useState<PickupMaterialRow[]>([])
 
   // 各報告タイプの画像を管理
   const [images, setImages] = useState<Record<string, ImageData>>({
@@ -35,7 +60,6 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
   })
 
   const [formData, setFormData] = useState({
-    pickupMaterials: '',
     notes: '',
     isWorkCompleted: 'true', // 工事完了/未完了
     remainingWorkDate: '', // 残工事日
@@ -61,6 +85,75 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     { id: 'UNLOADING' as const, label: '荷卸し報告' },
     { id: 'ENGINEER_INFO' as const, label: 'エンジニア入力情報' },
   ]
+
+  // 在庫アイテムを取得
+  useEffect(() => {
+    const fetchInventoryItems = async () => {
+      try {
+        const response = await fetch('/api/engineer/inventory')
+        if (response.ok) {
+          const data = await response.json()
+          setInventoryItems(data.items || [])
+        }
+      } catch (error) {
+        console.error('在庫取得エラー:', error)
+      }
+    }
+    fetchInventoryItems()
+  }, [])
+
+  // 集荷部材行を追加
+  const addPickupMaterialRow = () => {
+    setPickupMaterials([
+      ...pickupMaterials,
+      {
+        id: Math.random().toString(36).substr(2, 9),
+        inventoryItemId: '',
+        inventoryItemName: '',
+        productName: '',
+        manufacturer: '',
+        partNumber: '',
+        quantity: 0,
+        unitType: 'PIECE',
+        unitPrice: 0,
+      },
+    ])
+  }
+
+  // 集荷部材行を削除
+  const removePickupMaterialRow = (id: string) => {
+    setPickupMaterials(pickupMaterials.filter((row) => row.id !== id))
+  }
+
+  // 在庫アイテム選択時の処理
+  const handleInventoryItemChange = (rowId: string, inventoryItemId: string) => {
+    const selectedItem = inventoryItems.find((item) => item.id === inventoryItemId)
+    if (selectedItem) {
+      setPickupMaterials(
+        pickupMaterials.map((row) =>
+          row.id === rowId
+            ? {
+                ...row,
+                inventoryItemId: selectedItem.id,
+                inventoryItemName: selectedItem.name,
+                productName: selectedItem.productName || '',
+                manufacturer: selectedItem.manufacturer || '',
+                partNumber: selectedItem.partNumber || '',
+                unitType: selectedItem.unitType,
+                unitPrice: selectedItem.unitPrice,
+              }
+            : row
+        )
+      )
+    }
+  }
+
+  // 集荷部材の数量変更
+  const handleQuantityChange = (rowId: string, quantity: number) => {
+    setPickupMaterials(
+      pickupMaterials.map((row) => (row.id === rowId ? { ...row, quantity } : row))
+    )
+  }
 
   const handleImageChange = (reportType: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -127,8 +220,10 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
       // プロジェクトIDを追加
       submitData.append('projectId', projectId)
       
+      // 集荷部材データをJSON形式で追加
+      submitData.append('pickupMaterialsData', JSON.stringify(pickupMaterials))
+      
       // エンジニア入力情報を追加
-      submitData.append('pickupMaterials', formData.pickupMaterials)
       submitData.append('notes', formData.notes)
       submitData.append('isWorkCompleted', formData.isWorkCompleted)
       submitData.append('remainingWorkDate', formData.remainingWorkDate)
@@ -263,18 +358,119 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               <CardTitle>集荷報告</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="pickupMaterials">持ち出し部材</Label>
-                <textarea
-                  id="pickupMaterials"
-                  className="w-full min-h-[80px] px-3 py-2 rounded-md border border-gray-300"
-                  value={formData.pickupMaterials}
-                  onChange={(e) => handleChange('pickupMaterials', e.target.value)}
-                  placeholder="持ち出した部材を入力してください"
-                />
+              {/* 集荷部材リスト */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label>使用部材</Label>
+                  <Button
+                    type="button"
+                    onClick={addPickupMaterialRow}
+                    className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2"
+                  >
+                    + 部材を追加
+                  </Button>
+                </div>
+
+                {pickupMaterials.length === 0 ? (
+                  <p className="text-gray-400 text-sm">
+                    「+ 部材を追加」ボタンをクリックして使用した部材を追加してください
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {pickupMaterials.map((row, index) => (
+                      <div key={row.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-sm">部材 {index + 1}</span>
+                          <button
+                            type="button"
+                            onClick={() => removePickupMaterialRow(row.id)}
+                            className="text-red-600 hover:text-red-800 text-sm"
+                          >
+                            削除
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* 部材名選択 */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">部材名 *</Label>
+                            <select
+                              className="w-full h-9 px-2 text-sm rounded-md border border-gray-300"
+                              value={row.inventoryItemId}
+                              onChange={(e) => handleInventoryItemChange(row.id, e.target.value)}
+                            >
+                              <option value="">選択してください</option>
+                              {inventoryItems.map((item) => (
+                                <option key={item.id} value={item.id}>
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* 商品名（自動入力） */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">商品名</Label>
+                            <Input
+                              type="text"
+                              value={row.productName}
+                              disabled
+                              className="h-9 text-sm bg-gray-50"
+                              placeholder="-"
+                            />
+                          </div>
+
+                          {/* メーカー（自動入力） */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">メーカー</Label>
+                            <Input
+                              type="text"
+                              value={row.manufacturer}
+                              disabled
+                              className="h-9 text-sm bg-gray-50"
+                              placeholder="-"
+                            />
+                          </div>
+
+                          {/* 品番（自動入力） */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">品番</Label>
+                            <Input
+                              type="text"
+                              value={row.partNumber}
+                              disabled
+                              className="h-9 text-sm bg-gray-50"
+                              placeholder="-"
+                            />
+                          </div>
+
+                          {/* 使用数量 */}
+                          <div className="space-y-1">
+                            <Label className="text-xs">
+                              使用数量 * ({row.unitType === 'PIECE' ? '個' : 'メートル'})
+                            </Label>
+                            <Input
+                              type="number"
+                              value={row.quantity === 0 ? '' : row.quantity}
+                              onChange={(e) =>
+                                handleQuantityChange(
+                                  row.id,
+                                  e.target.value === '' ? 0 : parseInt(e.target.value)
+                                )
+                              }
+                              className="h-9 text-sm"
+                              placeholder="0"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 pt-4 border-t">
                 <Label htmlFor="pickup-images">画像を選択</Label>
                 <Input
                   id="pickup-images"

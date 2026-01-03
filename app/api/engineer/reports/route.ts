@@ -37,9 +37,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'アクセス権限がありません' }, { status: 403 })
     }
 
+    // 集荷部材データを取得
+    const pickupMaterialsDataStr = formData.get('pickupMaterialsData') as string
+    const pickupMaterialsData = pickupMaterialsDataStr ? JSON.parse(pickupMaterialsDataStr) : []
+
     // エンジニア入力情報を取得
     const engineerInfo = {
-      pickupMaterials: formData.get('pickupMaterials') as string || null,
       notes: formData.get('notes') as string || null,
       isWorkCompleted: formData.get('isWorkCompleted') === 'true' ? true : formData.get('isWorkCompleted') === 'false' ? false : null,
       remainingWorkDate: formData.get('remainingWorkDate') as string || null,
@@ -91,7 +94,6 @@ export async function POST(request: NextRequest) {
             status: 'COMPLETED',
             engineerUserId: session.user.id,
             notes: engineerInfo.notes,
-            pickupMaterials: reportType === 'PICKUP' ? engineerInfo.pickupMaterials : null,
             // 工事完了報告用
             isWorkCompleted: reportType === 'COMPLETION' ? engineerInfo.isWorkCompleted : null,
             remainingWorkDate: reportType === 'COMPLETION' && engineerInfo.remainingWorkDate ? new Date(engineerInfo.remainingWorkDate) : null,
@@ -110,6 +112,38 @@ export async function POST(request: NextRequest) {
             saleFee: engineerInfo.saleFee,
           },
         })
+
+        // 集荷報告の場合、集荷部材を保存し在庫を減算
+        if (reportType === 'PICKUP' && pickupMaterialsData.length > 0) {
+          for (const material of pickupMaterialsData) {
+            if (material.inventoryItemId && material.quantity > 0) {
+              // 集荷部材を保存
+              await prisma.pickupMaterial.create({
+                data: {
+                  reportId: report.id,
+                  inventoryItemId: material.inventoryItemId,
+                  inventoryItemName: material.inventoryItemName,
+                  productName: material.productName || null,
+                  manufacturer: material.manufacturer || null,
+                  partNumber: material.partNumber || null,
+                  quantity: material.quantity,
+                  unitType: material.unitType,
+                  unitPrice: material.unitPrice,
+                },
+              })
+
+              // 在庫数を減算
+              await prisma.inventoryItem.update({
+                where: { id: material.inventoryItemId },
+                data: {
+                  currentStock: {
+                    decrement: material.quantity,
+                  },
+                },
+              })
+            }
+          }
+        }
 
         // 画像を保存
         for (let i = 0; i < imageCount; i++) {

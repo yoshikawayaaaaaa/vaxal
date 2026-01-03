@@ -34,6 +34,11 @@ export default async function RelatedInfoPage({
         },
         include: {
           files: true,
+          pickupMaterialsList: {
+            include: {
+              inventoryItem: true,
+            },
+          },
         },
       },
       assignedEngineer: {
@@ -207,12 +212,57 @@ export default async function RelatedInfoPage({
                       <p className="text-sm text-gray-500 mb-2">
                         作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
                       </p>
-                      {report.pickupMaterials && (
-                        <div className="mb-2">
-                          <p className="text-sm font-medium text-gray-700">持ち出し部材</p>
-                          <p className="text-sm text-gray-600">{report.pickupMaterials}</p>
+                      
+                      {/* 集荷部材リスト */}
+                      {(report as any).pickupMaterialsList && (report as any).pickupMaterialsList.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-sm font-medium text-gray-700 mb-2">使用部材</p>
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm border">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th className="px-3 py-2 text-left border">部材名</th>
+                                  <th className="px-3 py-2 text-left border">商品名</th>
+                                  <th className="px-3 py-2 text-left border">メーカー</th>
+                                  <th className="px-3 py-2 text-left border">品番</th>
+                                  <th className="px-3 py-2 text-right border">使用数量</th>
+                                  <th className="px-3 py-2 text-right border">単価</th>
+                                  <th className="px-3 py-2 text-right border">小計</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {(report as any).pickupMaterialsList.map((material: any) => (
+                                  <tr key={material.id} className="border-t">
+                                    <td className="px-3 py-2 border">{material.inventoryItemName}</td>
+                                    <td className="px-3 py-2 border">{material.productName || '-'}</td>
+                                    <td className="px-3 py-2 border">{material.manufacturer || '-'}</td>
+                                    <td className="px-3 py-2 border">{material.partNumber || '-'}</td>
+                                    <td className="px-3 py-2 text-right border">
+                                      {material.quantity} {material.unitType === 'PIECE' ? '個' : 'メートル'}
+                                    </td>
+                                    <td className="px-3 py-2 text-right border">
+                                      ¥{material.unitPrice.toLocaleString()}
+                                    </td>
+                                    <td className="px-3 py-2 text-right border font-medium">
+                                      ¥{(material.quantity * material.unitPrice).toLocaleString()}
+                                    </td>
+                                  </tr>
+                                ))}
+                                <tr className="bg-gray-50 font-bold">
+                                  <td colSpan={6} className="px-3 py-2 text-right border">合計</td>
+                                  <td className="px-3 py-2 text-right border">
+                                    ¥{(report as any).pickupMaterialsList.reduce(
+                                      (sum: number, m: any) => sum + (m.quantity * m.unitPrice),
+                                      0
+                                    ).toLocaleString()}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       )}
+
                       {report.notes && (
                         <div className="mb-2">
                           <p className="text-sm font-medium text-gray-700">メモ</p>
@@ -220,7 +270,7 @@ export default async function RelatedInfoPage({
                         </div>
                       )}
                       {report.files.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
                           {report.files.map((file) => (
                             <div key={file.id} className="border rounded p-2">
                               <a

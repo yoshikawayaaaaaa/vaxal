@@ -493,7 +493,7 @@ model Report {
   status      ReportStatus @default(PENDING)
   notes       String?
   
-  // 集荷報告用
+  // 集荷報告用（旧フィールド - 後方互換性のため残す）
   pickupMaterials String?   // 持ち出し部材
   
   // 工事完了報告用
@@ -523,6 +523,7 @@ model Report {
   updatedAt   DateTime     @updatedAt
   
   files       ReportFile[]
+  pickupMaterialsList PickupMaterial[] // 集荷部材リスト（新）
 }
 
 // ファイル管理
@@ -614,6 +615,7 @@ model InventoryItem {
   
   // リレーション
   priceHistory          InventoryPriceHistory[]
+  pickupMaterials       PickupMaterial[]
 }
 
 // 在庫単価履歴
@@ -644,6 +646,31 @@ model SellingPriceType {
   updatedAt    DateTime @updatedAt
   
   @@index([displayOrder])
+}
+
+// 集荷部材
+model PickupMaterial {
+  id                    String   @id @default(cuid())
+  reportId              String
+  report                Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  inventoryItemId       String
+  inventoryItem         InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  
+  // スナップショット（報告時点の情報を保存）
+  inventoryItemName     String   // 部材名
+  productName           String?  // 商品名
+  manufacturer          String?  // メーカー
+  partNumber            String?  // 品番
+  quantity              Int      // 使用数量
+  unitType              UnitType // 単位タイプ
+  unitPrice             Int      // 報告時点の単価
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([reportId])
+  @@index([inventoryItemId])
 }
 
 // 通知管理
