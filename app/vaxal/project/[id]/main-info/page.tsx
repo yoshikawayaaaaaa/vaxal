@@ -25,8 +25,10 @@ export default async function MainInfoPage({
       assignedEngineer: {
         include: {
           company: true,
+          masterCompany: true,
         },
       },
+      createdByVaxal: true,
     },
   })
 
@@ -62,6 +64,9 @@ export default async function MainInfoPage({
           contractAmount={project.contractAmount}
           userRole={session.user.role}
           engineerRole={session.user.role === 'ENGINEER' ? session.user.engineerRole : undefined}
+          assignedEngineer={project.assignedEngineer}
+          createdByVaxal={project.createdByVaxal}
+          workDate={project.workDate}
         />
       </div>
     </div>

@@ -15,6 +15,26 @@ interface MainInfoFormProps {
   contractAmount?: number | null
   userRole?: string
   engineerRole?: string
+  assignedEngineer?: {
+    id: string
+    name: string
+    email: string
+    phoneNumber: string
+    company: {
+      id: string
+      companyName: string
+    } | null
+    masterCompany: {
+      id: string
+      companyName: string
+    } | null
+  } | null
+  createdByVaxal?: {
+    id: string
+    name: string
+    phoneNumber: string
+  } | null
+  workDate?: Date | null
 }
 
 export function MainInfoForm({ 
@@ -24,24 +44,30 @@ export function MainInfoForm({
   constructionNotesFromProject,
   contractAmount,
   userRole,
-  engineerRole
+  engineerRole,
+  assignedEngineer,
+  createdByVaxal,
+  workDate
 }: MainInfoFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // エンジニアの会社名を取得（マスターアカウントとスタッフアカウントの両方に対応）
+  const engineerCompanyName = assignedEngineer?.company?.companyName || assignedEngineer?.masterCompany?.companyName || ''
+
   const [formData, setFormData] = useState({
     // 施工指示
     constructionNotes: initialData?.constructionNotes || constructionNotesFromProject || '',
     
-    // 元請け情報
-    contractorName: initialData?.contractorName || '',
-    contractorPhone: initialData?.contractorPhone || '',
+    // 元請け情報（MainInfoがない場合はエンジニア情報から自動入力）
+    contractorName: initialData?.contractorName || assignedEngineer?.name || '',
+    contractorPhone: initialData?.contractorPhone || assignedEngineer?.phoneNumber || '',
     contractorNotes: initialData?.contractorNotes || '',
     
-    // VAXAL担当者情報
-    receptionStaff: initialData?.receptionStaff || '',
-    receptionStaffPhone: initialData?.receptionStaffPhone || '',
+    // VAXAL担当者情報（MainInfoがない場合は注文作成者情報から自動入力）
+    receptionStaff: initialData?.receptionStaff || createdByVaxal?.name || '',
+    receptionStaffPhone: initialData?.receptionStaffPhone || createdByVaxal?.phoneNumber || '',
     salesStaff: initialData?.salesStaff || '',
     salesStaffPhone: initialData?.salesStaffPhone || '',
     constructionStaff: initialData?.constructionStaff || '',
@@ -72,21 +98,25 @@ export function MainInfoForm({
     deliveryLocation: initialData?.deliveryLocation || '',
     deliveryNotes: initialData?.deliveryNotes || '',
     
-    // 現場調査情報
+    // 現場調査情報（MainInfoがない場合はエンジニア情報から自動入力）
     surveyRequestDate: initialData?.surveyRequestDate ? new Date(initialData.surveyRequestDate).toISOString().split('T')[0] : '',
     surveyDate: initialData?.surveyDate ? new Date(initialData.surveyDate).toISOString().split('T')[0] : '',
     surveyTime: initialData?.surveyTime || '',
-    surveyCompany: initialData?.surveyCompany || '',
-    surveyStaff: initialData?.surveyStaff || '',
+    surveyCompany: initialData?.surveyCompany || engineerCompanyName,
+    surveyStaff: initialData?.surveyStaff || assignedEngineer?.name || '',
     reSurveyDate: initialData?.reSurveyDate ? new Date(initialData.reSurveyDate).toISOString().split('T')[0] : '',
     surveyNotes: initialData?.surveyNotes || '',
     
-    // 施工情報
-    constructionDate: initialData?.constructionDate ? new Date(initialData.constructionDate).toISOString().split('T')[0] : '',
-    constructionCompany: initialData?.constructionCompany || '',
-    constructionStaffName: initialData?.constructionStaffName || '',
-    constructionPhone: initialData?.constructionPhone || '',
-    constructionEmail: initialData?.constructionEmail || '',
+    // 施工情報（MainInfoがない場合はエンジニア情報と工事日から自動入力）
+    constructionDate: initialData?.constructionDate 
+      ? new Date(initialData.constructionDate).toISOString().split('T')[0] 
+      : workDate 
+        ? new Date(workDate).toISOString().split('T')[0] 
+        : '',
+    constructionCompany: initialData?.constructionCompany || engineerCompanyName,
+    constructionStaffName: initialData?.constructionStaffName || assignedEngineer?.name || '',
+    constructionPhone: initialData?.constructionPhone || assignedEngineer?.phoneNumber || '',
+    constructionEmail: initialData?.constructionEmail || assignedEngineer?.email || '',
     constructionInfoNotes: initialData?.constructionInfoNotes || '',
   })
 
