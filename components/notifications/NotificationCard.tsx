@@ -46,8 +46,13 @@ export function NotificationCard({ notification, baseUrl }: NotificationCardProp
       }
     }
 
+    // 在庫関連の通知の場合は在庫管理ページへ移動
+    if (notification.type === 'INVENTORY_LOW_STOCK' || notification.type === 'INVENTORY_OUT_OF_STOCK') {
+      router.push(`${baseUrl}/inventory`)
+      router.refresh()
+    }
     // 案件詳細へ移動
-    if (notification.project) {
+    else if (notification.project) {
       router.push(`${baseUrl}/project/${notification.project.id}`)
       router.refresh()
     }
@@ -94,6 +99,16 @@ export function NotificationCard({ notification, baseUrl }: NotificationCardProp
           {notification.type === 'PROJECT_COMPLETED' && (
             <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
               案件完了
+            </span>
+          )}
+          {notification.type === 'INVENTORY_LOW_STOCK' && (
+            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+              要発注
+            </span>
+          )}
+          {notification.type === 'INVENTORY_OUT_OF_STOCK' && (
+            <span className="px-3 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+              在庫切れ
             </span>
           )}
         </div>

@@ -679,6 +679,8 @@ enum NotificationType {
   ORDER_RECEIVED        // 注文を受け付けた
   PROJECT_ASSIGNED      // 案件が割り振られた
   PROJECT_COMPLETED     // 案件が完了した
+  INVENTORY_LOW_STOCK   // 在庫が要発注レベル
+  INVENTORY_OUT_OF_STOCK // 在庫切れ
 }
 
 model Notification {

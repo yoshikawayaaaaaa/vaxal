@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { notifyReportSubmitted } from '@/lib/notifications'
+import { notifyReportSubmitted, notifyInventoryLowStock, notifyInventoryOutOfStock } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
   try {
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
               })
 
               // 在庫数を減算
-              await prisma.inventoryItem.update({
+              const updatedItem = await prisma.inventoryItem.update({
                 where: { id: material.inventoryItemId },
                 data: {
                   currentStock: {
@@ -141,6 +141,19 @@ export async function POST(request: NextRequest) {
                   },
                 },
               })
+
+              // 在庫チェックと通知
+              const newStock = updatedItem.currentStock
+              const threshold = updatedItem.threshold
+
+              // 在庫切れの場合
+              if (newStock <= 0) {
+                await notifyInventoryOutOfStock(updatedItem.name)
+              }
+              // 要発注レベル（閾値の30%以下）の場合
+              else if (newStock <= threshold * 0.3) {
+                await notifyInventoryLowStock(updatedItem.name, newStock, threshold)
+              }
             }
           }
         }
