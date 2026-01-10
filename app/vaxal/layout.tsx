@@ -32,9 +32,10 @@ export default async function VaxalDashboardLayout({
       {/* メインコンテンツ */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader 
-          title="Project Honeycomb" 
           userName={session.user.name}
           userType="vaxal"
+          isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
+          accountType={session.user.accountType}
         />
         
         <main className="flex-1 overflow-y-auto">

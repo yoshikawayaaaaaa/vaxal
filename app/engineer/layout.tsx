@@ -29,7 +29,6 @@ export default async function EngineerDashboardLayout({
       {/* メインコンテンツ */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader 
-          title="Project Honeycomb" 
           userName={session.user.name}
           userType="engineer"
         />

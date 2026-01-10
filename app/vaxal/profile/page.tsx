@@ -38,15 +38,15 @@ export default async function ProfilePage() {
   const isEngineer = session.user.userType === 'engineer'
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">プロフィール</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 md:mb-8">プロフィール</h1>
 
         {/* 基本情報 */}
-        <Card className="p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">基本情報</h2>
+        <Card className="p-4 md:p-6 mb-4 md:mb-6">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">基本情報</h2>
           
-          <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             <div>
               <p className="text-sm text-gray-600 mb-1">氏名</p>
               <p className="text-base font-medium">{user.name}</p>
@@ -70,7 +70,7 @@ export default async function ProfilePage() {
             </div>
 
             {isEngineer && 'address' in user && user.address && (
-              <div className="col-span-2">
+              <div className="md:col-span-2">
                 <p className="text-sm text-gray-600 mb-1">住所</p>
                 <p className="text-base font-medium">{user.address}</p>
               </div>
@@ -82,10 +82,10 @@ export default async function ProfilePage() {
         {isEngineer && 'bloodType' in user && (
           <>
             {/* 個人情報 */}
-            <Card className="p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">個人情報</h2>
+            <Card className="p-4 md:p-6 mb-4 md:mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">個人情報</h2>
               
-              <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                 {user.bloodType && (
                   <div>
                     <p className="text-sm text-gray-600 mb-1">血液型</p>
@@ -120,7 +120,7 @@ export default async function ProfilePage() {
                 </div>
 
                 {user.availableServices && (
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <p className="text-sm text-gray-600 mb-1">対応可能業種</p>
                     <p className="text-base font-medium">{user.availableServices}</p>
                   </div>
@@ -130,10 +130,10 @@ export default async function ProfilePage() {
 
             {/* 会社情報 */}
             {company && (
-              <Card className="p-6 mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">会社情報</h2>
+              <Card className="p-4 md:p-6 mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">会社情報</h2>
                 
-                <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">会社名</p>
                     <p className="text-base font-medium">{company.companyName}</p>
@@ -144,7 +144,7 @@ export default async function ProfilePage() {
                     <p className="text-base font-medium">{company.companyNumber}</p>
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <p className="text-sm text-gray-600 mb-1">所在地</p>
                     <p className="text-base font-medium">{company.address}</p>
                   </div>
@@ -159,7 +159,7 @@ export default async function ProfilePage() {
                     <p className="text-base font-medium">{company.phoneNumber}</p>
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <p className="text-sm text-gray-600 mb-1">会社メールアドレス</p>
                     <p className="text-base font-medium">{company.email}</p>
                   </div>
@@ -170,10 +170,10 @@ export default async function ProfilePage() {
         )}
 
         {/* アカウント情報 */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">アカウント情報</h2>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">アカウント情報</h2>
           
-          <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
             <div>
               <p className="text-sm text-gray-600 mb-1">ユーザーID</p>
               <p className="text-base font-medium font-mono text-sm">{user.id}</p>

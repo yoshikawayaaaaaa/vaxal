@@ -118,7 +118,7 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
   ]
 
   return (
-    <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex flex-col">
+    <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex flex-col md:flex hidden">
       {/* ヘッダー */}
       <div className="p-6 border-b border-gray-700">
         <div className="flex items-center gap-3 mb-2">
