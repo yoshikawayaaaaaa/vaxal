@@ -177,7 +177,7 @@ export function MainInfoForm({
           <CardTitle>元請け情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="contractorName">担当者</Label>
               <Input
@@ -217,7 +217,7 @@ export function MainInfoForm({
           {/* 受付担当者 */}
           <div className="pb-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold mb-4">受付担当者</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="receptionStaff">担当者名</Label>
                 <Input
@@ -241,7 +241,7 @@ export function MainInfoForm({
           {/* 営業担当者 */}
           <div className="pb-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold mb-4">営業担当者</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="salesStaff">担当者名</Label>
                 <Input
@@ -265,7 +265,7 @@ export function MainInfoForm({
           {/* 工務担当者 */}
           <div className="pb-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold mb-4">工務担当者</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
                 <Label htmlFor="constructionStaff">担当者名</Label>
                 <Input
@@ -305,7 +305,7 @@ export function MainInfoForm({
           <CardTitle>建築情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="roofingDate">上棟日</Label>
               <Input
@@ -336,7 +336,7 @@ export function MainInfoForm({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="keyboxNumber">キーボックスNo</Label>
               <Input
@@ -393,7 +393,7 @@ export function MainInfoForm({
           <CardTitle>商品情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="productCategory">機種区分</Label>
               <Input
@@ -412,7 +412,7 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="deliveryDate">荷受け日</Label>
               <Input
@@ -496,7 +496,7 @@ export function MainInfoForm({
           <CardTitle>現場調査情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyRequestDate">現場調査希望日</Label>
               <Input
@@ -517,7 +517,7 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyTime">現場調査時間（完了後）</Label>
               <Input
@@ -536,7 +536,7 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="surveyStaff">現場調査実施者</Label>
               <Input
@@ -579,7 +579,7 @@ export function MainInfoForm({
           <CardTitle>施工情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="constructionDate">施工日</Label>
               <Input
@@ -599,7 +599,7 @@ export function MainInfoForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             <div className="space-y-2">
               <Label htmlFor="constructionStaffName">施工担当者名</Label>
               <Input
