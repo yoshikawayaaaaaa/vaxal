@@ -42,14 +42,14 @@ export default async function EngineerDashboardPage() {
   const completedProjects = projects.filter(p => p.status === 'COMPLETED')
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 md:mb-8">
           エンジニアダッシュボード
         </h1>
 
         {/* 統計カード */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-600">
@@ -121,22 +121,22 @@ export default async function EngineerDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {projects.map((project) => (
                   <Link
                     key={project.id}
                     href={`/engineer/project/${project.id}`}
                     className="block"
                   >
-                    <div className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start justify-between">
+                    <div className="border rounded-lg p-3 md:p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 md:gap-0">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-lg">
+                          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-2">
+                            <h3 className="font-semibold text-base md:text-lg">
                               {project.siteName}
                             </h3>
                             <span
-                              className={`px-2 py-1 text-xs rounded-full ${
+                              className={`px-2 py-1 text-xs rounded-full self-start ${
                                 project.status === 'ASSIGNED'
                                   ? 'bg-blue-100 text-blue-800'
                                   : project.status === 'REPORTED'
@@ -155,7 +155,7 @@ export default async function EngineerDashboardPage() {
                                 : '完了'}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
+                          <div className="text-xs md:text-sm text-gray-600 space-y-1">
                             <p>案件番号: {project.projectNumber}</p>
                             <p>現場住所: {project.siteAddress}</p>
                             <p>お客様: {project.customerName}</p>
@@ -169,8 +169,8 @@ export default async function EngineerDashboardPage() {
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500">
+                        <div className="text-left md:text-right">
+                          <div className="text-xs md:text-sm text-gray-500">
                             担当: {project.createdByVaxal.name}
                           </div>
                         </div>
