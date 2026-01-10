@@ -228,16 +228,16 @@ export default function EngineersPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm mb-4">
                       <div>
                         <span className="text-gray-600">メールアドレス:</span>
-                        <span className="ml-2 text-gray-900">{engineer.email}</span>
+                        <span className="ml-2 text-gray-900 break-all">{engineer.email}</span>
                       </div>
                       <div>
                         <span className="text-gray-600">電話番号:</span>
                         <span className="ml-2 text-gray-900">{engineer.phoneNumber}</span>
                       </div>
-                      <div className="col-span-2">
+                      <div className="md:col-span-2">
                         <span className="text-gray-600">住所:</span>
                         <span className="ml-2 text-gray-900">{engineer.address}</span>
                       </div>
@@ -249,16 +249,16 @@ export default function EngineersPage() {
                         <h4 className="text-sm font-semibold text-gray-900 mb-3">
                           月別稼働状況
                         </h4>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
                           {engineer.monthlyStats.map((stat) => (
                             <div
                               key={stat.month}
-                              className="bg-gray-50 p-3 rounded-lg text-center"
+                              className="bg-gray-50 p-2 md:p-3 rounded-lg text-center"
                             >
-                              <div className="text-xs text-gray-600 mb-1">
+                              <div className="text-[10px] md:text-xs text-gray-600 mb-1 whitespace-nowrap">
                                 {stat.month}
                               </div>
-                              <div className="text-lg font-bold text-gray-900">
+                              <div className="text-base md:text-lg font-bold text-gray-900">
                                 {stat.projectCount}件
                               </div>
                             </div>
