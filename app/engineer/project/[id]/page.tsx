@@ -53,28 +53,28 @@ export default async function EngineerProjectDetailPage({
 
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link
             href="/engineer"
-            className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+            className="text-blue-600 hover:text-blue-800 mb-3 md:mb-4 inline-block text-sm md:text-base"
           >
             ← ダッシュボードに戻る
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">案件詳細</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="basic" userType="engineer" />
 
         {/* 施工主基本情報 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">施工主基本情報</h2>
+        <section className="mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">施工主基本情報</h2>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-4 md:gap-y-6">
               <div>
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-1">現場名</p>
@@ -116,11 +116,11 @@ export default async function EngineerProjectDetailPage({
         </section>
 
         {/* 工事情報 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">工事情報</h2>
+        <section className="mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">工事情報</h2>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-3 md:gap-y-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">工事内容</p>
               <p className="text-base">{WORK_CONTENT_LABELS[project.workContent]}</p>
@@ -147,11 +147,11 @@ export default async function EngineerProjectDetailPage({
 
         {/* 商品情報 */}
         {project.workContent === 'ECO_CUTE' && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">商品情報</h2>
+          <section className="mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">商品情報</h2>
             
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+            <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-3 md:gap-y-4">
                 {project.productSetNumber && (
                   <div>
                     <p className="text-sm text-gray-600 mb-1">セット品番</p>
@@ -200,11 +200,11 @@ export default async function EngineerProjectDetailPage({
         )}
 
         {/* お支払い情報 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">お支払い情報</h2>
+        <section className="mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">お支払い情報</h2>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-3 md:gap-y-4">
               {project.paymentAmount && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">金額</p>
@@ -267,10 +267,10 @@ export default async function EngineerProjectDetailPage({
 
         {/* メモ */}
         {(project.additionalWork || project.existingProductInfo || project.constructionNotes) && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">メモ</h2>
+          <section className="mb-6 md:mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">メモ</h2>
             
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-3 md:space-y-4">
               {project.additionalWork && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">追加工事</p>
@@ -294,11 +294,11 @@ export default async function EngineerProjectDetailPage({
         )}
 
         {/* 日程 */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">日程</h2>
+        <section className="mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">日程</h2>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-3 md:gap-y-4">
               {project.workDate && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">工事日</p>
