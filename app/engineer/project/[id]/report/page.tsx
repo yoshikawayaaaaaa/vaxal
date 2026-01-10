@@ -66,23 +66,23 @@ export default async function EngineerReportPage({
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link
             href="/engineer"
-            className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+            className="text-blue-600 hover:text-blue-800 mb-3 md:mb-4 inline-block text-sm md:text-base"
           >
             ← ダッシュボードに戻る
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">報告</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">報告</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="report" userType="engineer" />
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* 新規報告作成ボタン */}
           <div className="flex justify-end">
             <Link href={`/engineer/project/${id}/report/new`}>
@@ -98,17 +98,17 @@ export default async function EngineerReportPage({
               {project.reports.map((report) => (
                 <Card key={report.id}>
                   <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base md:text-lg">
                           {reportTypeNames[report.reportType]}
                         </CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-xs md:text-sm text-gray-500 mt-1">
                           作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
                         </p>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium whitespace-nowrap ${
                           report.status === 'COMPLETED'
                             ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
