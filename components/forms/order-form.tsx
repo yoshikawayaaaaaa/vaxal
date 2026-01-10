@@ -214,7 +214,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
           <CardTitle>日程</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="workDate">工事日 *</Label>
               <Input
@@ -241,7 +241,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="orderDate">受注日</Label>
               <Input
@@ -330,7 +330,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
                           </p>
                           {selectedEngineer.assignedProjects.map((project: any, index: number) => (
                             <div key={project.id} className="text-sm bg-white p-3 rounded border border-blue-100">
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <div>
                                   <span className="font-medium text-gray-700">案件{index + 1}:</span>
                                   <span className="ml-2 text-gray-900">{project.siteName}</span>
@@ -375,7 +375,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
           <CardTitle>基本情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="siteName">現場名 *</Label>
               <Input
@@ -405,7 +405,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="customerName">お客様の名前 *</Label>
               <Input
@@ -427,7 +427,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="applicantRelationship">申込者の続柄</Label>
               <Input
@@ -449,7 +449,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="customerAddress">住所 *</Label>
               <Input
@@ -479,7 +479,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
           <CardTitle>工事情報</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="workContent">工事内容 *</Label>
               <select
@@ -513,7 +513,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="workTime">施工時間</Label>
               <Input
@@ -548,7 +548,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             <CardTitle>商品情報（エコキュート）</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productSetNumber">セット品番</Label>
                 <Input
@@ -567,7 +567,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productHeatPumpNumber">ヒートポンプ品番</Label>
                 <Input
@@ -586,7 +586,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productBaseNumber">脚部カバー品番</Label>
                 <Input
@@ -605,7 +605,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="productUlbroNumber">ウルブロ品番</Label>
                 <Input
@@ -633,7 +633,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
           <CardTitle>お支払い</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="paymentAmount">金額</Label>
               <Input
@@ -720,7 +720,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="costPrice">原価</Label>
               <Input
@@ -793,7 +793,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
           </div>
 
           {formData.hasRemoteTravelFee && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="remoteTravelDistance">距離（km）</Label>
                 <Input
@@ -924,7 +924,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="revisitType">再訪問種別</Label>
               <select
@@ -950,7 +950,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="revisitCount">再訪問回数</Label>
               <Input
