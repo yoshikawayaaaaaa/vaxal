@@ -61,19 +61,22 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
   }
 
   const handleSelectEvent = (event: CalendarEvent) => {
+    console.log('Event clicked:', event)
     // 確定予定の場合は案件詳細へ
     if (event.resource.type === 'CONFIRMED') {
       router.push(`/vaxal/project/${event.id}`)
     }
   }
 
-  const handleSelectSlot = ({ start }: { start: Date }) => {
+  const handleSelectSlot = ({ start, action }: { start: Date; action: string }) => {
+    console.log('Slot selected:', start, 'action:', action)
     // 日付を選択した場合、その日の案件一覧ページへ
     // タイムゾーンのずれを防ぐため、ローカル日付を使用
     const year = start.getFullYear()
     const month = String(start.getMonth() + 1).padStart(2, '0')
     const day = String(start.getDate()).padStart(2, '0')
     const dateStr = `${year}-${month}-${day}`
+    console.log('Navigating to:', `/vaxal/calendar/${dateStr}`)
     router.push(`/vaxal/calendar/${dateStr}`)
   }
 
@@ -140,6 +143,14 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
         style={{ height: '100%' }}
         onSelectEvent={handleSelectEvent}
         onSelectSlot={handleSelectSlot}
+        onDrillDown={(date) => {
+          console.log('DrillDown triggered:', date)
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          const dateStr = `${year}-${month}-${day}`
+          router.push(`/vaxal/calendar/${dateStr}`)
+        }}
         eventPropGetter={eventStyleGetter}
         messages={messages}
         culture="ja"
@@ -149,7 +160,72 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
         toolbar={false}
         popup={true}
         selectable={true}
+        drilldownView={null}
       />
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .rbc-calendar {
+            font-size: 11px;
+          }
+          .rbc-header {
+            padding: 4px 2px;
+            font-size: 11px;
+            font-weight: 600;
+          }
+          .rbc-date-cell {
+            padding: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
+          }
+          .rbc-date-cell button {
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
+            padding: 4px 8px;
+            min-width: 32px;
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .rbc-event {
+            padding: 1px 3px;
+            font-size: 9px;
+            line-height: 1.2;
+            pointer-events: auto;
+            touch-action: manipulation;
+          }
+          .rbc-event-content {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .rbc-month-view {
+            border: 1px solid #ddd;
+          }
+          .rbc-day-bg {
+            min-height: 60px;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+          }
+          .rbc-month-row {
+            touch-action: manipulation;
+          }
+          .rbc-show-more {
+            font-size: 9px;
+            padding: 1px 2px;
+            cursor: pointer;
+            touch-action: manipulation;
+          }
+        }
+        @media (min-width: 769px) {
+          .rbc-day-bg {
+            min-height: 100px;
+          }
+        }
+      `}</style>
     </div>
   )
 }

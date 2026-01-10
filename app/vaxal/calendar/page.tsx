@@ -171,40 +171,40 @@ export default async function CalendarPage({
   ]
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">カレンダー</h1>
-          <p className="text-gray-600 mt-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">カレンダー</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-2">
             {year}年{month + 1}月の工事予定を確認できます
           </p>
         </div>
 
         {/* フィルター */}
-        <div className="mb-6 flex gap-4 items-center">
+        <div className="mb-4 md:mb-6 flex flex-col md:flex-row gap-3 md:gap-4">
           <MonthFilter />
           <CompanyFilter companies={companies} />
         </div>
 
         {/* ステータス別案件数 */}
-        <div className="mb-6 grid grid-cols-5 gap-4">
+        <div className="mb-4 md:mb-6 grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           {Object.entries(countsByStatus).map(([status, count]) => (
             <Link
               key={status}
               href={`/vaxal/project?status=${status}&month=${year}-${String(month + 1).padStart(2, '0')}`}
             >
               <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-gray-600">
+                <CardHeader className="pb-2 md:pb-3">
+                  <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
                     {STATUS_LABELS[status]}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{count}</span>
-                    <span className="text-sm text-gray-500">件</span>
+                  <div className="flex items-baseline gap-1 md:gap-2">
+                    <span className="text-2xl md:text-3xl font-bold">{count}</span>
+                    <span className="text-xs md:text-sm text-gray-500">件</span>
                   </div>
-                  <div className={`mt-2 inline-block px-2 py-1 rounded text-xs ${STATUS_COLORS[status]}`}>
+                  <div className={`mt-1 md:mt-2 inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs ${STATUS_COLORS[status]}`}>
                     クリックで一覧表示
                   </div>
                 </CardContent>
@@ -214,14 +214,14 @@ export default async function CalendarPage({
         </div>
 
         {/* 使い方の説明 */}
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="mb-4 md:mb-6 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-2 md:gap-3">
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900 mb-1">カレンダーの使い方</p>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <p className="text-xs md:text-sm font-medium text-blue-900 mb-1">カレンダーの使い方</p>
+              <ul className="text-xs md:text-sm text-blue-800 space-y-1">
                 <li>• <strong>日付をクリック</strong>: その日の案件一覧を表示</li>
                 <li>• <strong>案件をクリック</strong>: 案件詳細ページへ移動</li>
               </ul>
