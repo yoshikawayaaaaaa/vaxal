@@ -20,7 +20,7 @@ export function ProductInfoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>商品情報</CardTitle>
+        <CardTitle className="text-lg md:text-xl">商品情報</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">

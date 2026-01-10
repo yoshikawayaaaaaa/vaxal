@@ -16,7 +16,7 @@ export function ContractorInfoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>元請け情報</CardTitle>
+        <CardTitle className="text-lg md:text-xl">元請け情報</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {contractorName && (

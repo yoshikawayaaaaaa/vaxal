@@ -18,7 +18,7 @@ export function DeliveryInfoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>配送情報</CardTitle>
+        <CardTitle className="text-lg md:text-xl">配送情報</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4">

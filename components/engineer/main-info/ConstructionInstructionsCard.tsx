@@ -10,10 +10,10 @@ export function ConstructionInstructionsCard({ constructionNotes }: Construction
   return (
     <Card>
       <CardHeader>
-        <CardTitle>施工指示</CardTitle>
+        <CardTitle className="text-lg md:text-xl">施工指示</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="whitespace-pre-wrap">{constructionNotes}</p>
+        <p className="text-sm md:text-base whitespace-pre-wrap">{constructionNotes}</p>
       </CardContent>
     </Card>
   )

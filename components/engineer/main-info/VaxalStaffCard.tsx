@@ -24,7 +24,7 @@ export function VaxalStaffCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>VAXAL担当者情報</CardTitle>
+        <CardTitle className="text-lg md:text-xl">VAXAL担当者情報</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 受付担当者 */}

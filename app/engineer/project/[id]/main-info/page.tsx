@@ -42,28 +42,28 @@ export default async function EngineerMainInfoPage({
   const mainInfo = project.mainInfo
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link
             href="/engineer"
-            className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+            className="text-blue-600 hover:text-blue-800 mb-3 md:mb-4 inline-block text-sm md:text-base"
           >
             ← ダッシュボードに戻る
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">案件詳細</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="main-info" userType="engineer" />
 
         {!mainInfo ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-            <p className="text-yellow-800">主要情報はまだ登録されていません。</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 md:p-6 text-center">
+            <p className="text-sm md:text-base text-yellow-800">主要情報はまだ登録されていません。</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <ConstructionInstructionsCard constructionNotes={mainInfo.constructionNotes} />
             
             <ContractorInfoCard

@@ -27,7 +27,7 @@ export function BuildingInfoCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>建築情報</CardTitle>
+        <CardTitle className="text-lg md:text-xl">建築情報</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
