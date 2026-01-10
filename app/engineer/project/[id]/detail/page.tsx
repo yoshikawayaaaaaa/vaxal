@@ -50,9 +50,9 @@ export default function DetailInfoPage({
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <p>読み込み中...</p>
+          <p className="text-sm md:text-base">読み込み中...</p>
         </div>
       </div>
     )
@@ -60,9 +60,9 @@ export default function DetailInfoPage({
 
   if (!project) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <p>プロジェクトが見つかりません</p>
+          <p className="text-sm md:text-base">プロジェクトが見つかりません</p>
         </div>
       </div>
     )
@@ -74,25 +74,25 @@ export default function DetailInfoPage({
   )
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">詳細情報</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">詳細情報</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="detail" userType="engineer" />
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* 現場フォルダ */}
           <Card>
             <CardHeader>
-              <CardTitle>現場フォルダ（地図等）</CardTitle>
+              <CardTitle className="text-lg md:text-xl">現場フォルダ（地図等）</CardTitle>
             </CardHeader>
             <CardContent>
               {siteFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   {siteFiles.map((file) => (
                     <div key={file.id} className="border rounded-lg p-2">
                       <a
@@ -133,11 +133,11 @@ export default function DetailInfoPage({
           {/* 手配フォルダ */}
           <Card>
             <CardHeader>
-              <CardTitle>手配フォルダ（図面、施主が撮った現場写真等）</CardTitle>
+              <CardTitle className="text-lg md:text-xl">手配フォルダ（図面、施主が撮った現場写真等）</CardTitle>
             </CardHeader>
             <CardContent>
               {arrangementFiles.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   {arrangementFiles.map((file) => (
                     <div key={file.id} className="border rounded-lg p-2">
                       <a
