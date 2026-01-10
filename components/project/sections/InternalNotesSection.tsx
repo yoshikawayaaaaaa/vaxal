@@ -10,10 +10,10 @@ interface InternalNotesSectionProps {
 
 export function InternalNotesSection({ project, formData, isEditing, onUpdate }: InternalNotesSectionProps) {
   return (
-    <section className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">社内メモ（VAXAL専用）</h2>
+    <section className="mb-4 md:mb-6 md:mb-8">
+      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">社内メモ（VAXAL専用）</h2>
       
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-6">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm p-4 md:p-6">
         <div className="space-y-4">
           <div>
             <Label className="text-sm text-gray-600 mb-1">ファーストコンタクトの連絡手段</Label>

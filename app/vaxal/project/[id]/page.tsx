@@ -160,28 +160,30 @@ export default function ProjectDetailPage({
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">案件詳細</h1>
-            <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
-          </div>
-          <div className="flex gap-2">
-            {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)} className="bg-blue-600 hover:bg-blue-700">
-                編集
-              </Button>
-            ) : (
-              <>
-                <Button onClick={handleCancel} variant="outline">
-                  キャンセル
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">案件詳細</h1>
+              <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
+            </div>
+            <div className="flex gap-2">
+              {!isEditing ? (
+                <Button onClick={() => setIsEditing(true)} className="bg-blue-600 hover:bg-blue-700 text-white text-sm md:text-base">
+                  編集
                 </Button>
-                <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700">
-                  {isSaving ? '保存中...' : '保存'}
-                </Button>
-              </>
-            )}
+              ) : (
+                <>
+                  <Button onClick={handleCancel} variant="outline" className="text-sm md:text-base">
+                    キャンセル
+                  </Button>
+                  <Button onClick={handleSave} disabled={isSaving} className="bg-green-600 hover:bg-green-700 text-sm md:text-base">
+                    {isSaving ? '保存中...' : '保存'}
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 

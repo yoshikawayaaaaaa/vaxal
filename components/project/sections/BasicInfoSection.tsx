@@ -10,11 +10,11 @@ interface BasicInfoSectionProps {
 
 export function BasicInfoSection({ project, formData, isEditing, onUpdate }: BasicInfoSectionProps) {
   return (
-    <section className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">施工主基本情報</h2>
+    <section className="mb-4 md:mb-6 md:mb-4 md:mb-6 md:mb-8">
+      <h2 className="text-xl md:text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-4 md:mb-6">施工主基本情報</h2>
       
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-4 md:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-4 md:gap-y-6">
           <div>
             <div className="mb-4">
               <Label className="text-sm text-gray-600 mb-1">現場名</Label>

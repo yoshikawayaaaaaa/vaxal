@@ -9,10 +9,10 @@ interface NotesSectionProps {
 
 export function NotesSection({ project, formData, isEditing, onUpdate }: NotesSectionProps) {
   return (
-    <section className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">メモ</h2>
+    <section className="mb-4 md:mb-6 md:mb-8">
+      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">メモ</h2>
       
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
         <div>
           <Label className="text-sm text-gray-600 mb-1">追加工事</Label>
           {isEditing ? (
