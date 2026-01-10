@@ -274,14 +274,14 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* タブナビゲーション */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
+        <nav className="-mb-px grid grid-cols-3 md:flex md:space-x-8 gap-2 md:gap-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                py-2 md:py-4 px-1 md:px-1 border-b-2 font-medium text-xs md:text-sm text-center
                 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
@@ -289,9 +289,9 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                 }
               `}
             >
-              {tab.label}
+              <span className="whitespace-nowrap">{tab.label}</span>
               {tab.id !== 'ENGINEER_INFO' && images[tab.id]?.files.length > 0 && (
-                <span className="ml-2 bg-blue-100 text-blue-600 py-0.5 px-2 rounded-full text-xs">
+                <span className="ml-1 md:ml-2 bg-blue-100 text-blue-600 py-0.5 px-1 md:px-2 rounded-full text-xs inline-block">
                   {images[tab.id].files.length}
                 </span>
               )}
@@ -676,10 +676,10 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
         {activeTab === 'ENGINEER_INFO' && (
           <Card>
             <CardHeader>
-              <CardTitle>エンジニア入力情報</CardTitle>
+              <CardTitle className="text-lg md:text-xl">エンジニア入力情報</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="existingManufacturer">既設メーカー</Label>
                   <select
@@ -716,7 +716,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="replacementType">交換種別</Label>
                   <select
@@ -758,7 +758,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="tankCapacity">タンク容量</Label>
                   <Input
@@ -799,7 +799,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="materialUnitPrice">部材単価（円）</Label>
                   <Input
@@ -834,7 +834,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="saleType">売却種別（任意）</Label>
                   <select
