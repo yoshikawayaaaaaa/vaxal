@@ -192,20 +192,20 @@ export default function ProjectDetailPage({
 
         {/* 案件割り振り確定ボタン（ステータスがPENDINGの場合のみ表示） */}
         {project.status === 'PENDING' && (
-          <Card className="mb-6 bg-yellow-50 border-yellow-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          <Card className="mb-4 md:mb-6 bg-yellow-50 border-yellow-200">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
                 <div>
-                  <h3 className="text-lg font-bold text-yellow-900 mb-2">
+                  <h3 className="text-base md:text-lg font-bold text-yellow-900 mb-2">
                     案件割り振り確定が必要です
                   </h3>
-                  <p className="text-yellow-800">
+                  <p className="text-sm md:text-base text-yellow-800">
                     必須項目を入力後、案件割り振り確定を行ってください。
                     確定後、エンジニアに案件が表示されます。
                   </p>
                 </div>
                 <Link href={`/vaxal/project/${projectId}/assign`}>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 md:px-8 w-full md:w-auto text-sm md:text-base whitespace-nowrap">
                     案件割り振り確定へ
                   </Button>
                 </Link>
