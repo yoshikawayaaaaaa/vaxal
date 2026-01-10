@@ -195,61 +195,58 @@ export default async function EngineerCalendarPage({
         </div>
 
         {/* ステータスと使い方（スマホのみ表示） */}
-        <div className="grid grid-cols-1 md:hidden gap-4 mb-4">
-          {/* ステータス */}
+        <div className="md:hidden mb-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">ステータス</CardTitle>
+              <CardTitle className="text-base">ステータスと使い方</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                <span className="text-xs">対応可能日</span>
+            <CardContent className="space-y-3">
+              {/* ステータス */}
+              <div>
+                <p className="text-xs font-semibold text-gray-700 mb-2">ステータス</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded flex-shrink-0"></div>
+                    <span className="text-xs">対応可能日</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded flex-shrink-0"></div>
+                    <span className="text-xs">注文依頼</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-purple-500 rounded flex-shrink-0"></div>
+                    <span className="text-xs">報告済み</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-orange-500 rounded flex-shrink-0"></div>
+                    <span className="text-xs">残工事あり</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded flex-shrink-0"></div>
+                    <span className="text-xs">完了</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                <span className="text-xs">注文依頼</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-purple-500 rounded"></div>
-                <span className="text-xs">報告済み</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-orange-500 rounded"></div>
-                <span className="text-xs">残工事あり</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded"></div>
-                <span className="text-xs">完了</span>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* 使い方 */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">使い方</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-                <p className="text-xs font-medium text-blue-900 mb-1">📅 出勤可能日の登録</p>
-                <p className="text-xs text-blue-700">
-                  日付をクリックして登録
-                </p>
-              </div>
-              
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                <p className="text-xs font-medium text-yellow-900 mb-1">✅ 登録済みの日付</p>
-                <p className="text-xs text-yellow-700">
-                  再度クリックで削除
-                </p>
-              </div>
-              
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
-                <p className="text-xs font-medium text-purple-900 mb-1">🔵 確定予定</p>
-                <p className="text-xs text-purple-700">
-                  クリックで案件詳細を確認
-                </p>
+              {/* 使い方 */}
+              <div className="border-t pt-3">
+                <p className="text-xs font-semibold text-gray-700 mb-2">使い方</p>
+                <div className="space-y-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                    <p className="text-xs font-medium text-blue-900 mb-1">📅 出勤可能日の登録</p>
+                    <p className="text-xs text-blue-700">日付をクリックして登録</p>
+                  </div>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                    <p className="text-xs font-medium text-yellow-900 mb-1">✅ 登録済みの日付</p>
+                    <p className="text-xs text-yellow-700">再度クリックで削除</p>
+                  </div>
+                  
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+                    <p className="text-xs font-medium text-purple-900 mb-1">🔵 確定予定</p>
+                    <p className="text-xs text-purple-700">クリックで案件詳細を確認</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
