@@ -105,17 +105,17 @@ export default function DetailInfoPage({
   )
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">詳細情報</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">詳細情報</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
         <ProjectDetailTabs projectId={id} activeTab="detail" userType="vaxal" />
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* 現場フォルダ */}
           <Card>
             <CardHeader>
