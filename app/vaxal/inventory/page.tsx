@@ -188,27 +188,27 @@ export default function InventoryPage() {
         </div>
 
         {/* 統計情報 */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <Card className="p-6">
-            <div className="text-sm text-gray-600 mb-1">総部材数</div>
-            <div className="text-3xl font-bold text-gray-900">{items.length}種類</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+          <Card className="p-4 md:p-6">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">総部材数</div>
+            <div className="text-2xl md:text-3xl font-bold text-gray-900">{items.length}<span className="text-sm md:text-base">種類</span></div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-gray-600 mb-1">正常</div>
-            <div className="text-3xl font-bold text-green-600">
-              {items.filter((item) => item.currentStock > item.threshold * 0.3).length}種類
+          <Card className="p-4 md:p-6">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">正常</div>
+            <div className="text-2xl md:text-3xl font-bold text-green-600">
+              {items.filter((item) => item.currentStock > item.threshold * 0.3).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-gray-600 mb-1">要発注</div>
-            <div className="text-3xl font-bold text-yellow-600">
-              {items.filter((item) => item.currentStock > 0 && item.currentStock <= item.threshold * 0.3).length}種類
+          <Card className="p-4 md:p-6">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">要発注</div>
+            <div className="text-2xl md:text-3xl font-bold text-yellow-600">
+              {items.filter((item) => item.currentStock > 0 && item.currentStock <= item.threshold * 0.3).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
-          <Card className="p-6">
-            <div className="text-sm text-gray-600 mb-1">在庫切れ</div>
-            <div className="text-3xl font-bold text-red-600">
-              {items.filter((item) => item.currentStock === 0).length}種類
+          <Card className="p-4 md:p-6">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">在庫切れ</div>
+            <div className="text-2xl md:text-3xl font-bold text-red-600">
+              {items.filter((item) => item.currentStock === 0).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
         </div>
@@ -227,9 +227,9 @@ export default function InventoryPage() {
 
         {/* 新規追加フォーム */}
         {isAdding && (
-          <Card className="p-6 mb-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">新しい部材を追加</h3>
-            <div className="grid grid-cols-4 gap-4 mb-4">
+          <Card className="p-4 md:p-6 mb-4">
+            <h3 className="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4">新しい部材を追加</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4">
               <div>
                 <Label htmlFor="newName">部材名 *</Label>
                 <Input
@@ -275,7 +275,7 @@ export default function InventoryPage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
               <div>
                 <Label htmlFor="newUnitPrice">単価 *</Label>
                 <Input
@@ -358,9 +358,10 @@ export default function InventoryPage() {
         )}
 
         {/* 在庫一覧 */}
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        <div className="hidden md:block">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -557,6 +558,201 @@ export default function InventoryPage() {
             </table>
           </div>
         </Card>
+        </div>
+
+        {/* スマートフォン用カードレイアウト */}
+        <div className="md:hidden space-y-3">
+          {items.map((item) => (
+            <Card key={item.id} className="p-4">
+              {editingId === item.id ? (
+                // 編集モード
+                <div className="space-y-3">
+                  <h3 className="text-base font-bold text-gray-900 mb-3">{item.name}を編集</h3>
+                  
+                  <div>
+                    <Label htmlFor={`edit-productName-${item.id}`} className="text-xs">商品名</Label>
+                    <Input
+                      id={`edit-productName-${item.id}`}
+                      type="text"
+                      value={editValues.productName}
+                      onChange={(e) => setEditValues({ ...editValues, productName: e.target.value })}
+                      placeholder="商品名"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor={`edit-manufacturer-${item.id}`} className="text-xs">メーカー</Label>
+                      <Input
+                        id={`edit-manufacturer-${item.id}`}
+                        type="text"
+                        value={editValues.manufacturer}
+                        onChange={(e) => setEditValues({ ...editValues, manufacturer: e.target.value })}
+                        placeholder="メーカー"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`edit-partNumber-${item.id}`} className="text-xs">品番</Label>
+                      <Input
+                        id={`edit-partNumber-${item.id}`}
+                        type="text"
+                        value={editValues.partNumber}
+                        onChange={(e) => setEditValues({ ...editValues, partNumber: e.target.value })}
+                        placeholder="品番"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor={`edit-unitPrice-${item.id}`} className="text-xs">単価</Label>
+                      <Input
+                        id={`edit-unitPrice-${item.id}`}
+                        type="number"
+                        value={editValues.unitPrice === 0 ? '' : editValues.unitPrice}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            unitPrice: e.target.value === '' ? 0 : parseInt(e.target.value),
+                          })
+                        }
+                        placeholder="0"
+                        className="mt-1"
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`edit-unitType-${item.id}`} className="text-xs">単位</Label>
+                      <select
+                        id={`edit-unitType-${item.id}`}
+                        className="w-full h-10 px-3 rounded-md border border-gray-300 mt-1"
+                        value={editValues.unitType}
+                        onChange={(e) => setEditValues({ ...editValues, unitType: e.target.value as 'PIECE' | 'METER' })}
+                      >
+                        <option value="PIECE">個数</option>
+                        <option value="METER">メートル</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor={`edit-currentStock-${item.id}`} className="text-xs">在庫数</Label>
+                      <Input
+                        id={`edit-currentStock-${item.id}`}
+                        type="number"
+                        value={editValues.currentStock === 0 ? '' : editValues.currentStock}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            currentStock: e.target.value === '' ? 0 : parseInt(e.target.value),
+                          })
+                        }
+                        placeholder="0"
+                        className="mt-1"
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`edit-threshold-${item.id}`} className="text-xs">閾値</Label>
+                      <Input
+                        id={`edit-threshold-${item.id}`}
+                        type="number"
+                        value={editValues.threshold === 0 ? '' : editValues.threshold}
+                        onChange={(e) =>
+                          setEditValues({
+                            ...editValues,
+                            threshold: e.target.value === '' ? 0 : parseInt(e.target.value),
+                          })
+                        }
+                        placeholder="0"
+                        className="mt-1"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleSave(item.id)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                    >
+                      保存
+                    </Button>
+                    <Button
+                      onClick={handleCancel}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white text-xs"
+                    >
+                      キャンセル
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                // 表示モード
+                <>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">{item.name}</h3>
+                      <p className="text-xs text-gray-600 mt-1">{item.productName || '-'}</p>
+                    </div>
+                    <div>
+                      {item.currentStock === 0 ? (
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                          在庫切れ
+                        </span>
+                      ) : item.currentStock <= item.threshold * 0.3 ? (
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                          要発注
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                          正常
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div>
+                      <span className="text-gray-600">メーカー:</span>
+                      <span className="ml-1 text-gray-900">{item.manufacturer || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">品番:</span>
+                      <span className="ml-1 text-gray-900">{item.partNumber || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">単価:</span>
+                      <span className="ml-1 text-gray-900">¥{item.unitPrice.toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">単位:</span>
+                      <span className="ml-1 text-gray-900">{item.unitType === 'PIECE' ? '個数' : 'メートル'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">在庫数:</span>
+                      <span className="ml-1 text-gray-900 font-bold">{item.currentStock}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">閾値:</span>
+                      <span className="ml-1 text-gray-900">{item.threshold}</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => handleEdit(item)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                  >
+                    編集
+                  </Button>
+                </>
+              )}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )
