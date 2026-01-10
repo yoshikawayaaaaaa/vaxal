@@ -58,12 +58,12 @@ export default async function ProjectPage({
   })
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">案件一覧</h1>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">案件一覧</h1>
           {statusFilter && (
-            <p className="text-gray-600 mt-2">
+            <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
               フィルター: {STATUS_LABELS[statusFilter]}
               {monthFilter && ` (${monthFilter})`}
             </p>
@@ -72,25 +72,25 @@ export default async function ProjectPage({
 
         {/* 案件一覧 */}
         {projects.length > 0 ? (
-          <div className="grid gap-4">
+          <div className="grid gap-3 md:gap-4">
             {projects.map((project) => (
               <Link key={project.id} href={`/vaxal/project/${project.id}`}>
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{project.siteName}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2">
+                      <div className="flex-1">
+                        <CardTitle className="text-base md:text-lg">{project.siteName}</CardTitle>
+                        <p className="text-xs md:text-sm text-gray-500 mt-1">
                           案件番号: {project.projectNumber}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${STATUS_COLORS[project.status]}`}>
+                      <span className={`px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium ${STATUS_COLORS[project.status]} self-start`}>
                         {STATUS_LABELS[project.status]}
                       </span>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
                       <div>
                         <span className="text-gray-500">お客様:</span> {project.customerName}
                       </div>
