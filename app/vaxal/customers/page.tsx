@@ -166,7 +166,7 @@ export default function CustomersPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
                         <div>
                           <span className="text-gray-600">お客様:</span>
                           <span className="ml-2 text-gray-900 font-medium">
@@ -179,7 +179,7 @@ export default function CustomersPage() {
                             {WORK_CONTENT_LABELS[project.workContent]}
                           </span>
                         </div>
-                        <div className="col-span-2">
+                        <div className="md:col-span-2">
                           <span className="text-gray-600">現場住所:</span>
                           <span className="ml-2 text-gray-900">
                             {project.siteAddress}
