@@ -38,23 +38,23 @@ export default async function EngineerNotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.isRead).length
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">通知</h1>
-          <p className="text-gray-600 mt-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">通知</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
             未読: {unreadCount}件 / 全{notifications.length}件
           </p>
         </div>
 
         {notifications.length === 0 ? (
           <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-gray-500">通知はありません</p>
+            <CardContent className="p-8 md:p-12 text-center">
+              <p className="text-sm md:text-base text-gray-500">通知はありません</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {notifications.map((notification) => (
               <NotificationCard
                 key={notification.id}
