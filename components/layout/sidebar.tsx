@@ -122,7 +122,10 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       {/* ヘッダー */}
       <div className="p-6 border-b border-gray-700">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center">
+          <div className={cn(
+            "w-8 h-8 rounded flex items-center justify-center",
+            isVaxalAdmin ? "bg-purple-600" : "bg-green-600"
+          )}>
             <LayoutDashboard className="w-5 h-5" />
           </div>
           <div>
@@ -147,7 +150,7 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                     isActive
-                      ? 'bg-purple-600 text-white'
+                      ? isVaxalAdmin ? 'bg-purple-600 text-white' : 'bg-green-600 text-white'
                       : 'text-gray-300 hover:bg-gray-700/50'
                   )}
                 >

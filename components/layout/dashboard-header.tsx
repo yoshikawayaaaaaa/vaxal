@@ -24,6 +24,8 @@ interface DashboardHeaderProps {
   isVaxalAdmin?: boolean
   accountType?: string
   unreadCount?: number
+  companyName?: string
+  engineerRole?: string
 }
 
 export function DashboardHeader({ 
@@ -31,7 +33,9 @@ export function DashboardHeader({
   userType = 'vaxal',
   isVaxalAdmin = false,
   accountType,
-  unreadCount = 0
+  unreadCount = 0,
+  companyName,
+  engineerRole
 }: DashboardHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -156,12 +160,21 @@ export function DashboardHeader({
             {/* ヘッダー */}
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center">
+                <div className={cn(
+                  "w-8 h-8 rounded flex items-center justify-center",
+                  userType === 'engineer' ? "bg-green-600" : "bg-purple-600"
+                )}>
                   <LayoutDashboard className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-lg leading-tight">VAXAL</h2>
-                  <p className="text-xs text-gray-400">VAXAL社員</p>
+                  <h2 className="font-bold text-lg leading-tight">
+                    {userType === 'engineer' && companyName ? companyName : 'VAXAL'}
+                  </h2>
+                  <p className="text-xs text-gray-400">
+                    {userType === 'engineer' && engineerRole 
+                      ? (engineerRole === 'MASTER' ? 'マスター' : '一般')
+                      : 'VAXAL社員'}
+                  </p>
                 </div>
               </div>
               <button
@@ -187,7 +200,7 @@ export function DashboardHeader({
                         className={cn(
                           'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                           isActive
-                            ? 'bg-purple-600 text-white'
+                            ? userType === 'engineer' ? 'bg-green-600 text-white' : 'bg-purple-600 text-white'
                             : 'text-gray-300 hover:bg-gray-700/50'
                         )}
                       >

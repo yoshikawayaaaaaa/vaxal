@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { requireEngineerAuth } from '@/lib/auth-helpers'
+import { prisma } from '@/lib/prisma'
 
 export default async function EngineerDashboardLayout({
   children,
@@ -9,13 +10,29 @@ export default async function EngineerDashboardLayout({
 }) {
   const session = await requireEngineerAuth()
 
-  const companyName = session.user.masterCompanyId 
-    ? 'MIAMU TIGERS' // TODO: 実際の会社名を取得
-    : 'エンジニア'
+  // 会社名を取得
+  const engineerUser = await prisma.engineerUser.findUnique({
+    where: { id: session.user.id },
+    include: {
+      company: true,
+      masterCompany: true,
+    },
+  })
+  
+  const company = engineerUser?.masterCompany || engineerUser?.company
+  const companyName = company?.companyName || 'エンジニア'
 
   const userRole = session.user.role === 'ENGINEER_MASTER'
     ? 'マスター'
     : 'スタッフ'
+
+  // 未読通知数を取得
+  const unreadCount = await prisma.notification.count({
+    where: {
+      engineerUserId: session.user.id,
+      isRead: false,
+    },
+  })
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -31,6 +48,9 @@ export default async function EngineerDashboardLayout({
         <DashboardHeader 
           userName={session.user.name}
           userType="engineer"
+          companyName={companyName}
+          engineerRole={session.user.engineerRole}
+          unreadCount={unreadCount}
         />
         
         <main className="flex-1 overflow-y-auto">
