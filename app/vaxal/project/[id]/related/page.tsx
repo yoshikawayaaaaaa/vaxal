@@ -78,17 +78,17 @@ export default async function RelatedInfoPage({
   const isMasterAccount = session.user.role === 'VAXAL_ADMIN'
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Link
             href="/vaxal"
-            className="text-blue-600 hover:text-blue-800 mb-4 inline-block"
+            className="text-sm md:text-base text-blue-600 hover:text-blue-800 mb-3 md:mb-4 inline-block"
           >
             ← ダッシュボードに戻る
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">関連情報</h1>
-          <p className="text-gray-600 mt-2">案件番号: {project.projectNumber}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">関連情報</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">案件番号: {project.projectNumber}</p>
         </div>
 
         {/* タブナビゲーション */}
@@ -96,18 +96,18 @@ export default async function RelatedInfoPage({
 
         {/* ステータス表示と完了ボタン */}
         {(project.status === 'REPORTED' || project.status === 'REMAINING_WORK') && (
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+          <Card className="bg-blue-50 border-blue-200 mb-4 md:mb-6">
+            <CardContent className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-0">
                 <div>
-                  <h3 className="text-lg font-bold text-blue-900 mb-2">
+                  <h3 className="text-base md:text-lg font-bold text-blue-900 mb-2">
                     報告確認待ち
                   </h3>
-                  <p className="text-blue-800">
+                  <p className="text-sm md:text-base text-blue-800">
                     エンジニアから報告が提出されました。内容を確認して問題なければ完了してください。
                   </p>
                   {project.status === 'REMAINING_WORK' && (
-                    <p className="text-orange-800 mt-2 font-medium">
+                    <p className="text-sm md:text-base text-orange-800 mt-2 font-medium">
                       ⚠️ 残工事があります
                     </p>
                   )}
@@ -115,7 +115,7 @@ export default async function RelatedInfoPage({
                 <form action={`/api/vaxal/projects/${id}/complete`} method="POST">
                   <Button
                     type="submit"
-                    className="bg-green-600 hover:bg-green-700 text-white px-8"
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 md:px-8 w-full md:w-auto text-sm md:text-base whitespace-nowrap"
                   >
                     案件を完了する
                   </Button>
@@ -126,13 +126,13 @@ export default async function RelatedInfoPage({
         )}
 
         {project.status === 'COMPLETED' && (
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="p-6">
+          <Card className="bg-green-50 border-green-200 mb-4 md:mb-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex items-center gap-3">
-                <div className="text-3xl">✓</div>
+                <div className="text-2xl md:text-3xl">✓</div>
                 <div>
-                  <h3 className="text-lg font-bold text-green-900">案件完了</h3>
-                  <p className="text-green-800">
+                  <h3 className="text-base md:text-lg font-bold text-green-900">案件完了</h3>
+                  <p className="text-sm md:text-base text-green-800">
                     この案件は完了しました。
                     {project.completionDate && (
                       <span className="ml-2">
@@ -146,7 +146,7 @@ export default async function RelatedInfoPage({
           </Card>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* 現場調査報告フォルダ */}
           <Card>
             <CardHeader>
@@ -217,7 +217,9 @@ export default async function RelatedInfoPage({
                       {(report as any).pickupMaterialsList && (report as any).pickupMaterialsList.length > 0 && (
                         <div className="mb-4">
                           <p className="text-sm font-medium text-gray-700 mb-2">使用部材</p>
-                          <div className="overflow-x-auto">
+                          
+                          {/* PC版テーブル */}
+                          <div className="hidden md:block overflow-x-auto">
                             <table className="min-w-full text-sm border">
                               <thead className="bg-gray-50">
                                 <tr>
@@ -259,6 +261,53 @@ export default async function RelatedInfoPage({
                                 </tr>
                               </tbody>
                             </table>
+                          </div>
+
+                          {/* スマートフォン版カードレイアウト */}
+                          <div className="md:hidden space-y-3">
+                            {(report as any).pickupMaterialsList.map((material: any) => (
+                              <div key={material.id} className="border rounded-lg p-3 bg-gray-50">
+                                <div className="font-medium text-gray-900 mb-2">{material.inventoryItemName}</div>
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  <div>
+                                    <span className="text-gray-600">商品名:</span>
+                                    <span className="ml-1 text-gray-900">{material.productName || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">メーカー:</span>
+                                    <span className="ml-1 text-gray-900">{material.manufacturer || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">品番:</span>
+                                    <span className="ml-1 text-gray-900">{material.partNumber || '-'}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">使用数量:</span>
+                                    <span className="ml-1 text-gray-900">
+                                      {material.quantity} {material.unitType === 'PIECE' ? '個' : 'メートル'}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">単価:</span>
+                                    <span className="ml-1 text-gray-900">¥{material.unitPrice.toLocaleString()}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-gray-600">小計:</span>
+                                    <span className="ml-1 text-gray-900 font-medium">
+                                      ¥{(material.quantity * material.unitPrice).toLocaleString()}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="border-t-2 border-gray-300 pt-2 text-right">
+                              <span className="text-sm font-bold text-gray-900">
+                                合計: ¥{(report as any).pickupMaterialsList.reduce(
+                                  (sum: number, m: any) => sum + (m.quantity * m.unitPrice),
+                                  0
+                                ).toLocaleString()}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -465,7 +514,7 @@ export default async function RelatedInfoPage({
                 <CardTitle>エンジニア入力情報</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   {latestReport.existingManufacturer && (
                     <div className="space-y-2">
                       <p className="text-sm text-gray-600">既設メーカー</p>
