@@ -234,9 +234,9 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
   const months = Array.from({ length: 12 }, (_, i) => i)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 md:space-y-4">
       {/* 年月選択プルダウン */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
         <div className="flex items-center gap-2">
           <label htmlFor="year-select" className="text-sm font-medium text-gray-700">
             年:
@@ -245,7 +245,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
             id="year-select"
             value={currentDate.getFullYear()}
             onChange={handleYearChange}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -263,7 +263,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
             id="month-select"
             value={currentDate.getMonth()}
             onChange={handleMonthChange}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
           >
             {months.map((month) => (
               <option key={month} value={month}>
@@ -275,7 +275,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
       </div>
 
       {/* カレンダー */}
-      <div className="relative" style={{ height: '600px' }}>
+      <div className="relative" style={{ height: '500px' }}>
         <Calendar
           localizer={localizer}
           events={events}
@@ -290,6 +290,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
           date={currentDate}
           onNavigate={(newDate) => setCurrentDate(newDate)}
           selectable
+          longPressThreshold={1}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={async (event) => {
           if (isLoading) return

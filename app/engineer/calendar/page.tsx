@@ -136,15 +136,15 @@ export default async function EngineerCalendarPage({
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">カレンダー</h1>
-          <p className="text-gray-600 mt-2">出勤可能日の登録と確定予定の確認</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">カレンダー</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">出勤可能日の登録と確定予定の確認</p>
         </div>
 
         {/* 当月の統計 */}
-        <div className="mb-6 grid grid-cols-4 gap-4">
+        <div className="mb-4 md:mb-6 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">注文依頼</CardTitle>
@@ -194,6 +194,67 @@ export default async function EngineerCalendarPage({
           </Card>
         </div>
 
+        {/* ステータスと使い方（スマホのみ表示） */}
+        <div className="grid grid-cols-1 md:hidden gap-4 mb-4">
+          {/* ステータス */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">ステータス</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                <span className="text-xs">対応可能日</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                <span className="text-xs">注文依頼</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                <span className="text-xs">報告済み</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                <span className="text-xs">残工事あり</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded"></div>
+                <span className="text-xs">完了</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 使い方 */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">使い方</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                <p className="text-xs font-medium text-blue-900 mb-1">📅 出勤可能日の登録</p>
+                <p className="text-xs text-blue-700">
+                  日付をクリックして登録
+                </p>
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                <p className="text-xs font-medium text-yellow-900 mb-1">✅ 登録済みの日付</p>
+                <p className="text-xs text-yellow-700">
+                  再度クリックで削除
+                </p>
+              </div>
+              
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-2">
+                <p className="text-xs font-medium text-purple-900 mb-1">🔵 確定予定</p>
+                <p className="text-xs text-purple-700">
+                  クリックで案件詳細を確認
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* カレンダー */}
           <div className="lg:col-span-2">
@@ -207,8 +268,8 @@ export default async function EngineerCalendarPage({
             </Card>
           </div>
 
-          {/* サイドバー */}
-          <div className="space-y-6">
+          {/* サイドバー（PCのみ表示） */}
+          <div className="space-y-6 hidden lg:block">
             {/* ステータス */}
             <Card>
               <CardHeader>
