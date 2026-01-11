@@ -71,6 +71,8 @@ model Company {
   masterUser            EngineerUser?    @relation("CompanyMaster")
   staffUsers            EngineerUser[]   @relation("CompanyStaff")
   projects              Project[]
+  
+  @@index([companyNumber])
 }
 
 // アカウントタイプ
@@ -381,6 +383,13 @@ model Project {
   calendarEvents        CalendarEvent[]
   mainInfo              MainInfo?
   notifications         Notification[]
+  
+  @@index([status])
+  @@index([createdByVaxalId])
+  @@index([companyId])
+  @@index([assignedEngineerId])
+  @@index([workDate])
+  @@index([createdAt])
 }
 
 // 主要情報
@@ -484,6 +493,10 @@ model CalendarEvent {
   
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  
+  @@index([vaxalUserId, startDate])
+  @@index([engineerUserId, startDate])
+  @@index([projectId])
 }
 
 // 報告書
@@ -539,6 +552,10 @@ model Report {
   
   files       ReportFile[]
   pickupMaterialsList PickupMaterial[] // 集荷部材リスト（新）
+  
+  @@index([projectId])
+  @@index([engineerUserId])
+  @@index([status])
 }
 
 // ファイル管理
