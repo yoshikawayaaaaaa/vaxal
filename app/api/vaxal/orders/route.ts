@@ -25,25 +25,28 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
 
     // 案件番号を自動生成（例: HC-2025-0721-001）
+    // 日本時間（JST）で日付を取得
     const now = new Date()
-    const year = now.getFullYear()
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const day = String(now.getDate()).padStart(2, '0')
+    const jstOffset = 9 * 60 * 60 * 1000 // 9時間のオフセット
+    const jstNow = new Date(now.getTime() + jstOffset)
     
-    // 今日の案件数を取得
-    const todayStart = new Date(year, now.getMonth(), now.getDate())
-    const todayEnd = new Date(year, now.getMonth(), now.getDate() + 1)
+    const year = jstNow.getUTCFullYear()
+    const month = String(jstNow.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(jstNow.getUTCDate()).padStart(2, '0')
+    
+    // 今日の案件数を取得（JST基準）
+    // 今日の日付で始まる案件番号をカウント
+    const todayPrefix = `HC-${year}-${month}${day}-`
     
     const todayProjectsCount = await prisma.project.count({
       where: {
-        createdAt: {
-          gte: todayStart,
-          lt: todayEnd,
+        projectNumber: {
+          startsWith: todayPrefix,
         },
       },
     })
 
-    const projectNumber = `HC-${year}-${month}${day}-${String(todayProjectsCount + 1).padStart(3, '0')}`
+    const projectNumber = `${todayPrefix}${String(todayProjectsCount + 1).padStart(3, '0')}`
 
     // プロジェクトを作成
     const project = await prisma.project.create({

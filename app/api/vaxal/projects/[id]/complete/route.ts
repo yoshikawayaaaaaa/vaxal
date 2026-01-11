@@ -47,7 +47,7 @@ export async function POST(
 
     // エンジニアに通知を送信
     if (project.assignedEngineerId) {
-      await notifyProjectCompleted(id, project.projectNumber, project.assignedEngineerId)
+      await notifyProjectCompleted(parseInt(id), project.projectNumber, project.assignedEngineerId)
     }
 
     // リダイレクトを返す

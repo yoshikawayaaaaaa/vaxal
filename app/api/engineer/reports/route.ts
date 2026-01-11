@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // プロジェクトの確認
     const project = await prisma.project.findUnique({
-      where: { id: projectId },
+      where: { id: parseInt(projectId) },
     })
 
     if (!project) {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
         // 報告を作成
         const report = await prisma.report.create({
           data: {
-            projectId,
+            projectId: parseInt(projectId),
             reportType: reportType as any,
             status: 'COMPLETED',
             engineerUserId: parseInt(session.user.id),
@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
       // エンジニア入力情報のみの報告を作成（SITE_SURVEYタイプで保存）
       const report = await prisma.report.create({
         data: {
-          projectId,
+          projectId: parseInt(projectId),
           reportType: 'SITE_SURVEY',
           status: 'COMPLETED',
           engineerUserId: parseInt(session.user.id),
@@ -234,14 +234,14 @@ export async function POST(request: NextRequest) {
     const newStatus = engineerInfo.remainingWorkDate ? 'REMAINING_WORK' : 'REPORTED'
     
     await prisma.project.update({
-      where: { id: projectId },
+      where: { id: parseInt(projectId) },
       data: {
         status: newStatus,
       },
     })
 
     // 通知を作成
-    await notifyReportSubmitted(projectId, project.projectNumber)
+    await notifyReportSubmitted(parseInt(projectId), project.projectNumber)
 
     return NextResponse.json({
       message: '報告を作成しました',
