@@ -31,7 +31,9 @@ enum BloodType {
 
 // マスターアカウント(会社)
 model Company {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("companies")
   companyNumber         String   @unique // 業者番号
   companyName           String
   establishedDate       DateTime?
@@ -61,8 +63,8 @@ model Company {
   serviceExperience     Json?    // 各業種経験年数
   constructionHistory   String?
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()")) 
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()")) 
   
   // リレーション
   masterUser            EngineerUser?    @relation("CompanyMaster")
@@ -78,7 +80,9 @@ enum VaxalAccountType {
 
 // VAXAL社員
 model VaxalUser {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("vaxal_users")
   email                 String   @unique
   password              String
   accountType           VaxalAccountType @default(STAFF) // アカウントタイプ
@@ -87,8 +91,8 @@ model VaxalUser {
   name                  String
   phoneNumber           String
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   // リレーション
   createdProjects       Project[] @relation("CreatedByVaxal")
@@ -98,7 +102,9 @@ model VaxalUser {
 
 // エンジニア
 model EngineerUser {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("engineer_users")
   email                 String   @unique
   password              String
   role                  EngineerRole
@@ -113,9 +119,9 @@ model EngineerUser {
   emergencyContact      String?
   
   // 会社情報
-  companyId             String?
+  companyId             Int?
   company               Company? @relation("CompanyStaff", fields: [companyId], references: [id])
-  masterCompanyId       String?  @unique
+  masterCompanyId       Int?     @unique
   masterCompany         Company? @relation("CompanyMaster", fields: [masterCompanyId], references: [id])
   
   // 業務情報
@@ -125,8 +131,8 @@ model EngineerUser {
   hasQualification      Boolean  @default(false)
   hasWorkersComp        Boolean  @default(false)
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   // リレーション
   assignedProjects      Project[] @relation("AssignedEngineer")
@@ -222,8 +228,10 @@ enum SaleType {
 }
 
 model Project {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
   projectNumber         String   @unique // 案件番号
+  
+  @@map("projects")
   
   // 基本情報
   siteName              String
@@ -357,15 +365,15 @@ model Project {
   // ステータス
   status                ProjectStatus @default(PENDING)
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  createdByVaxalId      String
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdByVaxalId      Int
   createdByVaxal        VaxalUser @relation("CreatedByVaxal", fields: [createdByVaxalId], references: [id])
   
   // リレーション
-  companyId             String?
+  companyId             Int?
   company               Company? @relation(fields: [companyId], references: [id])
-  assignedEngineerId    String?
+  assignedEngineerId    Int?
   assignedEngineer      EngineerUser? @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id])
   reports               Report[]
   files                 ProjectFile[]
@@ -376,7 +384,9 @@ model Project {
 
 // 主要情報
 model MainInfo {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("main_info")
   projectNumber         String   @unique // 案件番号で紐付け
   
   // 施工指示
@@ -438,11 +448,11 @@ model MainInfo {
   remainingWorkDate     DateTime?
   constructionInfoNotes String?  @db.Text
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   // リレーション
-  projectId             String   @unique
+  projectId             Int      @unique
   project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
@@ -453,24 +463,26 @@ enum EventType {
 }
 
 model CalendarEvent {
-  id          String    @id @default(cuid())
+  id          Int       @id @default(autoincrement())
   title       String
+  
+  @@map("calendar_events")
   description String?
   startDate   DateTime
   endDate     DateTime
   eventType   EventType
   
   // VaxalUserまたはEngineerUserのどちらか
-  vaxalUserId      String?
+  vaxalUserId      Int?
   vaxalUser        VaxalUser?     @relation("VaxalCalendar", fields: [vaxalUserId], references: [id])
-  engineerUserId   String?
+  engineerUserId   Int?
   engineerUser     EngineerUser?  @relation("EngineerCalendar", fields: [engineerUserId], references: [id])
   
-  projectId   String?
+  projectId   Int?
   project     Project?  @relation(fields: [projectId], references: [id])
   
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(dbgenerated("NOW()"))
+  updatedAt   DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()"))
 }
 
 // 報告書
@@ -488,8 +500,10 @@ enum ReportStatus {
 }
 
 model Report {
-  id          String       @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   reportType  ReportType
+  
+  @@map("reports")
   status      ReportStatus @default(PENDING)
   notes       String?
   
@@ -514,13 +528,13 @@ model Report {
   saleType              SaleType?         // 売却種別
   saleFee               Int?              // 売却費
   
-  projectId   String
+  projectId   Int
   project     Project      @relation(fields: [projectId], references: [id])
-  engineerUserId String
+  engineerUserId Int
   engineerUser   EngineerUser @relation(fields: [engineerUserId], references: [id])
   
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(dbgenerated("NOW()"))
+  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   files       ReportFile[]
   pickupMaterialsList PickupMaterial[] // 集荷部材リスト（新）
@@ -543,37 +557,43 @@ enum FileCategory {
 }
 
 model ProjectFile {
-  id          String       @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   fileName    String
+  
+  @@map("project_files")
   fileUrl     String
   fileSize    Int
   mimeType    String
   category    FileCategory
   
-  projectId   String
+  projectId   Int
   project     Project      @relation(fields: [projectId], references: [id])
   
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(dbgenerated("NOW()"))
+  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
 }
 
 model ReportFile {
-  id          String       @id @default(cuid())
+  id          Int          @id @default(autoincrement())
   fileName    String
+  
+  @@map("report_files")
   fileUrl     String
   fileSize    Int
   mimeType    String
   
-  reportId    String
+  reportId    Int
   report      Report       @relation(fields: [reportId], references: [id])
   
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime     @default(dbgenerated("NOW()"))
+  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
 }
 
 // 月次管理
 model MonthlyExpense {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("monthly_expenses")
   year                  Int      // 年
   month                 Int      // 月（1-12）
   
@@ -585,8 +605,8 @@ model MonthlyExpense {
   officeFee             Int?     // 事務所費
   communicationFee      Int?     // 通信費
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   // 年月の組み合わせをユニークにする
   @@unique([year, month])
@@ -599,8 +619,10 @@ enum UnitType {
 }
 
 model InventoryItem {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
   name                  String   // 部材名（必須）
+  
+  @@map("inventory_items")
   productName           String?  // 商品名（任意）
   manufacturer          String?  // メーカー（任意）
   partNumber            String?  // 品番（任意）
@@ -610,8 +632,8 @@ model InventoryItem {
   threshold             Int      @default(0) // 閾値（必須）
   displayOrder          Int      @default(0) // 表示順序
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   // リレーション
   priceHistory          InventoryPriceHistory[]
@@ -620,16 +642,18 @@ model InventoryItem {
 
 // 在庫単価履歴
 model InventoryPriceHistory {
-  id                    String   @id @default(cuid())
-  inventoryItemId       String
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("inventory_price_history")
+  inventoryItemId       Int
   inventoryItem         InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
   
   price                 Int      // 単価
   effectiveFrom         DateTime // 適用開始日
   effectiveTo           DateTime? // 適用終了日（nullの場合は現在も有効）
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   @@index([inventoryItemId])
   @@index([effectiveFrom])
@@ -637,24 +661,28 @@ model InventoryPriceHistory {
 
 // 売価タイプマスタ
 model SellingPriceType {
-  id           String   @id @default(cuid())
+  id           Int      @id @default(autoincrement())
+  
+  @@map("selling_price_types")
   name         String   @unique  // 売価タイプ名（例: "交換できるくん"）
   displayOrder Int      @default(0) // 表示順序
   isActive     Boolean  @default(true) // 有効/無効
   
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(dbgenerated("NOW()"))
+  updatedAt    DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   @@index([displayOrder])
 }
 
 // 集荷部材
 model PickupMaterial {
-  id                    String   @id @default(cuid())
-  reportId              String
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("pickup_materials")
+  reportId              Int
   report                Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
   
-  inventoryItemId       String
+  inventoryItemId       Int
   inventoryItem         InventoryItem @relation(fields: [inventoryItemId], references: [id])
   
   // スナップショット（報告時点の情報を保存）
@@ -666,8 +694,8 @@ model PickupMaterial {
   unitType              UnitType // 単位タイプ
   unitPrice             Int      // 報告時点の単価
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   @@index([reportId])
   @@index([inventoryItemId])
@@ -684,24 +712,26 @@ enum NotificationType {
 }
 
 model Notification {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
   type                  NotificationType
+  
+  @@map("notifications")
   title                 String   // 通知タイトル
   message               String   @db.Text // 通知メッセージ
   isRead                Boolean  @default(false) // 既読フラグ
   
   // 関連情報
-  projectId             String?
+  projectId             Int?
   project               Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   
   // 通知先ユーザー（VaxalUserまたはEngineerUserのどちらか）
-  vaxalUserId           String?
+  vaxalUserId           Int?
   vaxalUser             VaxalUser? @relation(fields: [vaxalUserId], references: [id], onDelete: Cascade)
-  engineerUserId        String?
+  engineerUserId        Int?
   engineerUser          EngineerUser? @relation(fields: [engineerUserId], references: [id], onDelete: Cascade)
   
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(dbgenerated("NOW()"))
+  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
   
   @@index([vaxalUserId, isRead])
   @@index([engineerUserId, isRead])
