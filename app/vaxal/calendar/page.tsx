@@ -63,7 +63,7 @@ export default async function CalendarPage({
   })
 
   // エンジニア会社一覧を取得
-  const companies = await prisma.company.findMany({
+  const companiesData = await prisma.company.findMany({
     select: {
       id: true,
       companyName: true,
@@ -73,13 +73,19 @@ export default async function CalendarPage({
     },
   })
 
+  // IDをString型に変換
+  const companies = companiesData.map(c => ({
+    id: String(c.id),
+    companyName: c.companyName,
+  }))
+
   // 会社フィルター条件を構築
   const companyWhere = companyFilter
     ? {
         engineerUser: {
           OR: [
-            { companyId: companyFilter },
-            { masterCompanyId: companyFilter },
+            { companyId: parseInt(companyFilter) },
+            { masterCompanyId: parseInt(companyFilter) },
           ],
         },
       }
@@ -155,7 +161,7 @@ export default async function CalendarPage({
   const events = [
     // 確定予定のみ表示（対応可能日は表示しない）
     ...confirmedEvents.map((event) => ({
-      id: event.project?.id || event.id, // プロジェクトIDを使用（存在しない場合はイベントID）
+      id: String(event.project?.id || event.id), // プロジェクトIDを使用（存在しない場合はイベントID）
       title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,
       start: new Date(event.startDate),
       end: new Date(event.endDate),
