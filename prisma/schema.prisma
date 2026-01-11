@@ -7,6 +7,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 // ユーザー管理
@@ -63,8 +64,8 @@ model Company {
   serviceExperience     Json?    // 各業種経験年数
   constructionHistory   String?
   
-  createdAt             DateTime @default(dbgenerated("NOW()")) 
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()")) 
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // リレーション
   masterUser            EngineerUser?    @relation("CompanyMaster")
@@ -91,8 +92,8 @@ model VaxalUser {
   name                  String
   phoneNumber           String
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // リレーション
   createdProjects       Project[] @relation("CreatedByVaxal")
@@ -131,8 +132,8 @@ model EngineerUser {
   hasQualification      Boolean  @default(false)
   hasWorkersComp        Boolean  @default(false)
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // リレーション
   assignedProjects      Project[] @relation("AssignedEngineer")
@@ -365,8 +366,8 @@ model Project {
   // ステータス
   status                ProjectStatus @default(PENDING)
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   createdByVaxalId      Int
   createdByVaxal        VaxalUser @relation("CreatedByVaxal", fields: [createdByVaxalId], references: [id])
   
@@ -448,8 +449,8 @@ model MainInfo {
   remainingWorkDate     DateTime?
   constructionInfoNotes String?  @db.Text
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // リレーション
   projectId             Int      @unique
@@ -481,8 +482,8 @@ model CalendarEvent {
   projectId   Int?
   project     Project?  @relation(fields: [projectId], references: [id])
   
-  createdAt   DateTime  @default(dbgenerated("NOW()"))
-  updatedAt   DateTime  @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 // 報告書
@@ -533,8 +534,8 @@ model Report {
   engineerUserId Int
   engineerUser   EngineerUser @relation(fields: [engineerUserId], references: [id])
   
-  createdAt   DateTime     @default(dbgenerated("NOW()"))
-  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   
   files       ReportFile[]
   pickupMaterialsList PickupMaterial[] // 集荷部材リスト（新）
@@ -569,8 +570,8 @@ model ProjectFile {
   projectId   Int
   project     Project      @relation(fields: [projectId], references: [id])
   
-  createdAt   DateTime     @default(dbgenerated("NOW()"))
-  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 model ReportFile {
@@ -585,8 +586,8 @@ model ReportFile {
   reportId    Int
   report      Report       @relation(fields: [reportId], references: [id])
   
-  createdAt   DateTime     @default(dbgenerated("NOW()"))
-  updatedAt   DateTime     @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 // 月次管理
@@ -605,8 +606,8 @@ model MonthlyExpense {
   officeFee             Int?     // 事務所費
   communicationFee      Int?     // 通信費
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // 年月の組み合わせをユニークにする
   @@unique([year, month])
@@ -632,8 +633,8 @@ model InventoryItem {
   threshold             Int      @default(0) // 閾値（必須）
   displayOrder          Int      @default(0) // 表示順序
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   // リレーション
   priceHistory          InventoryPriceHistory[]
@@ -652,8 +653,8 @@ model InventoryPriceHistory {
   effectiveFrom         DateTime // 適用開始日
   effectiveTo           DateTime? // 適用終了日（nullの場合は現在も有効）
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   @@index([inventoryItemId])
   @@index([effectiveFrom])
@@ -668,8 +669,8 @@ model SellingPriceType {
   displayOrder Int      @default(0) // 表示順序
   isActive     Boolean  @default(true) // 有効/無効
   
-  createdAt    DateTime @default(dbgenerated("NOW()"))
-  updatedAt    DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   
   @@index([displayOrder])
 }
@@ -694,8 +695,8 @@ model PickupMaterial {
   unitType              UnitType // 単位タイプ
   unitPrice             Int      // 報告時点の単価
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   @@index([reportId])
   @@index([inventoryItemId])
@@ -730,8 +731,8 @@ model Notification {
   engineerUserId        Int?
   engineerUser          EngineerUser? @relation(fields: [engineerUserId], references: [id], onDelete: Cascade)
   
-  createdAt             DateTime @default(dbgenerated("NOW()"))
-  updatedAt             DateTime @default(dbgenerated("NOW() ON UPDATE NOW()"))
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   
   @@index([vaxalUserId, isRead])
   @@index([engineerUserId, isRead])
