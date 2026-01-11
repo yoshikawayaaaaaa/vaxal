@@ -18,7 +18,7 @@ export async function POST(
 
     // プロジェクトを取得
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     if (!project) {
@@ -38,7 +38,7 @@ export async function POST(
 
     // ステータスをCOMPLETEDに更新
     const updatedProject = await prisma.project.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         status: 'COMPLETED',
         completionDate: new Date(),

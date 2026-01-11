@@ -12,7 +12,7 @@ export default async function EngineerDashboardLayout({
 
   // 会社名を取得
   const engineerUser = await prisma.engineerUser.findUnique({
-    where: { id: session.user.id },
+    where: { id: parseInt(session.user.id) },
     include: {
       company: true,
       masterCompany: true,
@@ -29,7 +29,7 @@ export default async function EngineerDashboardLayout({
   // 未読通知数を取得
   const unreadCount = await prisma.notification.count({
     where: {
-      engineerUserId: session.user.id,
+      engineerUserId: parseInt(session.user.id),
       isRead: false,
     },
   })

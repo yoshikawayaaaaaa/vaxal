@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // 既に同じ日に登録されているか確認（対応可能日または確定予定）
     const existingEvent = await prisma.calendarEvent.findFirst({
       where: {
-        engineerUserId: session.user.id,
+        engineerUserId: parseInt(session.user.id),
         startDate: {
           gte: startDate,
           lt: endDate,
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         startDate,
         endDate,
         eventType: 'AVAILABLE',
-        engineerUserId: session.user.id,
+        engineerUserId: parseInt(session.user.id),
       },
     })
 
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
 
     const events = await prisma.calendarEvent.findMany({
       where: {
-        engineerUserId: session.user.id,
+        engineerUserId: parseInt(session.user.id),
       },
       orderBy: {
         startDate: 'asc',

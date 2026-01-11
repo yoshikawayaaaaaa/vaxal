@@ -18,7 +18,7 @@ export default async function EngineerDashboardPage() {
   // 自分に割り振られた案件を取得（ステータス2以降のみ）
   const projects = await prisma.project.findMany({
     where: {
-      assignedEngineerId: session.user.id,
+      assignedEngineerId: parseInt(session.user.id),
       status: {
         in: ['ASSIGNED', 'REPORTED', 'COMPLETED', 'REMAINING_WORK'],
       },

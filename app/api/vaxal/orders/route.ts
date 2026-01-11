@@ -117,10 +117,10 @@ export async function POST(request: NextRequest) {
         crossSellContent: body.crossSellContent || null,
         
         // エンジニア割り振り
-        assignedEngineerId: body.assignedEngineerId || null,
+        assignedEngineerId: body.assignedEngineerId ? parseInt(body.assignedEngineerId) : null,
         
         // 作成者
-        createdByVaxalId: session.user.id,
+        createdByVaxalId: parseInt(session.user.id),
         
         status: 'PENDING',
       },
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
           startDate: startOfDay,
           endDate: endOfDay,
           eventType: 'CONFIRMED',
-          engineerUserId: body.assignedEngineerId,
+          engineerUserId: parseInt(body.assignedEngineerId),
           projectId: project.id,
         },
       })
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 通知を作成
-    await notifyOrderReceived(project.id, projectNumber, session.user.id)
+    await notifyOrderReceived(project.id, projectNumber, parseInt(session.user.id))
 
     return NextResponse.json(project, { status: 201 })
   } catch (error) {
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
     // エンジニアは自分に割り当てられた案件のみ取得
     const where = session.user.role === 'VAXAL_ADMIN'
       ? {}
-      : { assignedEngineerId: session.user.id }
+      : { assignedEngineerId: parseInt(session.user.id) }
 
     const projects = await prisma.project.findMany({
       where,

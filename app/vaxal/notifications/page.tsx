@@ -18,7 +18,7 @@ export default async function VaxalNotificationsPage() {
   // 通知を取得
   const notifications = await prisma.notification.findMany({
     where: {
-      vaxalUserId: session.user.id,
+      vaxalUserId: parseInt(session.user.id),
     },
     include: {
       project: {

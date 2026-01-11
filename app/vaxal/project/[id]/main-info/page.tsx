@@ -19,7 +19,7 @@ export default async function MainInfoPage({
   const { id } = await params
 
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { id: parseInt(id) },
     include: {
       mainInfo: true,
       assignedEngineer: {
@@ -39,7 +39,7 @@ export default async function MainInfoPage({
   // エンジニアは自分に割り当てられた案件のみ閲覧可能
   if (
     session.user.role !== 'VAXAL_ADMIN' &&
-    project.assignedEngineerId !== session.user.id
+    project.assignedEngineerId !== parseInt(session.user.id)
   ) {
     redirect('/dashboard')
   }

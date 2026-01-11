@@ -26,7 +26,7 @@ export default async function RelatedInfoPage({
   const { id } = await params
 
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { id: parseInt(id) },
     include: {
       reports: {
         orderBy: {

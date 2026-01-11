@@ -18,7 +18,7 @@ export default async function EngineerNotificationsPage() {
   // 通知を取得
   const notifications = await prisma.notification.findMany({
     where: {
-      engineerUserId: session.user.id,
+      engineerUserId: parseInt(session.user.id),
     },
     include: {
       project: {

@@ -27,7 +27,7 @@ export default async function EngineerCalendarPage({
   
   // 自分の会社IDを取得
   const currentUser = await prisma.engineerUser.findUnique({
-    where: { id: session.user.id },
+    where: { id: parseInt(session.user.id) },
     select: {
       companyId: true,
       masterCompanyId: true,
@@ -49,7 +49,7 @@ export default async function EngineerCalendarPage({
       }
     : {
         // スタッフ：自分の予定のみ
-        engineerUserId: session.user.id,
+        engineerUserId: parseInt(session.user.id),
       }
 
   // 選択月または当月の開始日と終了日を計算

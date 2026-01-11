@@ -30,7 +30,7 @@ export async function PUT(
 
     // 現在の在庫アイテムを取得
     const currentItem = await prisma.inventoryItem.findUnique({
-      where: { id }
+      where: { id: parseInt(id) }
     })
 
     if (!currentItem) {
@@ -69,7 +69,7 @@ export async function PUT(
 
     // 在庫を更新
     const updatedItem = await prisma.inventoryItem.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         productName: productName || null,
         manufacturer: manufacturer || null,

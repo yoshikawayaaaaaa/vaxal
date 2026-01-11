@@ -19,7 +19,7 @@ export async function GET(
     const { id } = await params
 
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       include: {
         mainInfo: true,
       },
@@ -35,7 +35,7 @@ export async function GET(
     // エンジニアは自分に割り当てられた案件のみ閲覧可能
     if (
       session.user.role !== 'VAXAL_ADMIN' &&
-      project.assignedEngineerId !== session.user.id
+      project.assignedEngineerId !== parseInt(session.user.id)
     ) {
       return NextResponse.json(
         { error: 'アクセス権限がありません' },
@@ -78,7 +78,7 @@ export async function POST(
     const body = await request.json()
 
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     if (!project) {
@@ -91,7 +91,7 @@ export async function POST(
     // エンジニアは自分に割り当てられた案件のみ編集可能
     if (
       session.user.role !== 'VAXAL_ADMIN' &&
-      project.assignedEngineerId !== session.user.id
+      project.assignedEngineerId !== parseInt(session.user.id)
     ) {
       return NextResponse.json(
         { error: 'アクセス権限がありません' },
@@ -131,10 +131,10 @@ export async function POST(
     // 主要情報を作成または更新
     const mainInfo = await prisma.mainInfo.upsert({
       where: {
-        projectId: id,
+        projectId: parseInt(id),
       },
       create: {
-        projectId: id,
+        projectId: parseInt(id),
         projectNumber: project.projectNumber,
         ...data,
       },

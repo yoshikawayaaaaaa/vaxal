@@ -16,7 +16,7 @@ export async function GET(
     const { id } = await params
 
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       select: {
         id: true,
         projectNumber: true,
@@ -37,7 +37,7 @@ export async function GET(
     }
 
     // 自分に割り振られた案件のみ閲覧可能
-    if (project.assignedEngineerId !== session.user.id) {
+    if (project.assignedEngineerId !== parseInt(session.user.id)) {
       return NextResponse.json(
         { error: 'アクセス権限がありません' },
         { status: 403 }

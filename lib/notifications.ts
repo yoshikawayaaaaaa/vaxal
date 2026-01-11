@@ -14,9 +14,9 @@ export async function createNotification({
   type: 'REPORT_SUBMITTED' | 'ORDER_RECEIVED' | 'PROJECT_ASSIGNED' | 'PROJECT_COMPLETED' | 'INVENTORY_LOW_STOCK' | 'INVENTORY_OUT_OF_STOCK'
   title: string
   message: string
-  projectId?: string
-  vaxalUserId?: string
-  engineerUserId?: string
+  projectId?: number
+  vaxalUserId?: number
+  engineerUserId?: number
 }) {
   try {
     await prisma.notification.create({
@@ -37,7 +37,7 @@ export async function createNotification({
 /**
  * 報告提出時の通知を作成
  */
-export async function notifyReportSubmitted(projectId: string, projectNumber: string) {
+export async function notifyReportSubmitted(projectId: number, projectNumber: string) {
   // プロジェクトを作成したVAXAL社員に通知
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -58,7 +58,7 @@ export async function notifyReportSubmitted(projectId: string, projectNumber: st
 /**
  * 注文受付時の通知を作成
  */
-export async function notifyOrderReceived(projectId: string, projectNumber: string, vaxalUserId: string) {
+export async function notifyOrderReceived(projectId: number, projectNumber: string, vaxalUserId: number) {
   await createNotification({
     type: 'ORDER_RECEIVED',
     title: '新しい注文を受け付けました',
@@ -71,7 +71,7 @@ export async function notifyOrderReceived(projectId: string, projectNumber: stri
 /**
  * 案件割り振り時の通知を作成
  */
-export async function notifyProjectAssigned(projectId: string, projectNumber: string, engineerUserId: string) {
+export async function notifyProjectAssigned(projectId: number, projectNumber: string, engineerUserId: number) {
   await createNotification({
     type: 'PROJECT_ASSIGNED',
     title: '新しい案件が割り振られました',
@@ -84,7 +84,7 @@ export async function notifyProjectAssigned(projectId: string, projectNumber: st
 /**
  * 案件完了時の通知を作成
  */
-export async function notifyProjectCompleted(projectId: string, projectNumber: string, engineerUserId: string) {
+export async function notifyProjectCompleted(projectId: number, projectNumber: string, engineerUserId: number) {
   await createNotification({
     type: 'PROJECT_COMPLETED',
     title: '案件が完了しました',

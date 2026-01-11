@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 自分に割り振られた案件かチェック
-    if (project.assignedEngineerId !== session.user.id) {
+    if (project.assignedEngineerId !== parseInt(session.user.id)) {
       return NextResponse.json({ error: 'アクセス権限がありません' }, { status: 403 })
     }
 
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             projectId,
             reportType: reportType as any,
             status: 'COMPLETED',
-            engineerUserId: session.user.id,
+            engineerUserId: parseInt(session.user.id),
             notes: engineerInfo.notes,
             // 工事完了報告用
             isWorkCompleted: reportType === 'COMPLETION' ? engineerInfo.isWorkCompleted : null,
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
           projectId,
           reportType: 'SITE_SURVEY',
           status: 'COMPLETED',
-          engineerUserId: session.user.id,
+          engineerUserId: parseInt(session.user.id),
           notes: engineerInfo.notes,
           existingManufacturer: engineerInfo.existingManufacturer,
           yearsOfUse: engineerInfo.yearsOfUse,

@@ -16,7 +16,7 @@ export async function GET(
     const { id } = await params
 
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       include: {
         createdByVaxal: {
           select: {
@@ -43,7 +43,7 @@ export async function GET(
     // エンジニアは自分に割り当てられた案件のみ閲覧可能
     if (
       session.user.role !== 'VAXAL_ADMIN' &&
-      project.assignedEngineerId !== session.user.id
+      project.assignedEngineerId !== parseInt(session.user.id)
     ) {
       return NextResponse.json({ error: '権限がありません' }, { status: 403 })
     }
@@ -74,7 +74,7 @@ export async function PUT(
 
     // プロジェクトの存在確認
     const existingProject = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     if (!existingProject) {
@@ -86,7 +86,7 @@ export async function PUT(
 
     // プロジェクトを更新
     const project = await prisma.project.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         siteName: body.siteName,
         siteAddress: body.siteAddress,

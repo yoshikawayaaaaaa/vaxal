@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
     // ユーザータイプに応じて通知を取得
     const where =
       session.user.userType === 'vaxal'
-        ? { vaxalUserId: session.user.id }
-        : { engineerUserId: session.user.id }
+        ? { vaxalUserId: parseInt(session.user.id) }
+        : { engineerUserId: parseInt(session.user.id) }
 
     const notifications = await prisma.notification.findMany({
       where,
@@ -77,9 +77,9 @@ export async function PATCH(request: NextRequest) {
     // 自分の通知かチェック
     const isOwner =
       (session.user.userType === 'vaxal' &&
-        notification.vaxalUserId === session.user.id) ||
+        notification.vaxalUserId === parseInt(session.user.id)) ||
       (session.user.userType === 'engineer' &&
-        notification.engineerUserId === session.user.id)
+        notification.engineerUserId === parseInt(session.user.id))
 
     if (!isOwner) {
       return NextResponse.json(
@@ -116,8 +116,8 @@ export async function POST(request: NextRequest) {
     // ユーザータイプに応じて通知を既読にする
     const where =
       session.user.userType === 'vaxal'
-        ? { vaxalUserId: session.user.id, isRead: false }
-        : { engineerUserId: session.user.id, isRead: false }
+        ? { vaxalUserId: parseInt(session.user.id), isRead: false }
+        : { engineerUserId: parseInt(session.user.id), isRead: false }
 
     await prisma.notification.updateMany({
       where,

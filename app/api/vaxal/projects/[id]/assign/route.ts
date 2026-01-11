@@ -18,7 +18,7 @@ export async function POST(
 
     // プロジェクトと主要情報を取得
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       include: {
         mainInfo: true,
       },
@@ -75,7 +75,7 @@ export async function POST(
 
     // ステータスを「注文依頼」に更新
     const updatedProject = await prisma.project.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         status: 'ASSIGNED',
       },
@@ -83,7 +83,7 @@ export async function POST(
 
     // エンジニアに通知を送信
     if (project.assignedEngineerId) {
-      await notifyProjectAssigned(id, project.projectNumber, project.assignedEngineerId)
+      await notifyProjectAssigned(parseInt(id), project.projectNumber, project.assignedEngineerId)
     }
 
     return NextResponse.redirect(new URL(`/vaxal/project/${id}`, request.url))

@@ -16,11 +16,11 @@ export default async function ProfilePage() {
   
   if (session.user.userType === 'vaxal') {
     user = await prisma.vaxalUser.findUnique({
-      where: { id: session.user.id },
+      where: { id: parseInt(session.user.id) },
     })
   } else {
     const engineerUser = await prisma.engineerUser.findUnique({
-      where: { id: session.user.id },
+      where: { id: parseInt(session.user.id) },
       include: {
         company: true,
         masterCompany: true,

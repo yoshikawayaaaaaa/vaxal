@@ -29,7 +29,7 @@ export async function POST(
 
     // プロジェクトの確認
     const project = await prisma.project.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     if (!project) {
@@ -54,7 +54,7 @@ export async function POST(
       // データベースに記録
       const projectFile = await prisma.projectFile.create({
         data: {
-          projectId: id,
+          projectId: parseInt(id),
           fileName: file.name,
           fileUrl: fileUrl,
           fileSize: file.size,

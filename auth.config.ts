@@ -44,13 +44,13 @@ export default {
           }
 
           return {
-            id: engineerUser.id,
+            id: String(engineerUser.id),
             email: engineerUser.email,
             name: engineerUser.name,
             role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
             userType: 'engineer',
-            companyId: engineerUser.companyId,
-            masterCompanyId: engineerUser.masterCompanyId,
+            companyId: engineerUser.companyId ? String(engineerUser.companyId) : null,
+            masterCompanyId: engineerUser.masterCompanyId ? String(engineerUser.masterCompanyId) : null,
             engineerRole: engineerUser.role,
           }
         }
@@ -68,7 +68,7 @@ export default {
           }
 
           return {
-            id: vaxalUser.id,
+            id: String(vaxalUser.id),
             email: vaxalUser.email,
             name: vaxalUser.name,
             role: 'VAXAL_ADMIN',
@@ -95,13 +95,13 @@ export default {
             }
 
             return {
-              id: engineerUser.id,
+              id: String(engineerUser.id),
               email: engineerUser.email,
               name: engineerUser.name,
               role: engineerUser.role === 'MASTER' ? 'ENGINEER_MASTER' : 'ENGINEER_STAFF',
               userType: 'engineer',
-              companyId: engineerUser.companyId,
-              masterCompanyId: engineerUser.masterCompanyId,
+              companyId: engineerUser.companyId ? String(engineerUser.companyId) : null,
+              masterCompanyId: engineerUser.masterCompanyId ? String(engineerUser.masterCompanyId) : null,
               engineerRole: engineerUser.role,
             }
           }

@@ -24,7 +24,7 @@ export default async function EngineerProjectDetailPage({
   const { id } = await params
 
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { id: parseInt(id) },
     include: {
       createdByVaxal: {
         select: {
@@ -47,7 +47,7 @@ export default async function EngineerProjectDetailPage({
   }
 
   // 自分に割り振られた案件かチェック
-  if (project.assignedEngineerId !== session.user.id) {
+  if (project.assignedEngineerId !== parseInt(session.user.id)) {
     redirect('/engineer')
   }
 

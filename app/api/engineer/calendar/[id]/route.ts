@@ -29,7 +29,7 @@ export async function DELETE(
 
     // イベントを取得して所有者確認
     const event = await prisma.calendarEvent.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     if (!event) {
@@ -40,7 +40,7 @@ export async function DELETE(
     }
 
     // 自分のイベントかどうか確認
-    if (event.engineerUserId !== session.user.id) {
+    if (event.engineerUserId !== parseInt(session.user.id)) {
       return NextResponse.json(
         { error: '権限がありません' },
         { status: 403 }
@@ -57,7 +57,7 @@ export async function DELETE(
 
     // 削除実行
     await prisma.calendarEvent.delete({
-      where: { id },
+      where: { id: parseInt(id) },
     })
 
     return NextResponse.json({ message: '削除しました' })
