@@ -1,10 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
-import { unlink } from 'fs/promises'
+import { uploadToR2, deleteFromR2, extractKeyFromUrl } from '@/lib/r2'
 
 // 画像アップロード
 export async function POST(
@@ -42,33 +39,24 @@ export async function POST(
       )
     }
 
-    // アップロードディレクトリの作成
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'projects')
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
     // ファイルを保存
     const uploadedFiles = []
 
     for (const file of files) {
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
       // ファイル名を生成（タイムスタンプ + オリジナル名）
       const timestamp = Date.now()
       const fileName = `${timestamp}_${file.name}`
-      const filePath = join(uploadDir, fileName)
+      const key = `projects/${fileName}`
 
-      // ファイルを保存
-      await writeFile(filePath, buffer)
+      // R2にアップロード
+      const fileUrl = await uploadToR2(file, key)
 
       // データベースに記録
       const projectFile = await prisma.projectFile.create({
         data: {
           projectId: id,
           fileName: file.name,
-          fileUrl: `/uploads/projects/${fileName}`,
+          fileUrl: fileUrl,
           fileSize: file.size,
           mimeType: file.type,
           category: category as any,
@@ -125,11 +113,9 @@ export async function DELETE(
       )
     }
 
-    // ファイルシステムから削除
-    const filePath = join(process.cwd(), 'public', file.fileUrl)
-    if (existsSync(filePath)) {
-      await unlink(filePath)
-    }
+    // R2から削除
+    const key = extractKeyFromUrl(file.fileUrl)
+    await deleteFromR2(key)
 
     // データベースから削除
     await prisma.projectFile.delete({

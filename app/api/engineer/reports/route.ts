@@ -1,9 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { existsSync } from 'fs'
+import { uploadToR2 } from '@/lib/r2'
 import { notifyReportSubmitted, notifyInventoryLowStock, notifyInventoryOutOfStock } from '@/lib/notifications'
 
 export async function POST(request: NextRequest) {
@@ -69,12 +67,6 @@ export async function POST(request: NextRequest) {
       'UNLOADING',
     ]
     
-    // アップロードディレクトリの作成
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'reports')
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
     // 各報告タイプの処理
     const createdReports = []
     let hasAnyData = false
@@ -163,23 +155,20 @@ export async function POST(request: NextRequest) {
           const file = formData.get(`${reportType}_${i}`) as File
           
           if (file) {
-            const bytes = await file.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-
-            // ファイル名を生成（タイムスタンプ + オリジナル名）
+            // ファイル名を生成（タイムスタンプ + インデックス + オリジナル名）
             const timestamp = Date.now()
             const fileName = `${timestamp}_${i}_${file.name}`
-            const filePath = join(uploadDir, fileName)
+            const key = `reports/${fileName}`
 
-            // ファイルを保存
-            await writeFile(filePath, buffer)
+            // R2にアップロード
+            const fileUrl = await uploadToR2(file, key)
 
             // データベースに記録
             await prisma.reportFile.create({
               data: {
                 reportId: report.id,
                 fileName: file.name,
-                fileUrl: `/uploads/reports/${fileName}`,
+                fileUrl: fileUrl,
                 fileSize: file.size,
                 mimeType: file.type,
               },
