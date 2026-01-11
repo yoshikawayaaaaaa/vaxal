@@ -90,8 +90,8 @@ export async function GET(request: NextRequest) {
       }
 
       whereCondition.OR = [
-        { companyId },
-        { masterCompanyId: companyId },
+        { companyId: parseInt(companyId) },
+        { masterCompanyId: parseInt(companyId) },
       ]
     } else {
       return NextResponse.json(
