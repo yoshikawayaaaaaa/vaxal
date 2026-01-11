@@ -58,7 +58,14 @@ export default async function EngineerNotificationsPage() {
             {notifications.map((notification) => (
               <NotificationCard
                 key={notification.id}
-                notification={notification}
+                notification={{
+                  ...notification,
+                  id: String(notification.id),
+                  project: notification.project ? {
+                    ...notification.project,
+                    id: String(notification.project.id),
+                  } : null,
+                }}
                 baseUrl="/engineer"
               />
             ))}

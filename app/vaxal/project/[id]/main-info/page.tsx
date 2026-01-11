@@ -64,8 +64,22 @@ export default async function MainInfoPage({
           contractAmount={project.contractAmount}
           userRole={session.user.role}
           engineerRole={session.user.role === 'ENGINEER' ? session.user.engineerRole : undefined}
-          assignedEngineer={project.assignedEngineer}
-          createdByVaxal={project.createdByVaxal}
+          assignedEngineer={project.assignedEngineer ? {
+            ...project.assignedEngineer,
+            id: String(project.assignedEngineer.id),
+            company: project.assignedEngineer.company ? {
+              ...project.assignedEngineer.company,
+              id: String(project.assignedEngineer.company.id),
+            } : null,
+            masterCompany: project.assignedEngineer.masterCompany ? {
+              ...project.assignedEngineer.masterCompany,
+              id: String(project.assignedEngineer.masterCompany.id),
+            } : null,
+          } : null}
+          createdByVaxal={{
+            ...project.createdByVaxal,
+            id: String(project.createdByVaxal.id),
+          }}
           workDate={project.workDate}
         />
       </div>

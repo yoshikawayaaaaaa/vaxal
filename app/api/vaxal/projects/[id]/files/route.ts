@@ -103,7 +103,7 @@ export async function DELETE(
 
     // ファイル情報を取得
     const file = await prisma.projectFile.findUnique({
-      where: { id: fileId },
+      where: { id: parseInt(fileId) },
     })
 
     if (!file) {
@@ -119,7 +119,7 @@ export async function DELETE(
 
     // データベースから削除
     await prisma.projectFile.delete({
-      where: { id: fileId },
+      where: { id: parseInt(fileId) },
     })
 
     return NextResponse.json({

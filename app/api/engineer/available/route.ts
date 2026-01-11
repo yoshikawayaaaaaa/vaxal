@@ -131,10 +131,10 @@ export async function GET(request: NextRequest) {
         const assignedCount = assignedProjects.length
         
         return {
-          id: engineer.id,
+          id: String(engineer.id),
           name: engineer.name,
           email: engineer.email,
-          companyId: company?.id,
+          companyId: company?.id ? String(company.id) : undefined,
           companyName: company?.companyName,
           assignedCount,
           remainingSlots: MAX_PROJECTS_PER_DAY - assignedCount,

@@ -48,7 +48,7 @@ export async function PUT(
       // 現在有効な履歴の終了日を設定
       await prisma.inventoryPriceHistory.updateMany({
         where: {
-          inventoryItemId: id,
+          inventoryItemId: parseInt(id),
           effectiveTo: null, // 現在有効な履歴
         },
         data: {
@@ -59,7 +59,7 @@ export async function PUT(
       // 新しい単価の履歴を作成
       await prisma.inventoryPriceHistory.create({
         data: {
-          inventoryItemId: id,
+          inventoryItemId: parseInt(id),
           price: newUnitPrice,
           effectiveFrom: now,
           effectiveTo: null, // 現在有効

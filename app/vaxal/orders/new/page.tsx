@@ -16,7 +16,7 @@ export default async function NewOrderPage() {
   }
 
   // 全エンジニア会社とそのスタッフを取得
-  const companies = await prisma.company.findMany({
+  const companiesData = await prisma.company.findMany({
     include: {
       masterUser: {
         select: {
@@ -37,6 +37,20 @@ export default async function NewOrderPage() {
       companyName: 'asc',
     },
   })
+
+  // IDをString型に変換
+  const companies = companiesData.map(c => ({
+    ...c,
+    id: String(c.id),
+    masterUser: c.masterUser ? {
+      ...c.masterUser,
+      id: String(c.masterUser.id),
+    } : null,
+    staffUsers: c.staffUsers.map(s => ({
+      ...s,
+      id: String(s.id),
+    })),
+  }))
 
   return (
     <div className="p-4 md:p-8">
