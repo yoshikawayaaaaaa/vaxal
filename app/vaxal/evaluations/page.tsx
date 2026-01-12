@@ -38,7 +38,7 @@ export default function EvaluationsPage() {
       const response = await fetch('/api/vaxal/engineers/companies')
       if (response.ok) {
         const data = await response.json()
-        setCompanies(data)
+        setCompanies(data.companies || [])
       }
     } catch (error) {
       console.error('会社取得エラー:', error)

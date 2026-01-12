@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(companies)
+    return NextResponse.json({ companies })
   } catch (error) {
     console.error('会社取得エラー:', error)
     return NextResponse.json(
