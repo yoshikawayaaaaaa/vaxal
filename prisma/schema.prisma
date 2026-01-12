@@ -499,6 +499,8 @@ model CalendarEvent {
   @@index([vaxalUserId, startDate])
   @@index([engineerUserId, startDate])
   @@index([projectId])
+  @@index([eventType, engineerUserId, startDate])
+  @@index([eventType, startDate])
 }
 
 // 報告書

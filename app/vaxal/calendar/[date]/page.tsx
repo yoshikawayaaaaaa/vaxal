@@ -23,7 +23,7 @@ export default async function CalendarDatePage({
   const endOfDay = new Date(selectedDate)
   endOfDay.setHours(23, 59, 59, 999)
 
-  // 指定日の案件を取得
+  // 指定日の案件を取得（最適化版）
   const projects = await prisma.project.findMany({
     where: {
       workDate: {
@@ -31,22 +31,24 @@ export default async function CalendarDatePage({
         lte: endOfDay,
       },
     },
-    include: {
+    select: {
+      id: true,
+      projectNumber: true,
+      siteName: true,
+      siteAddress: true,
+      customerName: true,
+      workContent: true,
+      workTime: true,
+      status: true,
+      createdAt: true,
+      assignedEngineerId: true,
       assignedEngineer: {
         select: {
           id: true,
           name: true,
           email: true,
-          company: {
-            select: {
-              companyName: true,
-            },
-          },
-          masterCompany: {
-            select: {
-              companyName: true,
-            },
-          },
+          companyId: true,
+          masterCompanyId: true,
         },
       },
       createdByVaxal: {
@@ -60,8 +62,65 @@ export default async function CalendarDatePage({
     },
   })
 
-  // エンジニアごとに案件をグループ化
-  const projectsByEngineer = projects.reduce((acc, project) => {
+  // エンジニアのIDを収集
+  const engineerIds = projects
+    .map(p => p.assignedEngineer?.id)
+    .filter((id): id is number => id !== undefined && id !== null)
+  
+  const uniqueEngineerIds = [...new Set(engineerIds)]
+
+  // 会社情報を一括取得
+  const engineers = await prisma.engineerUser.findMany({
+    where: {
+      id: {
+        in: uniqueEngineerIds,
+      },
+    },
+    select: {
+      id: true,
+      companyId: true,
+      masterCompanyId: true,
+      company: {
+        select: {
+          companyName: true,
+        },
+      },
+      masterCompany: {
+        select: {
+          companyName: true,
+        },
+      },
+    },
+  })
+
+  // エンジニアIDから会社情報へのマップを作成
+  const engineerCompanyMap = new Map(
+    engineers.map(e => [
+      e.id,
+      {
+        company: e.company,
+        masterCompany: e.masterCompany,
+      },
+    ])
+  )
+
+  // プロジェクトに会社情報を追加
+  const projectsWithCompany = projects.map(project => {
+    if (!project.assignedEngineer) return project
+    
+    const companyInfo = engineerCompanyMap.get(project.assignedEngineer.id)
+    return {
+      ...project,
+      assignedEngineer: {
+        ...project.assignedEngineer,
+        company: companyInfo?.company || null,
+        masterCompany: companyInfo?.masterCompany || null,
+      },
+    }
+  })
+
+  // エンジニアごとに案件をグループ化（会社情報を含む）
+  const projectsByEngineer = projectsWithCompany.reduce((acc, project) => {
     if (!project.assignedEngineer) return acc
     
     const engineerId = project.assignedEngineer.id

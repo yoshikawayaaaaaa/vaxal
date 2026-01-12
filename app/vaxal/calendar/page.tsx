@@ -7,6 +7,7 @@ import { MonthFilter } from '@/components/calendar/month-filter'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
+import { unstable_cache } from 'next/cache'
 
 export default async function CalendarPage({
   searchParams,
@@ -62,22 +63,32 @@ export default async function CalendarPage({
     countsByStatus[item.status] = item._count.status
   })
 
-  // エンジニア会社一覧を取得
-  const companiesData = await prisma.company.findMany({
-    select: {
-      id: true,
-      companyName: true,
+  // エンジニア会社一覧を取得（キャッシュ付き）
+  const getCompanies = unstable_cache(
+    async () => {
+      const companiesData = await prisma.company.findMany({
+        select: {
+          id: true,
+          companyName: true,
+        },
+        orderBy: {
+          companyName: 'asc',
+        },
+      })
+      
+      return companiesData.map(c => ({
+        id: String(c.id),
+        companyName: c.companyName,
+      }))
     },
-    orderBy: {
-      companyName: 'asc',
-    },
-  })
+    ['companies-list'],
+    {
+      revalidate: 3600, // 1時間キャッシュ
+      tags: ['companies'],
+    }
+  )
 
-  // IDをString型に変換
-  const companies = companiesData.map(c => ({
-    id: String(c.id),
-    companyName: c.companyName,
-  }))
+  const companies = await getCompanies()
 
   // 会社フィルター条件を構築
   const companyWhere = companyFilter
@@ -91,46 +102,24 @@ export default async function CalendarPage({
       }
     : {}
 
-  // 全エンジニアの出勤可能日を取得（会社フィルター適用）
-  const availableDates = await prisma.calendarEvent.findMany({
-    where: {
-      eventType: 'AVAILABLE',
-      ...companyWhere,
-    },
-    include: {
-      engineerUser: {
-        select: {
-          id: true,
-          name: true,
-          company: {
-            select: {
-              companyName: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      startDate: 'asc',
-    },
-  })
-
-  // 確定予定（割り振られた案件）を取得（会社フィルター適用）
+  // 確定予定（割り振られた案件）を取得（最適化版 - N+1問題を解決）
   const confirmedEvents = await prisma.calendarEvent.findMany({
     where: {
       eventType: 'CONFIRMED',
       ...companyWhere,
     },
-    include: {
+    select: {
+      id: true,
+      startDate: true,
+      endDate: true,
+      engineerUserId: true,
+      projectId: true,
       engineerUser: {
         select: {
           id: true,
           name: true,
-          company: {
-            select: {
-              companyName: true,
-            },
-          },
+          companyId: true,
+          masterCompanyId: true,
         },
       },
       project: {
@@ -148,20 +137,58 @@ export default async function CalendarPage({
     },
   })
 
-  // カレンダーイベント形式に変換
-  // 確定予定がある日は、対応可能日を表示しない
-  const confirmedDates = new Set(
-    confirmedEvents.map(event => {
-      const date = new Date(event.startDate)
-      date.setHours(0, 0, 0, 0)
-      return date.getTime()
-    })
+  // エンジニアのIDを収集
+  const engineerIds = confirmedEvents
+    .map(e => e.engineerUser?.id)
+    .filter((id): id is number => id !== undefined && id !== null)
+  
+  const uniqueEngineerIds = [...new Set(engineerIds)]
+
+  // 会社情報を一括取得
+  const engineers = uniqueEngineerIds.length > 0 
+    ? await prisma.engineerUser.findMany({
+        where: {
+          id: {
+            in: uniqueEngineerIds,
+          },
+        },
+        select: {
+          id: true,
+          company: {
+            select: {
+              companyName: true,
+            },
+          },
+          masterCompany: {
+            select: {
+              companyName: true,
+            },
+          },
+        },
+      })
+    : []
+
+  // エンジニアIDから会社情報へのマップを作成
+  const engineerCompanyMap = new Map(
+    engineers.map(e => [
+      e.id,
+      {
+        company: e.company,
+        masterCompany: e.masterCompany,
+      },
+    ])
   )
 
-  const events = [
-    // 確定予定のみ表示（対応可能日は表示しない）
-    ...confirmedEvents.map((event) => ({
-      id: String(event.project?.id || event.id), // プロジェクトIDを使用（存在しない場合はイベントID）
+  // カレンダーイベント形式に変換
+  const events = confirmedEvents.map((event) => {
+    const companyInfo = event.engineerUser 
+      ? engineerCompanyMap.get(event.engineerUser.id)
+      : null
+    
+    const companyName = companyInfo?.masterCompany?.companyName || companyInfo?.company?.companyName
+
+    return {
+      id: String(event.project?.id || event.id),
       title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,
       start: new Date(event.startDate),
       end: new Date(event.endDate),
@@ -171,10 +198,10 @@ export default async function CalendarPage({
         siteName: event.project?.siteName,
         status: event.project?.status,
         engineerName: event.engineerUser?.name,
-        companyName: event.engineerUser?.company?.companyName,
+        companyName: companyName,
       },
-    })),
-  ]
+    }
+  })
 
   return (
     <div className="p-4 md:p-8">
