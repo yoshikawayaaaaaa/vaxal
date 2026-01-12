@@ -76,7 +76,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     applicantRelationship: '',
     customerAddress: '',
     customerPhone: '',
-    firstInquiryDate: new Date().toISOString().slice(0, 16),
+    firstInquiryDate: new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 16),
     
     // 工事情報
     workContent: 'ECO_CUTE',
