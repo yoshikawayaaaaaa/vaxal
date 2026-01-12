@@ -99,6 +99,11 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
         href: '/vaxal/settings/selling-price-types',
         icon: Settings,
       },
+      {
+        title: 'エンジニア評価',
+        href: '/vaxal/evaluations',
+        icon: Users,
+      },
     ]
   ) : [
     {

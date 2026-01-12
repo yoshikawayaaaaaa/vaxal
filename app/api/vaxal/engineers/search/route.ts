@@ -30,8 +30,15 @@ export async function GET(request: NextRequest) {
 
     let whereCondition: any = {}
 
+    // 会社IDが指定されている場合（評価画面用）
+    if (companyId && !type) {
+      whereCondition.OR = [
+        { companyId: parseInt(companyId) },
+        { masterCompanyId: parseInt(companyId) },
+      ]
+    }
     // キーワード検索
-    if (type === 'keyword') {
+    else if (type === 'keyword') {
       if (!field || !query) {
         return NextResponse.json(
           { error: '検索パラメータが不足しています' },
@@ -107,6 +114,7 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        role: true,
         address: true,
         phoneNumber: true,
         company: {
@@ -119,11 +127,22 @@ export async function GET(request: NextRequest) {
             companyName: true,
           },
         },
+        evaluations: {
+          orderBy: {
+            evaluationDate: 'desc',
+          },
+          take: 1,
+        },
       },
       orderBy: {
         name: 'asc',
       },
     })
+
+    // 評価画面用のシンプルなレスポンス（companyIdが指定されている場合）
+    if (companyId && !type) {
+      return NextResponse.json(engineers)
+    }
 
     // 各エンジニアの月別稼働状況を取得（過去6ヶ月）
     const engineersWithStats = await Promise.all(

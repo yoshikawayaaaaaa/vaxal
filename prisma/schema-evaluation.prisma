@@ -1,0 +1,140 @@
+// エンジニア評価機能のスキーマ追加
+
+// 評価グレード
+enum EvaluationGrade {
+  S
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+}
+
+// エンジニア評価
+model EngineerEvaluation {
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("engineer_evaluations")
+  
+  // 評価対象エンジニア
+  engineerUserId        Int
+  engineerUser          EngineerUser @relation("EngineerEvaluations", fields: [engineerUserId], references: [id], onDelete: Cascade)
+  
+  // 評価者（VAXAL社員）
+  evaluatedByVaxalId    Int
+  evaluatedByVaxal      VaxalUser @relation("EvaluatedByVaxal", fields: [evaluatedByVaxalId], references: [id])
+  
+  // 評価日
+  evaluationDate        DateTime @default(now())
+  
+  // 評価期間（任意）
+  evaluationPeriodStart DateTime?
+  evaluationPeriodEnd   DateTime?
+  
+  // === To VAXAL ===
+  // VAXALへのレスポンス
+  responseToVaxal       EvaluationGrade?
+  // チェックイン遅延状況
+  checkinDelay          EvaluationGrade?
+  // 急な変更・要求の柔軟性
+  flexibility           EvaluationGrade?
+  // 愛想
+  friendliness          EvaluationGrade?
+  // VAXALへの態度
+  attitudeToVaxal       EvaluationGrade?
+  // 言葉遣い
+  languageUse           EvaluationGrade?
+  // 報告セクションへの協力状況
+  reportCooperation     EvaluationGrade?
+  // アンケート協力状況
+  surveyCooperation     EvaluationGrade?
+  // 毎月の提出書類等の不備・スピード
+  documentSubmission    EvaluationGrade?
+  // 指示理解力
+  instructionComprehension EvaluationGrade?
+  // 繁忙期対応力
+  busySeasonResponse    EvaluationGrade?
+  // 社内ルール遵守
+  ruleCompliance        EvaluationGrade?
+  // VAXALへの理解
+  understandingOfVaxal  EvaluationGrade?
+  // 改善提案の有無
+  improvementProposals  EvaluationGrade?
+  // 長期的な協力意欲
+  longTermCooperation   EvaluationGrade?
+  // 教育・指導への姿勢
+  educationAttitude     EvaluationGrade?
+  // 人員確保の安定性
+  staffingStability     EvaluationGrade?
+  
+  // To VAXALカテゴリのメモ
+  toVaxalNotes          String?  @db.Text
+  
+  // === 現場・品質 ===
+  // 施工品質
+  constructionQuality   EvaluationGrade?
+  // 報告写真の正確さ
+  photoAccuracy         EvaluationGrade?
+  // 写真の綺麗さ
+  photoQuality          EvaluationGrade?
+  // 施工スピード
+  constructionSpeed     EvaluationGrade?
+  // 問題が発生した際の報告頻度
+  problemReporting      EvaluationGrade?
+  // 現場の綺麗さ
+  siteCleanness         EvaluationGrade?
+  // 是正の有無
+  correctionFrequency   EvaluationGrade?
+  // 是正対応の速さ
+  correctionSpeed       EvaluationGrade?
+  // クレームの有無
+  complaintFrequency    EvaluationGrade?
+  // 勝手判断の有無
+  unauthorizedDecisions EvaluationGrade?
+  // 工期遵守
+  scheduleCompliance    EvaluationGrade?
+  // 専門知識力
+  technicalKnowledge    EvaluationGrade?
+  // 段取りの良さ
+  preparation           EvaluationGrade?
+  // 安全管理の徹底性
+  safetyManagement      EvaluationGrade?
+  
+  // 現場・品質カテゴリのメモ
+  siteQualityNotes      String?  @db.Text
+  
+  // === To Customer ===
+  // アンケートでのお客様からの評価・印象
+  customerSurveyRating  EvaluationGrade?
+  // お客様への態度
+  attitudeToCustomer    EvaluationGrade?
+  // 身だしなみ
+  appearance            EvaluationGrade?
+  // 車両の綺麗さ
+  vehicleCleanness      EvaluationGrade?
+  // 愛想（お客様向け）
+  customerFriendliness  EvaluationGrade?
+  // 挨拶・言葉遣い
+  greetingAndLanguage   EvaluationGrade?
+  // 施主対応の丁寧さ
+  ownerResponse         EvaluationGrade?
+  // 養生・清掃
+  protectionAndCleaning EvaluationGrade?
+  // 近隣配慮
+  neighborConsideration EvaluationGrade?
+  
+  // To Customerカテゴリのメモ
+  toCustomerNotes       String?  @db.Text
+  
+  // 総合メモ
+  generalNotes          String?  @db.Text
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([engineerUserId])
+  @@index([evaluatedByVaxalId])
+  @@index([evaluationDate])
+}
