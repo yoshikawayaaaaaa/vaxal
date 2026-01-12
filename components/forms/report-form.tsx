@@ -127,14 +127,16 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
 
   // 在庫アイテム選択時の処理
   const handleInventoryItemChange = (rowId: string, inventoryItemId: string) => {
-    const selectedItem = inventoryItems.find((item) => item.id === inventoryItemId)
+    // inventoryItemIdを数値に変換して比較
+    const selectedItem = inventoryItems.find((item) => String(item.id) === inventoryItemId)
+    
     if (selectedItem) {
       setPickupMaterials(
         pickupMaterials.map((row) =>
           row.id === rowId
             ? {
                 ...row,
-                inventoryItemId: selectedItem.id,
+                inventoryItemId: String(selectedItem.id),
                 inventoryItemName: selectedItem.name,
                 productName: selectedItem.productName || '',
                 manufacturer: selectedItem.manufacturer || '',
