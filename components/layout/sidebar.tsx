@@ -10,7 +10,8 @@ import {
   Image, 
   ClipboardList,
   Bell,
-  Settings
+  Settings,
+  Users
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -19,9 +20,10 @@ interface SidebarProps {
   userRole?: string
   isVaxalAdmin?: boolean
   accountType?: string
+  isEngineerMaster?: boolean
 }
 
-export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false, accountType }: SidebarProps) {
+export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false, accountType, isEngineerMaster = false }: SidebarProps) {
   const pathname = usePathname()
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -115,6 +117,12 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       href: '/engineer/calendar',
       icon: FileText,
     },
+    // マスターアカウントのみスタッフ管理を表示
+    ...(isEngineerMaster ? [{
+      title: 'スタッフ管理',
+      href: '/engineer/staff',
+      icon: Users,
+    }] : []),
   ]
 
   return (

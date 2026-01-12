@@ -34,6 +34,8 @@ export default async function EngineerDashboardLayout({
     },
   })
 
+  const isEngineerMaster = session.user.role === 'ENGINEER_MASTER'
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* サイドバー */}
@@ -41,6 +43,7 @@ export default async function EngineerDashboardLayout({
         companyName={companyName} 
         userRole={userRole} 
         isVaxalAdmin={false}
+        isEngineerMaster={isEngineerMaster}
       />
 
       {/* メインコンテンツ */}
