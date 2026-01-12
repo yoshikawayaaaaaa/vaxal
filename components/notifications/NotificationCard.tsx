@@ -75,9 +75,12 @@ export function NotificationCard({ notification, baseUrl }: NotificationCardProp
               {notification.title}
             </CardTitle>
             <p className="text-sm text-gray-500 mt-1">
-              {formatDistanceToNow(new Date(notification.createdAt), {
-                addSuffix: true,
-                locale: ja,
+              {new Date(notification.createdAt).toLocaleString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
               })}
             </p>
           </div>

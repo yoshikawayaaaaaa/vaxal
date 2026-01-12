@@ -33,7 +33,19 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(notifications)
+    // createdAtとupdatedAtを9時間引いてUTCに戻してからISO文字列として返す
+    const serializedNotifications = notifications.map(notification => {
+      const createdAtUTC = new Date(notification.createdAt.getTime() - 9 * 60 * 60 * 1000)
+      const updatedAtUTC = new Date(notification.updatedAt.getTime() - 9 * 60 * 60 * 1000)
+      
+      return {
+        ...notification,
+        createdAt: createdAtUTC.toISOString(),
+        updatedAt: updatedAtUTC.toISOString(),
+      }
+    })
+
+    return NextResponse.json(serializedNotifications)
   } catch (error) {
     console.error('通知取得エラー:', error)
     return NextResponse.json(
