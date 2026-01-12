@@ -15,7 +15,8 @@ import {
   ClipboardList,
   Bell,
   Settings,
-  X
+  X,
+  Users
 } from 'lucide-react'
 
 interface DashboardHeaderProps {
@@ -89,6 +90,11 @@ export function DashboardHeader({
         title: '売価タイプ管理',
         href: '/vaxal/settings/selling-price-types',
         icon: Settings,
+      },
+      {
+        title: 'エンジニア評価',
+        href: '/vaxal/evaluations',
+        icon: Users,
       },
     ]
   ) : [
