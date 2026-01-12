@@ -11,7 +11,8 @@ import {
   ClipboardList,
   Bell,
   Settings,
-  Users
+  Users,
+  X
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -26,6 +27,7 @@ interface SidebarProps {
 export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニア', isVaxalAdmin = false, accountType, isEngineerMaster = false }: SidebarProps) {
   const pathname = usePathname()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   // 未読通知数を取得
   useEffect(() => {
@@ -130,21 +132,30 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
     }] : []),
   ]
 
-  return (
-    <div className="w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex flex-col md:flex hidden">
+  const SidebarContent = () => (
+    <>
       {/* ヘッダー */}
       <div className="p-6 border-b border-gray-700">
-        <div className="flex items-center gap-3 mb-2">
-          <div className={cn(
-            "w-8 h-8 rounded flex items-center justify-center",
-            isVaxalAdmin ? "bg-purple-600" : "bg-green-600"
-          )}>
-            <LayoutDashboard className="w-5 h-5" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "w-8 h-8 rounded flex items-center justify-center",
+              isVaxalAdmin ? "bg-purple-600" : "bg-green-600"
+            )}>
+              <LayoutDashboard className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-lg leading-tight">{companyName}</h2>
+              <p className="text-xs text-gray-400">{userRole}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-bold text-lg leading-tight">{companyName}</h2>
-            <p className="text-xs text-gray-400">{userRole}</p>
-          </div>
+          {/* モバイル用閉じるボタン */}
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="md:hidden text-gray-400 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
@@ -160,6 +171,7 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                     isActive
@@ -180,6 +192,38 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
           })}
         </ul>
       </nav>
-    </div>
+    </>
   )
+
+  return (
+    <>
+      {/* デスクトップ用サイドバー */}
+      <div className="hidden md:flex w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white min-h-screen flex-col">
+        <SidebarContent />
+      </div>
+
+      {/* モバイル用オーバーレイ */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* モバイル用スライドメニュー */}
+      <div
+        className={cn(
+          "fixed top-0 left-0 h-full w-60 bg-gradient-to-b from-gray-800 to-gray-900 text-white z-50 transform transition-transform duration-300 ease-in-out md:hidden",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <SidebarContent />
+      </div>
+    </>
+  )
+}
+
+// モバイルメニューを開くためのエクスポート関数
+export function useSidebarToggle() {
+  return { setIsMobileMenuOpen: (open: boolean) => {} }
 }

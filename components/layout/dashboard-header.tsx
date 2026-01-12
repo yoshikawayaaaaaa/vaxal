@@ -108,6 +108,12 @@ export function DashboardHeader({
       href: '/engineer/calendar',
       icon: FileText,
     },
+    // マスターアカウントのみスタッフ管理を表示
+    ...(engineerRole === 'MASTER' ? [{
+      title: 'スタッフ管理',
+      href: '/engineer/staff',
+      icon: Settings,
+    }] : []),
   ]
 
   return (
