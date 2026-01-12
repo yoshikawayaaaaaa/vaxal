@@ -62,9 +62,19 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
+    // notificationIdを数値に変換
+    const id = parseInt(notificationId)
+    
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: '無効な通知IDです' },
+        { status: 400 }
+      )
+    }
+
     // 通知を取得して権限チェック
     const notification = await prisma.notification.findUnique({
-      where: { id: notificationId },
+      where: { id },
     })
 
     if (!notification) {
@@ -90,7 +100,7 @@ export async function PATCH(request: NextRequest) {
 
     // 既読にする
     const updatedNotification = await prisma.notification.update({
-      where: { id: notificationId },
+      where: { id },
       data: { isRead: true },
     })
 
