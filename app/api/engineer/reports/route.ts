@@ -59,12 +59,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 報告タイプのリスト
-    const reportTypes: ('SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING')[] = [
+    const reportTypes: ('SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' | 'SUBSIDY_PHOTO')[] = [
       'SITE_SURVEY',
       'PICKUP',
       'CHECK_IN',
       'COMPLETION',
       'UNLOADING',
+      'SUBSIDY_PHOTO',
     ]
     
     // 各報告タイプの処理

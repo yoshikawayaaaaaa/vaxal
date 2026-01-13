@@ -12,7 +12,7 @@ interface ReportFormProps {
   projectNumber: string
 }
 
-type TabId = 'SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' | 'ENGINEER_INFO'
+type TabId = 'SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' | 'SUBSIDY_PHOTO' | 'ENGINEER_INFO'
 
 interface ImageData {
   files: File[]
@@ -57,6 +57,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     CHECK_IN: { files: [], previews: [] },
     COMPLETION: { files: [], previews: [] },
     UNLOADING: { files: [], previews: [] },
+    SUBSIDY_PHOTO: { files: [], previews: [] },
   })
 
   const [formData, setFormData] = useState({
@@ -83,6 +84,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     { id: 'CHECK_IN' as const, label: 'check in報告' },
     { id: 'COMPLETION' as const, label: '工事完了報告' },
     { id: 'UNLOADING' as const, label: '荷卸し報告' },
+    { id: 'SUBSIDY_PHOTO' as const, label: '補助金申請写真' },
     { id: 'ENGINEER_INFO' as const, label: 'エンジニア入力情報' },
   ]
 
@@ -200,7 +202,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
 
     try {
       // 画像アップロード必須チェック（エンジニア入力情報以外）
-      const requiredReportTypes = ['SITE_SURVEY', 'PICKUP', 'CHECK_IN', 'COMPLETION', 'UNLOADING']
+      const requiredReportTypes = ['SITE_SURVEY', 'PICKUP', 'CHECK_IN', 'COMPLETION', 'UNLOADING', 'SUBSIDY_PHOTO']
       const missingImages: string[] = []
 
       requiredReportTypes.forEach((type) => {
@@ -665,6 +667,55 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                       </button>
                       <p className="text-xs text-gray-600 mt-1 truncate">
                         {images.UNLOADING.files[index]?.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 補助金申請写真 */}
+        {activeTab === 'SUBSIDY_PHOTO' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>補助金申請写真</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="subsidy-photo-images">画像を選択</Label>
+                <Input
+                  id="subsidy-photo-images"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleImageChange('SUBSIDY_PHOTO', e)}
+                  className="cursor-pointer"
+                />
+                <p className="text-sm text-gray-500">
+                  補助金申請に必要な写真をアップロードしてください
+                </p>
+              </div>
+
+              {images.SUBSIDY_PHOTO.previews.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {images.SUBSIDY_PHOTO.previews.map((preview, index) => (
+                    <div key={index} className="relative border rounded-lg p-2">
+                      <img
+                        src={preview}
+                        alt={`プレビュー ${index + 1}`}
+                        className="w-full h-32 object-cover rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage('SUBSIDY_PHOTO', index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                      <p className="text-xs text-gray-600 mt-1 truncate">
+                        {images.SUBSIDY_PHOTO.files[index]?.name}
                       </p>
                     </div>
                   ))}

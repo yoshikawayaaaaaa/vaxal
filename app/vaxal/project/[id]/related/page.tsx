@@ -60,6 +60,7 @@ export default async function RelatedInfoPage({
     CHECK_IN: 'check in報告',
     COMPLETION: '工事完了報告',
     UNLOADING: '荷卸し報告',
+    SUBSIDY_PHOTO: '補助金申請写真',
   }
 
   // 報告タイプごとにグループ化
@@ -69,6 +70,7 @@ export default async function RelatedInfoPage({
     CHECK_IN: project.reports.filter((r) => r.reportType === 'CHECK_IN'),
     COMPLETION: project.reports.filter((r) => r.reportType === 'COMPLETION'),
     UNLOADING: project.reports.filter((r) => r.reportType === 'UNLOADING'),
+    SUBSIDY_PHOTO: project.reports.filter((r) => r.reportType === 'SUBSIDY_PHOTO'),
   }
 
   // エンジニア入力情報を取得（最新の報告から）
@@ -502,6 +504,58 @@ export default async function RelatedInfoPage({
               ) : (
                 <p className="text-gray-400">
                   荷卸し報告がまだアップロードされていません
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 補助金申請写真フォルダ */}
+          <Card>
+            <CardHeader>
+              <CardTitle>補助金申請写真フォルダ</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {reportsByType.SUBSIDY_PHOTO.length > 0 ? (
+                <div className="space-y-4">
+                  {reportsByType.SUBSIDY_PHOTO.map((report) => (
+                    <div key={report.id} className="border-b pb-4 last:border-b-0">
+                      <p className="text-sm text-gray-500 mb-2">
+                        作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                      </p>
+                      {report.notes && (
+                        <div className="mb-2">
+                          <p className="text-sm font-medium text-gray-700">メモ</p>
+                          <p className="text-sm text-gray-600">{report.notes}</p>
+                        </div>
+                      )}
+                      {report.files.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.files.map((file) => (
+                            <div key={file.id} className="border rounded p-2">
+                              <a
+                                href={file.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={file.fileUrl}
+                                  alt={file.fileName}
+                                  className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                />
+                              </a>
+                              <p className="text-xs text-gray-600 mt-1 truncate">
+                                {file.fileName}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400">
+                  補助金申請写真がまだアップロードされていません
                 </p>
               )}
             </CardContent>

@@ -57,6 +57,7 @@ export default async function EngineerReportPage({
     CHECK_IN: 'check in報告',
     COMPLETION: '工事完了報告',
     UNLOADING: '荷卸し報告',
+    SUBSIDY_PHOTO: '補助金申請写真',
   }
 
   // ステータスの日本語名
