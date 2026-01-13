@@ -35,37 +35,49 @@ export async function createNotification({
 }
 
 /**
- * 報告提出時の通知を作成
+ * 報告提出時の通知を作成（すべてのVAXAL社員に通知）
  */
 export async function notifyReportSubmitted(projectId: number, projectNumber: string) {
-  // プロジェクトを作成したVAXAL社員に通知
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: { createdByVaxalId: true },
-  })
+  try {
+    // すべてのVAXAL社員を取得
+    const vaxalUsers = await prisma.vaxalUser.findMany()
 
-  if (project) {
-    await createNotification({
-      type: 'REPORT_SUBMITTED',
-      title: '報告が提出されました',
-      message: `案件番号 ${projectNumber} の報告が提出されました。`,
-      projectId,
-      vaxalUserId: project.createdByVaxalId,
-    })
+    // 各VAXAL社員に通知を作成
+    for (const user of vaxalUsers) {
+      await createNotification({
+        type: 'REPORT_SUBMITTED',
+        title: '報告が提出されました',
+        message: `案件番号 ${projectNumber} の報告が提出されました。`,
+        projectId,
+        vaxalUserId: user.id,
+      })
+    }
+  } catch (error) {
+    console.error('報告提出通知作成エラー:', error)
   }
 }
 
 /**
- * 注文受付時の通知を作成
+ * 注文受付時の通知を作成（すべてのVAXAL社員に通知）
  */
 export async function notifyOrderReceived(projectId: number, projectNumber: string, vaxalUserId: number) {
-  await createNotification({
-    type: 'ORDER_RECEIVED',
-    title: '新しい注文を受け付けました',
-    message: `案件番号 ${projectNumber} の注文を受け付けました。`,
-    projectId,
-    vaxalUserId,
-  })
+  try {
+    // すべてのVAXAL社員を取得
+    const vaxalUsers = await prisma.vaxalUser.findMany()
+
+    // 各VAXAL社員に通知を作成
+    for (const user of vaxalUsers) {
+      await createNotification({
+        type: 'ORDER_RECEIVED',
+        title: '新しい注文を受け付けました',
+        message: `案件番号 ${projectNumber} の注文を受け付けました。`,
+        projectId,
+        vaxalUserId: user.id,
+      })
+    }
+  } catch (error) {
+    console.error('注文受付通知作成エラー:', error)
+  }
 }
 
 /**

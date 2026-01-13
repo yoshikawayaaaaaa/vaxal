@@ -142,8 +142,8 @@ export async function POST(request: NextRequest) {
               if (newStock <= 0) {
                 await notifyInventoryOutOfStock(updatedItem.name)
               }
-              // 要発注レベル（閾値の30%以下）の場合
-              else if (newStock <= threshold * 0.3) {
+              // 要発注レベル（閾値以下）の場合
+              else if (newStock <= threshold) {
                 await notifyInventoryLowStock(updatedItem.name, newStock, threshold)
               }
             }
