@@ -18,18 +18,22 @@ export async function GET(request: NextRequest) {
 
     // 今日の日付（JST）を取得
     const now = new Date()
-    const jstOffset = 9 * 60 * 60 * 1000
-    const jstNow = new Date(now.getTime() + jstOffset)
+    const jstNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }))
     
-    // 今日の0時0分0秒（JST）
-    const today = new Date(jstNow)
-    today.setUTCHours(0, 0, 0, 0)
+    // 昨日の日付（JST）を取得
+    const yesterdayJST = new Date(jstNow)
+    yesterdayJST.setDate(yesterdayJST.getDate() - 1)
+    yesterdayJST.setHours(0, 0, 0, 0)
+    
+    // 昨日の0時（JST）をUTCに変換
+    const yesterdayUTC = new Date(yesterdayJST.getTime() - 9 * 60 * 60 * 1000)
 
-    // 工事日が過去で、ステータスがASSIGNED（報告未提出）の案件を取得
+    // 工事日が昨日で、ステータスがASSIGNED（報告未提出）の案件を取得
     const overdueProjects = await prisma.project.findMany({
       where: {
         workDate: {
-          lt: today, // 工事日が今日より前
+          gte: yesterdayUTC, // 昨日の0時以降
+          lt: new Date(yesterdayUTC.getTime() + 24 * 60 * 60 * 1000), // 昨日の23:59:59まで
         },
         status: 'ASSIGNED', // 報告未提出
         assignedEngineerId: {
@@ -46,30 +50,16 @@ export async function GET(request: NextRequest) {
 
     console.log(`報告遅延チェック: ${overdueProjects.length}件の遅延案件を検出`)
 
-    // 各遅延案件に対して通知を作成
+    // 各遅延案件に対して通知を作成（重複チェックなし、昨日の工事日のみが対象なので）
     let notificationCount = 0
     for (const project of overdueProjects) {
       if (project.assignedEngineerId) {
-        // 今日の日付で同じ案件の遅延通知が既に存在するかチェック
-        const existingNotification = await prisma.notification.findFirst({
-          where: {
-            projectId: project.id,
-            type: 'REPORT_OVERDUE',
-            createdAt: {
-              gte: today,
-            },
-          },
-        })
-
-        // 今日まだ通知していない場合のみ通知を作成
-        if (!existingNotification) {
-          await notifyReportOverdue(
-            project.id,
-            project.projectNumber,
-            project.assignedEngineerId
-          )
-          notificationCount++
-        }
+        await notifyReportOverdue(
+          project.id,
+          project.projectNumber,
+          project.assignedEngineerId
+        )
+        notificationCount++
       }
     }
 
