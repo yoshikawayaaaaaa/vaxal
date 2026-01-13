@@ -58,6 +58,10 @@ export default async function EngineerReportPage({
     COMPLETION: '工事完了報告',
     UNLOADING: '荷卸し報告',
     SUBSIDY_PHOTO: '補助金申請写真',
+    APPEARANCE_PHOTO: '身だしなみ写真',
+    BEFORE_WORK_PHOTO: '工事前写真',
+    REGULATION_PHOTO: '規定写真',
+    FREE_PHOTO: 'フリー写真',
   }
 
   // ステータスの日本語名

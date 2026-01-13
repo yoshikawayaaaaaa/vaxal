@@ -71,6 +71,10 @@ export default async function RelatedInfoPage({
     COMPLETION: project.reports.filter((r) => r.reportType === 'COMPLETION'),
     UNLOADING: project.reports.filter((r) => r.reportType === 'UNLOADING'),
     SUBSIDY_PHOTO: project.reports.filter((r) => r.reportType === 'SUBSIDY_PHOTO'),
+    APPEARANCE_PHOTO: project.reports.filter((r) => r.reportType === 'APPEARANCE_PHOTO'),
+    BEFORE_WORK_PHOTO: project.reports.filter((r) => r.reportType === 'BEFORE_WORK_PHOTO'),
+    REGULATION_PHOTO: project.reports.filter((r) => r.reportType === 'REGULATION_PHOTO'),
+    FREE_PHOTO: project.reports.filter((r) => r.reportType === 'FREE_PHOTO'),
   }
 
   // エンジニア入力情報を取得（最新の報告から）
@@ -671,6 +675,143 @@ export default async function RelatedInfoPage({
               </CardContent>
             </Card>
           )}
+
+          {/* 任意写真フォルダ */}
+          <Card>
+            <CardHeader>
+              <CardTitle>任意写真フォルダ</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* 身だしなみ写真 */}
+                {reportsByType.APPEARANCE_PHOTO.length > 0 && (
+                  <div className="border-b pb-4">
+                    <h3 className="font-medium text-gray-900 mb-3">身だしなみ写真</h3>
+                    {reportsByType.APPEARANCE_PHOTO.map((report) => (
+                      <div key={report.id} className="space-y-2">
+                        <p className="text-sm text-gray-500">
+                          作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                        </p>
+                        {report.files.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {report.files.map((file) => (
+                              <div key={file.id} className="border rounded p-2">
+                                <a href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={file.fileUrl}
+                                    alt={file.fileName}
+                                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                  />
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1 truncate">{file.fileName}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 工事前写真 */}
+                {reportsByType.BEFORE_WORK_PHOTO.length > 0 && (
+                  <div className="border-b pb-4">
+                    <h3 className="font-medium text-gray-900 mb-3">工事前写真</h3>
+                    {reportsByType.BEFORE_WORK_PHOTO.map((report) => (
+                      <div key={report.id} className="space-y-2">
+                        <p className="text-sm text-gray-500">
+                          作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                        </p>
+                        {report.files.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {report.files.map((file) => (
+                              <div key={file.id} className="border rounded p-2">
+                                <a href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={file.fileUrl}
+                                    alt={file.fileName}
+                                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                  />
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1 truncate">{file.fileName}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 規定写真 */}
+                {reportsByType.REGULATION_PHOTO.length > 0 && (
+                  <div className="border-b pb-4">
+                    <h3 className="font-medium text-gray-900 mb-3">規定写真</h3>
+                    {reportsByType.REGULATION_PHOTO.map((report) => (
+                      <div key={report.id} className="space-y-2">
+                        <p className="text-sm text-gray-500">
+                          作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                        </p>
+                        {report.files.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {report.files.map((file) => (
+                              <div key={file.id} className="border rounded p-2">
+                                <a href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={file.fileUrl}
+                                    alt={file.fileName}
+                                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                  />
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1 truncate">{file.fileName}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* フリー写真 */}
+                {reportsByType.FREE_PHOTO.length > 0 && (
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-3">フリー写真</h3>
+                    {reportsByType.FREE_PHOTO.map((report) => (
+                      <div key={report.id} className="space-y-2">
+                        <p className="text-sm text-gray-500">
+                          作成日: {new Date(report.createdAt).toLocaleDateString('ja-JP')}
+                        </p>
+                        {report.files.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {report.files.map((file) => (
+                              <div key={file.id} className="border rounded p-2">
+                                <a href={file.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  <img
+                                    src={file.fileUrl}
+                                    alt={file.fileName}
+                                    className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                  />
+                                </a>
+                                <p className="text-xs text-gray-600 mt-1 truncate">{file.fileName}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {reportsByType.APPEARANCE_PHOTO.length === 0 &&
+                  reportsByType.BEFORE_WORK_PHOTO.length === 0 &&
+                  reportsByType.REGULATION_PHOTO.length === 0 &&
+                  reportsByType.FREE_PHOTO.length === 0 && (
+                    <p className="text-gray-400">任意写真がまだアップロードされていません</p>
+                  )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* 事故品登録（今後実装予定） */}
           <Card>

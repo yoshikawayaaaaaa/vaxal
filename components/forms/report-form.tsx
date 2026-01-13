@@ -12,7 +12,7 @@ interface ReportFormProps {
   projectNumber: string
 }
 
-type TabId = 'SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' | 'SUBSIDY_PHOTO' | 'ENGINEER_INFO'
+type TabId = 'SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' | 'SUBSIDY_PHOTO' | 'OPTIONAL_PHOTOS' | 'ENGINEER_INFO'
 
 interface ImageData {
   files: File[]
@@ -58,6 +58,10 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     COMPLETION: { files: [], previews: [] },
     UNLOADING: { files: [], previews: [] },
     SUBSIDY_PHOTO: { files: [], previews: [] },
+    APPEARANCE_PHOTO: { files: [], previews: [] },
+    BEFORE_WORK_PHOTO: { files: [], previews: [] },
+    REGULATION_PHOTO: { files: [], previews: [] },
+    FREE_PHOTO: { files: [], previews: [] },
   })
 
   const [formData, setFormData] = useState({
@@ -85,6 +89,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     { id: 'COMPLETION' as const, label: '工事完了報告' },
     { id: 'UNLOADING' as const, label: '荷卸し報告' },
     { id: 'SUBSIDY_PHOTO' as const, label: '補助金申請写真' },
+    { id: 'OPTIONAL_PHOTOS' as const, label: '任意写真' },
     { id: 'ENGINEER_INFO' as const, label: 'エンジニア入力情報' },
   ]
 
@@ -294,9 +299,22 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               `}
             >
               <span className="whitespace-nowrap">{tab.label}</span>
-              {tab.id !== 'ENGINEER_INFO' && images[tab.id]?.files.length > 0 && (
+              {tab.id !== 'ENGINEER_INFO' && tab.id !== 'OPTIONAL_PHOTOS' && images[tab.id]?.files.length > 0 && (
                 <span className="ml-1 md:ml-2 bg-blue-100 text-blue-600 py-0.5 px-1 md:px-2 rounded-full text-xs inline-block">
                   {images[tab.id].files.length}
+                </span>
+              )}
+              {tab.id === 'OPTIONAL_PHOTOS' && (
+                images.APPEARANCE_PHOTO.files.length + 
+                images.BEFORE_WORK_PHOTO.files.length + 
+                images.REGULATION_PHOTO.files.length + 
+                images.FREE_PHOTO.files.length
+              ) > 0 && (
+                <span className="ml-1 md:ml-2 bg-blue-100 text-blue-600 py-0.5 px-1 md:px-2 rounded-full text-xs inline-block">
+                  {images.APPEARANCE_PHOTO.files.length + 
+                   images.BEFORE_WORK_PHOTO.files.length + 
+                   images.REGULATION_PHOTO.files.length + 
+                   images.FREE_PHOTO.files.length}
                 </span>
               )}
             </button>
@@ -723,6 +741,187 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* 任意写真 */}
+        {activeTab === 'OPTIONAL_PHOTOS' && (
+          <div className="space-y-6">
+            {/* 身だしなみ写真 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>身だしなみ写真（任意）</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="appearance-photo-images">画像を選択</Label>
+                  <Input
+                    id="appearance-photo-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleImageChange('APPEARANCE_PHOTO', e)}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                {images.APPEARANCE_PHOTO.previews.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {images.APPEARANCE_PHOTO.previews.map((preview, index) => (
+                      <div key={index} className="relative border rounded-lg p-2">
+                        <img
+                          src={preview}
+                          alt={`プレビュー ${index + 1}`}
+                          className="w-full h-32 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage('APPEARANCE_PHOTO', index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                        <p className="text-xs text-gray-600 mt-1 truncate">
+                          {images.APPEARANCE_PHOTO.files[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* 工事前写真 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>工事前写真（任意）</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="before-work-photo-images">画像を選択</Label>
+                  <Input
+                    id="before-work-photo-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleImageChange('BEFORE_WORK_PHOTO', e)}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                {images.BEFORE_WORK_PHOTO.previews.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {images.BEFORE_WORK_PHOTO.previews.map((preview, index) => (
+                      <div key={index} className="relative border rounded-lg p-2">
+                        <img
+                          src={preview}
+                          alt={`プレビュー ${index + 1}`}
+                          className="w-full h-32 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage('BEFORE_WORK_PHOTO', index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                        <p className="text-xs text-gray-600 mt-1 truncate">
+                          {images.BEFORE_WORK_PHOTO.files[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* 規定写真 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>規定写真（任意）</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="regulation-photo-images">画像を選択</Label>
+                  <Input
+                    id="regulation-photo-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleImageChange('REGULATION_PHOTO', e)}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                {images.REGULATION_PHOTO.previews.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {images.REGULATION_PHOTO.previews.map((preview, index) => (
+                      <div key={index} className="relative border rounded-lg p-2">
+                        <img
+                          src={preview}
+                          alt={`プレビュー ${index + 1}`}
+                          className="w-full h-32 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage('REGULATION_PHOTO', index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                        <p className="text-xs text-gray-600 mt-1 truncate">
+                          {images.REGULATION_PHOTO.files[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* フリー写真 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>フリー写真（任意）</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="free-photo-images">画像を選択</Label>
+                  <Input
+                    id="free-photo-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleImageChange('FREE_PHOTO', e)}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                {images.FREE_PHOTO.previews.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {images.FREE_PHOTO.previews.map((preview, index) => (
+                      <div key={index} className="relative border rounded-lg p-2">
+                        <img
+                          src={preview}
+                          alt={`プレビュー ${index + 1}`}
+                          className="w-full h-32 object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage('FREE_PHOTO', index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                        <p className="text-xs text-gray-600 mt-1 truncate">
+                          {images.FREE_PHOTO.files[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* エンジニア入力情報 */}
