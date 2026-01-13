@@ -11,7 +11,7 @@ export async function createNotification({
   vaxalUserId,
   engineerUserId,
 }: {
-  type: 'REPORT_SUBMITTED' | 'ORDER_RECEIVED' | 'PROJECT_ASSIGNED' | 'PROJECT_COMPLETED' | 'INVENTORY_LOW_STOCK' | 'INVENTORY_OUT_OF_STOCK'
+  type: 'REPORT_SUBMITTED' | 'ORDER_RECEIVED' | 'PROJECT_ASSIGNED' | 'PROJECT_COMPLETED' | 'INVENTORY_LOW_STOCK' | 'INVENTORY_OUT_OF_STOCK' | 'REPORT_OVERDUE'
   title: string
   message: string
   projectId?: number
@@ -147,5 +147,35 @@ export async function notifyInventoryOutOfStock(inventoryItemName: string) {
     }
   } catch (error) {
     console.error('在庫切れ通知作成エラー:', error)
+  }
+}
+
+/**
+ * 報告遅延時の通知を作成（エンジニアと全VAXAL社員に通知）
+ */
+export async function notifyReportOverdue(projectId: number, projectNumber: string, engineerUserId: number) {
+  try {
+    // エンジニアに通知
+    await createNotification({
+      type: 'REPORT_OVERDUE',
+      title: '報告の提出をお願いします',
+      message: `案件番号 ${projectNumber} の工事日を過ぎていますが、報告が未提出です。速やかに報告を提出してください。`,
+      projectId,
+      engineerUserId,
+    })
+
+    // すべてのVAXAL社員に通知
+    const vaxalUsers = await prisma.vaxalUser.findMany()
+    for (const user of vaxalUsers) {
+      await createNotification({
+        type: 'REPORT_OVERDUE',
+        title: '報告が未提出です',
+        message: `案件番号 ${projectNumber} の工事日を過ぎていますが、報告が未提出です。`,
+        projectId,
+        vaxalUserId: user.id,
+      })
+    }
+  } catch (error) {
+    console.error('報告遅延通知作成エラー:', error)
   }
 }

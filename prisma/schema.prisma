@@ -731,6 +731,7 @@ enum NotificationType {
   PROJECT_COMPLETED     // 案件が完了した
   INVENTORY_LOW_STOCK   // 在庫が要発注レベル
   INVENTORY_OUT_OF_STOCK // 在庫切れ
+  REPORT_OVERDUE        // 報告遅延
 }
 
 model Notification {

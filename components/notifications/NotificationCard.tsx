@@ -114,6 +114,11 @@ export function NotificationCard({ notification, baseUrl }: NotificationCardProp
               在庫切れ
             </span>
           )}
+          {notification.type === 'REPORT_OVERDUE' && (
+            <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+              報告遅延
+            </span>
+          )}
         </div>
       </CardHeader>
       <CardContent>
