@@ -187,16 +187,11 @@ export default async function CalendarPage({
     
     const companyName = companyInfo?.masterCompany?.companyName || companyInfo?.company?.companyName
 
-    // endDateの日付部分のみを抽出
-    const endDate = new Date(event.endDate)
-    const dayStart = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 0, 0, 0)
-    const dayEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59)
-
     return {
       id: String(event.project?.id || event.id),
       title: `${event.engineerUser?.name || '不明'} - ${event.project?.siteName || '確定予定'}`,
-      start: dayStart,
-      end: dayEnd,
+      start: new Date(event.startDate),
+      end: new Date(event.endDate),
       resource: {
         type: 'CONFIRMED' as const,
         projectNumber: event.project?.projectNumber,

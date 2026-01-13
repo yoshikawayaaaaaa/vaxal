@@ -53,45 +53,29 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
   )
 
   const events: CalendarEvent[] = [
-    // 確定予定がない日のみ対応可能日を表示（endDateの日付部分を使用）
+    // 確定予定がない日のみ対応可能日を表示
     ...availableDates
-      .filter(date => {
-        const endDate = new Date(date.endDate)
-        const dayStart = startOfDay(new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()))
-        return !confirmedDates.has(dayStart.getTime())
-      })
-      .map((date) => {
-        const endDate = new Date(date.endDate)
-        const dayStart = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 0, 0, 0)
-        const dayEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59)
-        
-        return {
-          id: date.id,
-          title: date.engineerUser ? `${date.engineerUser.name} - 対応可能` : '対応可能',
-          start: dayStart,
-          end: dayEnd,
-          eventType: 'AVAILABLE' as const,
-          engineerUser: date.engineerUser,
-        }
-      }),
-    // 確定予定は常に表示（endDateの日付部分を使用）
-    ...confirmedEvents.map((event) => {
-      const endDate = new Date(event.endDate)
-      const dayStart = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 0, 0, 0)
-      const dayEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59)
-      
-      return {
-        id: event.id,
-        title: event.engineerUser 
-          ? `${event.engineerUser.name} - ${event.project?.siteName || '確定予定'}`
-          : event.project?.siteName || '確定予定',
-        start: dayStart,
-        end: dayEnd,
-        eventType: 'CONFIRMED' as const,
-        project: event.project,
-        engineerUser: event.engineerUser,
-      }
-    }),
+      .filter(date => !confirmedDates.has(startOfDay(new Date(date.startDate)).getTime()))
+      .map((date) => ({
+        id: date.id,
+        title: date.engineerUser ? `${date.engineerUser.name} - 対応可能` : '対応可能',
+        start: new Date(date.startDate),
+        end: new Date(date.endDate),
+        eventType: 'AVAILABLE' as const,
+        engineerUser: date.engineerUser,
+      })),
+    // 確定予定は常に表示
+    ...confirmedEvents.map((event) => ({
+      id: event.id,
+      title: event.engineerUser 
+        ? `${event.engineerUser.name} - ${event.project?.siteName || '確定予定'}`
+        : event.project?.siteName || '確定予定',
+      start: new Date(event.startDate),
+      end: new Date(event.endDate),
+      eventType: 'CONFIRMED' as const,
+      project: event.project,
+      engineerUser: event.engineerUser,
+    })),
   ]
 
   // 日付クリック時の処理（確認ダイアログ付き）
