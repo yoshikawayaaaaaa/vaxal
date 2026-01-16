@@ -29,8 +29,13 @@ export function formatToJST(date: Date | string | null | undefined, formatString
  * @returns UTC Date オブジェクト
  */
 export function parseJSTToUTC(dateString: string): Date {
-  // JST時刻として解釈してUTCに変換
-  const jstDate = new Date(dateString)
+  // 文字列をパースしてDateオブジェクトを作成
+  const parsedDate = parseISO(dateString)
+  
+  // JSTタイムゾーンとして解釈
+  const jstDate = toZonedTime(parsedDate, TIMEZONE)
+  
+  // UTCに変換
   return fromZonedTime(jstDate, TIMEZONE)
 }
 
