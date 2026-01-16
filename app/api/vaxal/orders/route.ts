@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { notifyOrderReceived } from '@/lib/notifications'
+import { startOfDayJSTinUTC, endOfDayJSTinUTC } from '@/lib/date-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,21 +132,17 @@ export async function POST(request: NextRequest) {
 
     // エンジニアが割り振られ、かつ工事日が設定されている場合
     if (body.assignedEngineerId && body.workDate) {
-      const workDate = new Date(body.workDate)
-      
-      // 日付の範囲を設定
-      const startOfDay = new Date(workDate)
-      startOfDay.setHours(0, 0, 0, 0)
-      const endOfDay = new Date(workDate)
-      endOfDay.setHours(23, 59, 59, 999)
+      // JST日付をUTCに変換して保存
+      const startDate = startOfDayJSTinUTC(body.workDate)
+      const endDate = endOfDayJSTinUTC(body.workDate)
 
       // 確定予定イベントを新規作成（対応可能イベントは変更しない）
       await prisma.calendarEvent.create({
         data: {
           title: `${body.siteName} - 確定予定`,
           description: `案件番号: ${projectNumber}`,
-          startDate: startOfDay,
-          endDate: endOfDay,
+          startDate,
+          endDate,
           eventType: 'CONFIRMED',
           engineerUserId: parseInt(body.assignedEngineerId),
           projectId: project.id,
