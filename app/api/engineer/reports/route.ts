@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 import { uploadToR2 } from '@/lib/r2'
 import { notifyReportSubmitted, notifyInventoryLowStock, notifyInventoryOutOfStock } from '@/lib/notifications'
+import { parseJSTToUTC } from '@/lib/date-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
             notes: engineerInfo.notes,
             // 工事完了報告用
             isWorkCompleted: reportType === 'COMPLETION' ? engineerInfo.isWorkCompleted : null,
-            remainingWorkDate: reportType === 'COMPLETION' && engineerInfo.remainingWorkDate ? new Date(engineerInfo.remainingWorkDate) : null,
+            remainingWorkDate: reportType === 'COMPLETION' && engineerInfo.remainingWorkDate ? parseJSTToUTC(engineerInfo.remainingWorkDate) : null,
             // エンジニア入力情報（すべての報告に同じ情報を保存）
             existingManufacturer: engineerInfo.existingManufacturer,
             yearsOfUse: engineerInfo.yearsOfUse,
