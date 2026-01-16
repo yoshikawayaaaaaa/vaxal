@@ -32,8 +32,13 @@ export function parseJSTToUTC(dateString: string): Date {
   // 時刻がない場合は00:00:00を追加
   const dateTimeString = dateString.includes('T') ? dateString : `${dateString}T00:00:00`
   
-  // 明示的にJSTとして解釈してUTCに変換
-  return fromZonedTime(dateTimeString, TIMEZONE)
+  // JSTの日時文字列をDateオブジェクトに変換（ローカルタイムゾーンとして解釈される）
+  const localDate = new Date(dateTimeString)
+  
+  // JSTからUTCに変換（9時間引く）
+  const utcDate = new Date(localDate.getTime() - 9 * 60 * 60 * 1000)
+  
+  return utcDate
 }
 
 /**
