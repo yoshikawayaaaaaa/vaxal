@@ -29,14 +29,11 @@ export function formatToJST(date: Date | string | null | undefined, formatString
  * @returns UTC Date オブジェクト
  */
 export function parseJSTToUTC(dateString: string): Date {
-  // 文字列をパースしてDateオブジェクトを作成
-  const parsedDate = parseISO(dateString)
+  // 時刻がない場合は00:00:00を追加
+  const dateTimeString = dateString.includes('T') ? dateString : `${dateString}T00:00:00`
   
-  // JSTタイムゾーンとして解釈
-  const jstDate = toZonedTime(parsedDate, TIMEZONE)
-  
-  // UTCに変換
-  return fromZonedTime(jstDate, TIMEZONE)
+  // 明示的にJSTとして解釈してUTCに変換
+  return fromZonedTime(dateTimeString, TIMEZONE)
 }
 
 /**
