@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { startOfDay, endOfDay } from 'date-fns'
+import { startOfDayJSTinUTC, endOfDayJSTinUTC } from '@/lib/date-utils'
 
 // 指定日に出勤可能なエンジニアを取得
 export async function GET(request: NextRequest) {
@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const targetDate = new Date(dateParam)
-    const startDate = startOfDay(targetDate)
-    const endDate = endOfDay(targetDate)
+    // JST日付をUTCに変換
+    const startDate = startOfDayJSTinUTC(dateParam)
+    const endDate = endOfDayJSTinUTC(dateParam)
 
     // 指定日に出勤可能として登録されているエンジニアを取得
     const availableEvents = await prisma.calendarEvent.findMany({
