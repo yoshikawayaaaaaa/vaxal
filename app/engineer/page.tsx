@@ -16,6 +16,7 @@ export default async function EngineerDashboardPage() {
   }
 
   // 自分に割り振られた案件を取得（ステータス2以降のみ）
+  // インデックスを活用するため、assignedEngineerIdとstatusの複合条件を使用
   const projects = await prisma.project.findMany({
     where: {
       assignedEngineerId: parseInt(session.user.id),
@@ -23,7 +24,14 @@ export default async function EngineerDashboardPage() {
         in: ['ASSIGNED', 'REPORTED', 'COMPLETED', 'REMAINING_WORK'],
       },
     },
-    include: {
+    select: {
+      id: true,
+      projectNumber: true,
+      siteName: true,
+      siteAddress: true,
+      customerName: true,
+      workDate: true,
+      status: true,
       createdByVaxal: {
         select: {
           name: true,

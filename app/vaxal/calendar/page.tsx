@@ -35,22 +35,6 @@ export default async function CalendarPage({
   const monthStart = new Date(year, month, 1)
   const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999)
 
-  // エンジニア会社一覧を取得
-  const companiesData = await prisma.company.findMany({
-    select: {
-      id: true,
-      companyName: true,
-    },
-    orderBy: {
-      companyName: 'asc',
-    },
-  })
-  
-  const companies = companiesData.map(c => ({
-    id: String(c.id),
-    companyName: c.companyName,
-  }))
-
   // 会社フィルター条件を構築
   const companyWhere = companyFilter
     ? {
@@ -63,30 +47,88 @@ export default async function CalendarPage({
       }
     : {}
 
-  // 当月のステータス別案件数を取得（会社フィルター適用）
-  const statusCounts = await prisma.project.groupBy({
-    by: ['status'],
-    where: {
-      workDate: {
-        gte: monthStart,
-        lte: monthEnd,
+  // 並列クエリ実行で高速化
+  const [companiesData, statusCounts, confirmedEvents] = await Promise.all([
+    // エンジニア会社一覧を取得
+    prisma.company.findMany({
+      select: {
+        id: true,
+        companyName: true,
       },
-      // 会社フィルターが指定されている場合は、CalendarEventを経由してフィルタリング
-      ...(companyFilter
-        ? {
-            calendarEvents: {
-              some: {
-                eventType: 'CONFIRMED',
-                ...companyWhere,
+      orderBy: {
+        companyName: 'asc',
+      },
+    }),
+    
+    // 当月のステータス別案件数を取得（会社フィルター適用）
+    prisma.project.groupBy({
+      by: ['status'],
+      where: {
+        workDate: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+        // 会社フィルターが指定されている場合は、CalendarEventを経由してフィルタリング
+        ...(companyFilter
+          ? {
+              calendarEvents: {
+                some: {
+                  eventType: 'CONFIRMED',
+                  ...companyWhere,
+                },
               },
-            },
-          }
-        : {}),
-    },
-    _count: {
-      status: true,
-    },
-  })
+            }
+          : {}),
+      },
+      _count: {
+        status: true,
+      },
+    }),
+    
+    // 確定予定（割り振られた案件）を取得（最適化版 - N+1問題を解決 + 月の範囲でフィルタリング）
+    prisma.calendarEvent.findMany({
+      where: {
+        eventType: 'CONFIRMED',
+        startDate: {
+          gte: monthStart,
+          lte: monthEnd,
+        },
+        ...companyWhere,
+      },
+      select: {
+        id: true,
+        startDate: true,
+        endDate: true,
+        engineerUserId: true,
+        projectId: true,
+        engineerUser: {
+          select: {
+            id: true,
+            name: true,
+            companyId: true,
+            masterCompanyId: true,
+          },
+        },
+        project: {
+          select: {
+            id: true,
+            projectNumber: true,
+            siteName: true,
+            siteAddress: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: {
+        startDate: 'asc',
+      },
+    }),
+  ])
+  
+  const companies = companiesData.map(c => ({
+    id: String(c.id),
+    companyName: c.companyName,
+  }))
 
   // ステータス別の件数をマップに変換
   const countsByStatus: Record<string, number> = {
@@ -99,41 +141,6 @@ export default async function CalendarPage({
 
   statusCounts.forEach((item) => {
     countsByStatus[item.status] = item._count.status
-  })
-
-  // 確定予定（割り振られた案件）を取得（最適化版 - N+1問題を解決）
-  const confirmedEvents = await prisma.calendarEvent.findMany({
-    where: {
-      eventType: 'CONFIRMED',
-      ...companyWhere,
-    },
-    select: {
-      id: true,
-      startDate: true,
-      endDate: true,
-      engineerUserId: true,
-      projectId: true,
-      engineerUser: {
-        select: {
-          id: true,
-          name: true,
-          companyId: true,
-          masterCompanyId: true,
-        },
-      },
-      project: {
-        select: {
-          id: true,
-          projectNumber: true,
-          siteName: true,
-          siteAddress: true,
-          status: true,
-        },
-      },
-    },
-    orderBy: {
-      startDate: 'asc',
-    },
   })
 
   // エンジニアのIDを収集
