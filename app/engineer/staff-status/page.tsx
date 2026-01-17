@@ -48,26 +48,30 @@ export default async function StaffStatusPage({
   const monthParam = params.month
 
   // 選択月または当月の開始日と終了日を計算
-  let monthStart: Date
-  let monthEnd: Date
   let targetMonth: Date
+  let monthStartLocal: Date
+  let monthEndLocal: Date
 
   if (monthParam) {
     // URLパラメータから年月を取得
     const [year, month] = monthParam.split('-').map(Number)
     targetMonth = new Date(year, month - 1, 1)
-    monthStart = new Date(year, month - 1, 1)
-    monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
+    monthStartLocal = new Date(year, month - 1, 1)
+    monthEndLocal = new Date(year, month, 0)
   } else {
     // パラメータがない場合は当月
     const now = new Date()
     targetMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+    monthStartLocal = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthEndLocal = new Date(now.getFullYear(), now.getMonth() + 1, 0)
   }
 
   // 月の全日付を取得
-  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
+  const daysInMonth = eachDayOfInterval({ start: monthStartLocal, end: monthEndLocal })
+
+  // 月の開始・終了をUTCで取得（データベースクエリ用）
+  const monthStart = startOfDayJSTinUTC(monthStartLocal)
+  const monthEnd = endOfDayJSTinUTC(monthEndLocal)
 
   // 自社の全スタッフを取得
   const allStaff = await prisma.engineerUser.findMany({
