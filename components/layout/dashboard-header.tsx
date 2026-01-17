@@ -16,7 +16,8 @@ import {
   Bell,
   Settings,
   X,
-  Users
+  Users,
+  Calendar
 } from 'lucide-react'
 
 interface DashboardHeaderProps {
@@ -114,12 +115,19 @@ export function DashboardHeader({
       href: '/engineer/calendar',
       icon: FileText,
     },
-    // マスターアカウントのみスタッフ管理を表示
-    ...(engineerRole === 'MASTER' ? [{
-      title: 'スタッフ管理',
-      href: '/engineer/staff',
-      icon: Settings,
-    }] : []),
+    // マスターアカウントのみスタッフ状況とスタッフ管理を表示
+    ...(engineerRole === 'MASTER' ? [
+      {
+        title: 'スタッフ状況',
+        href: '/engineer/staff-status',
+        icon: Calendar,
+      },
+      {
+        title: 'スタッフ管理',
+        href: '/engineer/staff',
+        icon: Users,
+      }
+    ] : []),
   ]
 
   return (

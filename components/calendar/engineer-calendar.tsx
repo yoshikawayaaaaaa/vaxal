@@ -295,9 +295,18 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
           onSelectEvent={async (event) => {
           if (isLoading) return
 
-          // 確定予定の場合は案件詳細に遷移
-          if (event.eventType === 'CONFIRMED' && event.project) {
-            router.push(`/engineer/project/${event.project.id}`)
+          // 確定予定の場合
+          if (event.eventType === 'CONFIRMED') {
+            // PENDING状態の場合は削除不可のアラート
+            if (event.project?.status === 'PENDING') {
+              alert('担当割り振り前のため、出勤可能日を削除できません。\n\nVAXAL社員による割り振りをお待ちください。')
+              return
+            }
+            
+            // それ以外は案件詳細に遷移
+            if (event.project) {
+              router.push(`/engineer/project/${event.project.id}`)
+            }
           } 
           // 対応可能日の場合は削除確認
           else if (event.eventType === 'AVAILABLE') {

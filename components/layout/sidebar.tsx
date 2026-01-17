@@ -12,7 +12,8 @@ import {
   Bell,
   Settings,
   Users,
-  X
+  X,
+  Calendar
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -124,12 +125,19 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
       href: '/engineer/calendar',
       icon: FileText,
     },
-    // マスターアカウントのみスタッフ管理を表示
-    ...(isEngineerMaster ? [{
-      title: 'スタッフ管理',
-      href: '/engineer/staff',
-      icon: Users,
-    }] : []),
+    // マスターアカウントのみスタッフ管理とスタッフ状況を表示
+    ...(isEngineerMaster ? [
+      {
+        title: 'スタッフ状況',
+        href: '/engineer/staff-status',
+        icon: Calendar,
+      },
+      {
+        title: 'スタッフ管理',
+        href: '/engineer/staff',
+        icon: Users,
+      }
+    ] : []),
   ]
 
   const SidebarContent = () => (

@@ -210,6 +210,12 @@ export default async function EngineerCalendarPage({
                     <span className="text-xs">対応可能日</span>
                   </div>
                   <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gray-500 rounded flex-shrink-0"></div>
+                    <div className="flex flex-col">
+                      <span className="text-xs">割り振り前</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded flex-shrink-0"></div>
                     <span className="text-xs">注文依頼</span>
                   </div>
@@ -274,23 +280,29 @@ export default async function EngineerCalendarPage({
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                  <div className="w-4 h-4 bg-yellow-500 rounded flex-shrink-0"></div>
                   <span className="text-sm">対応可能日</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                  <div className="w-4 h-4 bg-gray-500 rounded flex-shrink-0"></div>
+                  <div className="flex flex-col">
+                    <span className="text-sm">割り振り前</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-blue-500 rounded flex-shrink-0"></div>
                   <span className="text-sm">注文依頼</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-purple-500 rounded"></div>
+                  <div className="w-4 h-4 bg-purple-500 rounded flex-shrink-0"></div>
                   <span className="text-sm">報告済み</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-orange-500 rounded"></div>
+                  <div className="w-4 h-4 bg-orange-500 rounded flex-shrink-0"></div>
                   <span className="text-sm">残工事あり</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-green-500 rounded"></div>
+                  <div className="w-4 h-4 bg-green-500 rounded flex-shrink-0"></div>
                   <span className="text-sm">完了</span>
                 </div>
               </CardContent>
