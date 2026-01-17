@@ -78,7 +78,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
     })),
   ]
 
-  // 日付クリック時の処理（確認ダイアログ付き）
+  // 日付クリック時の処理（登録のみ）
   const handleSelectSlot = async ({ start }: { start: Date }) => {
     if (isLoading) return
 
@@ -92,60 +92,38 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
     })
 
     if (existingEvent) {
-      // 既に登録されている場合は削除確認
-      const confirmDelete = confirm(
-        `${formattedDate}の出勤可能日を削除しますか？\n\n削除すると、この日は対応不可として扱われます。`
-      )
-      
-      if (confirmDelete) {
-        setIsLoading(true)
-        try {
-          const response = await fetch(`/api/engineer/calendar/${existingEvent.id}`, {
-            method: 'DELETE',
-          })
+      // 既に登録されている場合は何もしない（削除はイベントクリックから）
+      return
+    }
 
-          if (response.ok) {
-            router.refresh()
-          } else {
-            alert('削除に失敗しました')
-          }
-        } catch (error) {
-          console.error('削除エラー:', error)
-          alert('削除に失敗しました')
-        } finally {
-          setIsLoading(false)
-        }
-      }
-    } else {
-      // 新規登録確認
-      const confirmAdd = confirm(
-        `${formattedDate}を出勤可能日として登録しますか？\n\n登録すると、VAXAL社員がこの日に案件を割り振ることができます。`
-      )
-      
-      if (confirmAdd) {
-        setIsLoading(true)
-        try {
-          const response = await fetch('/api/engineer/calendar', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              date: clickedDate.toISOString(),
-            }),
-          })
+    // 新規登録確認
+    const confirmAdd = confirm(
+      `${formattedDate}を出勤可能日として登録しますか？\n\n登録すると、VAXAL社員がこの日に案件を割り振ることができます。`
+    )
+    
+    if (confirmAdd) {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/engineer/calendar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            date: clickedDate.toISOString(),
+          }),
+        })
 
-          if (response.ok) {
-            router.refresh()
-          } else {
-            alert('登録に失敗しました')
-          }
-        } catch (error) {
-          console.error('登録エラー:', error)
+        if (response.ok) {
+          router.refresh()
+        } else {
           alert('登録に失敗しました')
-        } finally {
-          setIsLoading(false)
         }
+      } catch (error) {
+        console.error('登録エラー:', error)
+        alert('登録に失敗しました')
+      } finally {
+        setIsLoading(false)
       }
     }
   }
