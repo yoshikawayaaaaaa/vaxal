@@ -7,7 +7,6 @@ import { MonthFilter } from '@/components/calendar/month-filter'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
-import { unstable_cache } from 'next/cache'
 
 export default async function CalendarPage({
   searchParams,
@@ -63,32 +62,21 @@ export default async function CalendarPage({
     countsByStatus[item.status] = item._count.status
   })
 
-  // エンジニア会社一覧を取得（キャッシュ付き）
-  const getCompanies = unstable_cache(
-    async () => {
-      const companiesData = await prisma.company.findMany({
-        select: {
-          id: true,
-          companyName: true,
-        },
-        orderBy: {
-          companyName: 'asc',
-        },
-      })
-      
-      return companiesData.map(c => ({
-        id: String(c.id),
-        companyName: c.companyName,
-      }))
+  // エンジニア会社一覧を取得
+  const companiesData = await prisma.company.findMany({
+    select: {
+      id: true,
+      companyName: true,
     },
-    ['companies-list'],
-    {
-      revalidate: 3600, // 1時間キャッシュ
-      tags: ['companies'],
-    }
-  )
-
-  const companies = await getCompanies()
+    orderBy: {
+      companyName: 'asc',
+    },
+  })
+  
+  const companies = companiesData.map(c => ({
+    id: String(c.id),
+    companyName: c.companyName,
+  }))
 
   // 会社フィルター条件を構築
   const companyWhere = companyFilter
