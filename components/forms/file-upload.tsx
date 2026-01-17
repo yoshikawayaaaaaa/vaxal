@@ -83,15 +83,20 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
       })
 
       if (!response.ok) {
-        throw new Error('アップロードに失敗しました')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('アップロードエラー:', errorData)
+        throw new Error(errorData.error || 'アップロードに失敗しました')
       }
 
       setSelectedFiles([])
+      setError('')
       onUploadSuccess()
       alert('アップロードが完了しました')
     } catch (error) {
       console.error('Upload error:', error)
-      alert('アップロードに失敗しました')
+      const errorMessage = error instanceof Error ? error.message : 'アップロードに失敗しました'
+      setError(errorMessage)
+      alert(errorMessage)
     } finally {
       setUploading(false)
       setCompressing(false)
