@@ -187,6 +187,9 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
         color: 'white',
         border: '0px',
         display: 'block',
+        fontSize: '11px',
+        padding: '2px 4px',
+        lineHeight: '1.2',
       },
     }
   }
@@ -275,7 +278,7 @@ export function EngineerCalendar({ availableDates, confirmedEvents }: EngineerCa
       </div>
 
       {/* カレンダー */}
-      <div className="relative" style={{ height: '500px' }}>
+      <div className="relative" style={{ height: '700px' }}>
         <Calendar
           localizer={localizer}
           events={events}
