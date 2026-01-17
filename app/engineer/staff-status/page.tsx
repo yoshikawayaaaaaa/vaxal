@@ -48,16 +48,23 @@ export default async function StaffStatusPage({
   const monthParam = params.month
 
   // 選択月または当月の開始日と終了日を計算
+  let monthStart: Date
+  let monthEnd: Date
   let targetMonth: Date
+
   if (monthParam) {
+    // URLパラメータから年月を取得
     const [year, month] = monthParam.split('-').map(Number)
     targetMonth = new Date(year, month - 1, 1)
+    monthStart = new Date(year, month - 1, 1)
+    monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
   } else {
-    targetMonth = new Date()
+    // パラメータがない場合は当月
+    const now = new Date()
+    targetMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
   }
-
-  const monthStart = startOfMonth(targetMonth)
-  const monthEnd = endOfMonth(targetMonth)
 
   // 月の全日付を取得
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
