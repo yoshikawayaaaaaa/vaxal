@@ -7,6 +7,7 @@ import { MonthFilter } from '@/components/calendar/month-filter'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
+import { startOfDayJSTinUTC, endOfDayJSTinUTC } from '@/lib/date-utils'
 
 export default async function CalendarPage({
   searchParams,
@@ -31,9 +32,13 @@ export default async function CalendarPage({
   const month = currentDate.getMonth()
   const companyFilter = params.company
   
-  // 月の開始日と終了日を計算
-  const monthStart = new Date(year, month, 1)
-  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999)
+  // 月の開始日と終了日を計算（ローカル日付）
+  const monthStartLocal = new Date(year, month, 1)
+  const monthEndLocal = new Date(year, month + 1, 0)
+  
+  // UTC変換（データベースクエリ用）
+  const monthStart = startOfDayJSTinUTC(monthStartLocal)
+  const monthEnd = endOfDayJSTinUTC(monthEndLocal)
 
   // 会社フィルター条件を構築
   const companyWhere = companyFilter
