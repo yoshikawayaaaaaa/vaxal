@@ -172,7 +172,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     }
 
     const options = {
-      maxSizeMB: 0.5, // 最大500KBに圧縮（より積極的に）
+      maxSizeMB: 0.3, // 最大300KBに圧縮
       maxWidthOrHeight: 1920,
       useWebWorker: true,
       fileType: 'image/webp',
@@ -384,7 +384,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
                   className="cursor-pointer"
                 />
                 <p className="text-sm text-gray-500">
-                  複数の画像を選択できます（JPG, PNG, GIF）
+                  複数の画像を選択できます（JPG, PNG, GIF）・合計4MB以下推奨
                 </p>
               </div>
 

@@ -39,7 +39,7 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
     }
 
     const options = {
-      maxSizeMB: 0.5, // 最大500KBに圧縮（より積極的に）
+      maxSizeMB: 0.3, // 最大300KBに圧縮
       maxWidthOrHeight: 1920, // 最大幅/高さ
       useWebWorker: true, // Web Workerを使用してパフォーマンス向上
       fileType: 'image/webp', // WebP形式に変換
@@ -129,9 +129,14 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
           </p>
         )}
         {selectedFiles.length > 0 && !error && (
-          <p className="text-sm text-gray-600 mt-2">
-            {selectedFiles.length}個のファイルを選択中（最大{MAX_FILES}枚まで）
-          </p>
+          <div className="mt-2 space-y-1">
+            <p className="text-sm text-gray-600">
+              {selectedFiles.length}個のファイルを選択中（最大{MAX_FILES}枚まで）
+            </p>
+            <p className="text-xs text-gray-500">
+              ※1回のアップロードは合計4MB以下を推奨
+            </p>
+          </div>
         )}
       </div>
       <Button
