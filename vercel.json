@@ -1,9 +1,19 @@
 {
   "regions": ["hnd1"],
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/check-overdue-reports",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/warmup",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
