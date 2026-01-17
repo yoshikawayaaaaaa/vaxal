@@ -172,16 +172,21 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     }
 
     const options = {
-      maxSizeMB: 1,
+      maxSizeMB: 0.5, // 最大500KBに圧縮（より積極的に）
       maxWidthOrHeight: 1920,
       useWebWorker: true,
       fileType: 'image/webp',
+      initialQuality: 0.8, // 初期品質を80%に設定
     }
 
     try {
       const compressedFile = await imageCompression(file, options)
       const newFileName = file.name.replace(/\.[^/.]+$/, '.webp')
-      return new File([compressedFile], newFileName, { type: 'image/webp' })
+      const result = new File([compressedFile], newFileName, { type: 'image/webp' })
+      
+      console.log(`圧縮完了: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) → ${newFileName} (${(result.size / 1024 / 1024).toFixed(2)}MB)`)
+      
+      return result
     } catch (error) {
       console.error('画像圧縮エラー:', error)
       return file
