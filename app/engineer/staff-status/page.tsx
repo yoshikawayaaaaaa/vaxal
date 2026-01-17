@@ -2,9 +2,10 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import Link from 'next/link'
+import { startOfDayJSTinUTC, endOfDayJSTinUTC } from '@/lib/date-utils'
 
 export default async function StaffStatusPage({
   searchParams,
@@ -132,12 +133,17 @@ export default async function StaffStatusPage({
 
   // 日付ごとのスタッフ状況を集計
   const dailyStatus = daysInMonth.map((day) => {
-    const dayConfirmed = confirmedEvents.filter((e) =>
-      isSameDay(new Date(e.startDate), day)
-    )
-    const dayAvailable = availableDates.filter((d) =>
-      isSameDay(new Date(d.startDate), day)
-    )
+    const dayStart = startOfDayJSTinUTC(day)
+    const dayEnd = endOfDayJSTinUTC(day)
+    
+    const dayConfirmed = confirmedEvents.filter((e) => {
+      const eventDate = new Date(e.startDate)
+      return eventDate >= dayStart && eventDate <= dayEnd
+    })
+    const dayAvailable = availableDates.filter((d) => {
+      const eventDate = new Date(d.startDate)
+      return eventDate >= dayStart && eventDate <= dayEnd
+    })
 
     const busyStaffIds = new Set([
       ...dayConfirmed.map((e) => e.engineerUser?.id).filter(Boolean),
