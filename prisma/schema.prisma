@@ -73,6 +73,7 @@ model Company {
   projects              Project[]
   
   @@index([companyNumber])
+  @@index([companyName])
 }
 
 // アカウントタイプ
@@ -144,6 +145,9 @@ model EngineerUser {
   engineerCalendarEvents CalendarEvent[] @relation("EngineerCalendar")
   notifications         Notification[]
   evaluations           EngineerEvaluation[] @relation("EngineerEvaluations")
+  
+  @@index([companyId])
+  @@index([name])
 }
 
 // 案件管理
@@ -392,6 +396,10 @@ model Project {
   @@index([assignedEngineerId])
   @@index([workDate])
   @@index([createdAt])
+  @@index([status, workDate])
+  @@index([assignedEngineerId, status])
+  @@index([customerName])
+  @@index([customerPhone])
 }
 
 // 主要情報
@@ -565,6 +573,9 @@ model Report {
   @@index([projectId])
   @@index([engineerUserId])
   @@index([status])
+  @@index([projectId, status])
+  @@index([engineerUserId, status])
+  @@index([status, createdAt])
 }
 
 // ファイル管理
@@ -763,6 +774,8 @@ model Notification {
   
   @@index([vaxalUserId, isRead])
   @@index([engineerUserId, isRead])
+  @@index([type])
+  @@index([type, createdAt])
 }
 
 // 評価グレード
