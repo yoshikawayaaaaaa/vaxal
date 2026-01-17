@@ -178,6 +178,8 @@ export default async function StaffStatusPage({
 
   const getStatusLabel = (status?: string) => {
     switch (status) {
+      case 'PENDING':
+        return '割り振り前'
       case 'ASSIGNED':
         return '注文依頼'
       case 'REPORTED':
