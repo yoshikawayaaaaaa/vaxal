@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { EngineerCalendar } from '@/components/calendar/engineer-calendar'
+import { startOfDayJSTinUTC, endOfDayJSTinUTC } from '@/lib/date-utils'
 
 export default async function EngineerCalendarPage({
   searchParams,
@@ -43,20 +44,24 @@ export default async function EngineerCalendarPage({
   }
 
   // 選択月または当月の開始日と終了日を計算
-  let monthStart: Date
-  let monthEnd: Date
+  let monthStartLocal: Date
+  let monthEndLocal: Date
 
   if (monthParam) {
     // URLパラメータから年月を取得
     const [year, month] = monthParam.split('-').map(Number)
-    monthStart = new Date(year, month - 1, 1)
-    monthEnd = new Date(year, month, 0, 23, 59, 59, 999)
+    monthStartLocal = new Date(year, month - 1, 1)
+    monthEndLocal = new Date(year, month, 0)
   } else {
     // パラメータがない場合は当月
     const now = new Date()
-    monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999)
+    monthStartLocal = new Date(now.getFullYear(), now.getMonth(), 1)
+    monthEndLocal = new Date(now.getFullYear(), now.getMonth() + 1, 0)
   }
+
+  // UTC変換（統計計算用）
+  const monthStart = startOfDayJSTinUTC(monthStartLocal)
+  const monthEnd = endOfDayJSTinUTC(monthEndLocal)
 
   // エンジニアの出勤可能日を取得
   const availableDates = await prisma.calendarEvent.findMany({
