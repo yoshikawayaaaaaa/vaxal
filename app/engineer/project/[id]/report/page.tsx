@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -269,11 +270,15 @@ export default async function EngineerReportPage({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
-                                    <img
-                                      src={file.fileUrl}
-                                      alt={file.fileName}
-                                      className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80"
-                                    />
+                                    <div className="relative w-full h-24">
+                                      <Image
+                                        src={file.fileUrl}
+                                        alt={file.fileName}
+                                        fill
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        className="object-cover rounded cursor-pointer hover:opacity-80"
+                                      />
+                                    </div>
                                   </a>
                                 ) : (
                                   <a

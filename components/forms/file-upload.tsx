@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import imageCompression from 'browser-image-compression'
 
 interface FileUploadProps {
   projectId: string
@@ -9,13 +10,50 @@ interface FileUploadProps {
   onUploadSuccess: () => void
 }
 
+const MAX_FILES = 20 // 1回のアップロードで最大20枚まで
+
 export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [compressing, setCompressing] = useState(false)
+  const [error, setError] = useState<string>('')
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError('')
     if (e.target.files) {
-      setSelectedFiles(Array.from(e.target.files))
+      const files = Array.from(e.target.files)
+      if (files.length > MAX_FILES) {
+        setError(`一度にアップロードできるファイルは最大${MAX_FILES}枚までです`)
+        setSelectedFiles([])
+        e.target.value = '' // inputをリセット
+        return
+      }
+      setSelectedFiles(files)
+    }
+  }
+
+  const compressImage = async (file: File): Promise<File> => {
+    // 画像ファイルでない場合はそのまま返す
+    if (!file.type.startsWith('image/')) {
+      return file
+    }
+
+    const options = {
+      maxSizeMB: 1, // 最大1MBに圧縮
+      maxWidthOrHeight: 1920, // 最大幅/高さ
+      useWebWorker: true, // Web Workerを使用してパフォーマンス向上
+      fileType: 'image/webp', // WebP形式に変換
+    }
+
+    try {
+      const compressedFile = await imageCompression(file, options)
+      // ファイル名を.webpに変更
+      const newFileName = file.name.replace(/\.[^/.]+$/, '.webp')
+      return new File([compressedFile], newFileName, { type: 'image/webp' })
+    } catch (error) {
+      console.error('画像圧縮エラー:', error)
+      // 圧縮に失敗した場合は元のファイルを返す
+      return file
     }
   }
 
@@ -23,11 +61,19 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
     if (selectedFiles.length === 0) return
 
     setUploading(true)
+    setCompressing(true)
 
     try {
+      // 全ての画像を圧縮
+      const compressedFiles = await Promise.all(
+        selectedFiles.map((file) => compressImage(file))
+      )
+      
+      setCompressing(false)
+
       const formData = new FormData()
       formData.append('category', category)
-      selectedFiles.forEach((file) => {
+      compressedFiles.forEach((file) => {
         formData.append('files', file)
       })
 
@@ -48,6 +94,7 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
       alert('アップロードに失敗しました')
     } finally {
       setUploading(false)
+      setCompressing(false)
     }
   }
 
@@ -66,9 +113,14 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
             file:bg-blue-50 file:text-blue-700
             hover:file:bg-blue-100"
         />
-        {selectedFiles.length > 0 && (
+        {error && (
+          <p className="text-sm text-red-600 mt-2">
+            {error}
+          </p>
+        )}
+        {selectedFiles.length > 0 && !error && (
           <p className="text-sm text-gray-600 mt-2">
-            {selectedFiles.length}個のファイルを選択中
+            {selectedFiles.length}個のファイルを選択中（最大{MAX_FILES}枚まで）
           </p>
         )}
       </div>
@@ -77,7 +129,7 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
         disabled={uploading || selectedFiles.length === 0}
         className="bg-blue-600 hover:bg-blue-700 text-white"
       >
-        {uploading ? 'アップロード中...' : 'アップロード'}
+        {compressing ? '画像を圧縮中...' : uploading ? 'アップロード中...' : 'アップロード'}
       </Button>
     </div>
   )

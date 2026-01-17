@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import imageCompression from 'browser-image-compression'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -164,23 +165,59 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     )
   }
 
-  const handleImageChange = (reportType: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  // 画像圧縮関数
+  const compressImage = async (file: File): Promise<File> => {
+    if (!file.type.startsWith('image/')) {
+      return file
+    }
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      fileType: 'image/webp',
+    }
+
+    try {
+      const compressedFile = await imageCompression(file, options)
+      const newFileName = file.name.replace(/\.[^/.]+$/, '.webp')
+      return new File([compressedFile], newFileName, { type: 'image/webp' })
+    } catch (error) {
+      console.error('画像圧縮エラー:', error)
+      return file
+    }
+  }
+
+  const handleImageChange = async (reportType: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
+    
+    // 枚数制限チェック（最大20枚）
+    const currentCount = images[reportType].files.length
+    if (currentCount + files.length > 20) {
+      setError(`${reportType}は最大20枚までアップロードできます（現在${currentCount}枚）`)
+      e.target.value = ''
+      return
+    }
+
+    setError('')
+    
+    // 画像を圧縮
+    const compressedFiles = await Promise.all(files.map(file => compressImage(file)))
     
     const newPreviews: string[] = []
     let loadedCount = 0
 
-    files.forEach((file) => {
+    compressedFiles.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
         newPreviews.push(reader.result as string)
         loadedCount++
         
-        if (loadedCount === files.length) {
+        if (loadedCount === compressedFiles.length) {
           setImages((prev) => ({
             ...prev,
             [reportType]: {
-              files: [...prev[reportType].files, ...files],
+              files: [...prev[reportType].files, ...compressedFiles],
               previews: [...prev[reportType].previews, ...newPreviews],
             },
           }))

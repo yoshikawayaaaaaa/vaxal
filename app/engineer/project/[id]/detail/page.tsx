@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
+import Image from 'next/image'
 import { ProjectDetailTabs } from '@/components/project/project-detail-tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
@@ -101,11 +102,15 @@ export default function DetailInfoPage({
                         rel="noopener noreferrer"
                       >
                         {file.mimeType.startsWith('image/') ? (
-                          <img
-                            src={file.fileUrl}
-                            alt={file.fileName}
-                            className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
-                          />
+                          <div className="relative w-full h-32">
+                            <Image
+                              src={file.fileUrl}
+                              alt={file.fileName}
+                              fill
+                              sizes="(max-width: 768px) 50vw, 25vw"
+                              className="object-cover rounded cursor-pointer hover:opacity-80"
+                            />
+                          </div>
                         ) : (
                           <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
                             <span className="text-sm text-gray-500">
@@ -146,11 +151,15 @@ export default function DetailInfoPage({
                         rel="noopener noreferrer"
                       >
                         {file.mimeType.startsWith('image/') ? (
-                          <img
-                            src={file.fileUrl}
-                            alt={file.fileName}
-                            className="w-full h-32 object-cover rounded cursor-pointer hover:opacity-80"
-                          />
+                          <div className="relative w-full h-32">
+                            <Image
+                              src={file.fileUrl}
+                              alt={file.fileName}
+                              fill
+                              sizes="(max-width: 768px) 50vw, 25vw"
+                              className="object-cover rounded cursor-pointer hover:opacity-80"
+                            />
+                          </div>
                         ) : (
                           <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
                             <span className="text-sm text-gray-500">
