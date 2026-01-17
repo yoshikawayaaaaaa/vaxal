@@ -8,13 +8,16 @@ import { requireVaxalAdminAuth } from '@/lib/auth-helpers'
 
 export default async function CalendarDatePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ date: string }>
+  searchParams: Promise<{ company?: string }>
 }) {
   // VAXAL管理者権限チェック
   await requireVaxalAdminAuth()
 
   const { date } = await params
+  const { company: companyFilter } = await searchParams
   const selectedDate = new Date(date)
   
   // 日付の範囲を設定
@@ -23,13 +26,31 @@ export default async function CalendarDatePage({
   const endOfDay = new Date(selectedDate)
   endOfDay.setHours(23, 59, 59, 999)
 
-  // 指定日の案件を取得（最適化版）
+  // 会社フィルター条件を構築
+  const companyWhere = companyFilter
+    ? {
+        calendarEvents: {
+          some: {
+            eventType: 'CONFIRMED' as const,
+            engineerUser: {
+              OR: [
+                { companyId: parseInt(companyFilter) },
+                { masterCompanyId: parseInt(companyFilter) },
+              ],
+            },
+          },
+        },
+      }
+    : {}
+
+  // 指定日の案件を取得（最適化版 + 会社フィルター適用）
   const projects = await prisma.project.findMany({
     where: {
       workDate: {
         gte: startOfDay,
         lte: endOfDay,
       },
+      ...companyWhere,
     },
     select: {
       id: true,
@@ -142,7 +163,7 @@ export default async function CalendarDatePage({
         {/* ヘッダー */}
         <div className="mb-6 md:mb-8">
           <Link
-            href="/vaxal/calendar"
+            href={companyFilter ? `/vaxal/calendar?company=${companyFilter}` : "/vaxal/calendar"}
             className="text-blue-600 hover:text-blue-700 mb-3 md:mb-4 inline-block text-sm md:text-base"
           >
             ← カレンダーに戻る

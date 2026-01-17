@@ -8,7 +8,7 @@ import { STATUS_LABELS, STATUS_COLORS } from '@/lib/constants'
 export default async function ProjectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; month?: string }>
+  searchParams: Promise<{ status?: string; month?: string; company?: string }>
 }) {
   const session = await auth()
 
@@ -23,6 +23,7 @@ export default async function ProjectPage({
   const params = await searchParams
   const statusFilter = params.status
   const monthFilter = params.month
+  const companyFilter = params.company
 
   // フィルター条件を構築
   const where: any = {}
@@ -42,6 +43,21 @@ export default async function ProjectPage({
     }
   }
 
+  // 会社フィルターを追加
+  if (companyFilter) {
+    where.calendarEvents = {
+      some: {
+        eventType: 'CONFIRMED',
+        engineerUser: {
+          OR: [
+            { companyId: parseInt(companyFilter) },
+            { masterCompanyId: parseInt(companyFilter) },
+          ],
+        },
+      },
+    }
+  }
+
   // 案件一覧を取得
   const projects = await prisma.project.findMany({
     where,
@@ -49,6 +65,28 @@ export default async function ProjectPage({
       assignedEngineer: {
         select: {
           name: true,
+        },
+      },
+      calendarEvents: {
+        where: {
+          eventType: 'CONFIRMED',
+        },
+        select: {
+          engineerUser: {
+            select: {
+              name: true,
+              company: {
+                select: {
+                  companyName: true,
+                },
+              },
+              masterCompany: {
+                select: {
+                  companyName: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -62,10 +100,12 @@ export default async function ProjectPage({
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">案件一覧</h1>
-          {statusFilter && (
+          {(statusFilter || monthFilter || companyFilter) && (
             <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">
-              フィルター: {STATUS_LABELS[statusFilter]}
+              フィルター: 
+              {statusFilter && ` ${STATUS_LABELS[statusFilter]}`}
               {monthFilter && ` (${monthFilter})`}
+              {companyFilter && ` - 会社ID: ${companyFilter}`}
             </p>
           )}
         </div>
@@ -107,6 +147,13 @@ export default async function ProjectPage({
                         <div>
                           <span className="text-gray-500">担当エンジニア:</span>{' '}
                           {project.assignedEngineer.name}
+                        </div>
+                      )}
+                      {project.calendarEvents && project.calendarEvents.length > 0 && project.calendarEvents[0].engineerUser && (
+                        <div>
+                          <span className="text-gray-500">会社:</span>{' '}
+                          {project.calendarEvents[0].engineerUser.masterCompany?.companyName || 
+                           project.calendarEvents[0].engineerUser.company?.companyName || '-'}
                         </div>
                       )}
                     </div>

@@ -41,9 +41,10 @@ interface CalendarEvent {
 interface CalendarViewProps {
   events: CalendarEvent[]
   currentDate?: Date
+  companyFilter?: string
 }
 
-export function CalendarView({ events, currentDate }: CalendarViewProps) {
+export function CalendarView({ events, currentDate, companyFilter }: CalendarViewProps) {
   const router = useRouter()
   
   // カスタムツールバーコンポーネント
@@ -70,14 +71,21 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
 
   const handleSelectSlot = ({ start, action }: { start: Date; action: string }) => {
     console.log('Slot selected:', start, 'action:', action)
+    
     // 日付を選択した場合、その日の案件一覧ページへ
     // タイムゾーンのずれを防ぐため、ローカル日付を使用
     const year = start.getFullYear()
     const month = String(start.getMonth() + 1).padStart(2, '0')
     const day = String(start.getDate()).padStart(2, '0')
     const dateStr = `${year}-${month}-${day}`
-    console.log('Navigating to:', `/vaxal/calendar/${dateStr}`)
-    router.push(`/vaxal/calendar/${dateStr}`)
+    
+    // 会社フィルターがある場合はURLパラメータに追加
+    const url = companyFilter 
+      ? `/vaxal/calendar/${dateStr}?company=${companyFilter}`
+      : `/vaxal/calendar/${dateStr}`
+    
+    console.log('Navigating to:', url)
+    router.push(url)
   }
 
   const eventStyleGetter = (event: CalendarEvent) => {
@@ -149,7 +157,13 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
           const month = String(date.getMonth() + 1).padStart(2, '0')
           const day = String(date.getDate()).padStart(2, '0')
           const dateStr = `${year}-${month}-${day}`
-          router.push(`/vaxal/calendar/${dateStr}`)
+          
+          // 会社フィルターがある場合はURLパラメータに追加
+          const url = companyFilter 
+            ? `/vaxal/calendar/${dateStr}?company=${companyFilter}`
+            : `/vaxal/calendar/${dateStr}`
+          
+          router.push(url)
         }}
         eventPropGetter={eventStyleGetter}
         messages={messages}
@@ -160,6 +174,7 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
         toolbar={false}
         popup={true}
         selectable={true}
+        longPressThreshold={10}
         drilldownView={null}
       />
       <style jsx global>{`
@@ -175,19 +190,12 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
           .rbc-date-cell {
             padding: 6px;
             font-size: 14px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
+            user-select: none;
+            -webkit-user-select: none;
           }
           .rbc-date-cell button {
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.2);
-            padding: 4px 8px;
-            min-width: 32px;
-            min-height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            cursor: default;
+            pointer-events: none;
           }
           .rbc-event {
             padding: 1px 3px;
@@ -195,6 +203,8 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
             line-height: 1.2;
             pointer-events: auto;
             touch-action: manipulation;
+            position: relative;
+            z-index: 10;
           }
           .rbc-event-content {
             white-space: nowrap;
@@ -208,7 +218,13 @@ export function CalendarView({ events, currentDate }: CalendarViewProps) {
             min-height: 60px;
             cursor: pointer;
             touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+            -webkit-tap-highlight-color: rgba(59, 130, 246, 0.3);
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+          }
+          .rbc-day-bg:active {
+            background-color: rgba(59, 130, 246, 0.1);
           }
           .rbc-month-row {
             touch-action: manipulation;

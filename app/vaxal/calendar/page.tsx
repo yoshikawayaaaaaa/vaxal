@@ -35,33 +35,6 @@ export default async function CalendarPage({
   const monthStart = new Date(year, month, 1)
   const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999)
 
-  // 当月のステータス別案件数を取得
-  const statusCounts = await prisma.project.groupBy({
-    by: ['status'],
-    where: {
-      workDate: {
-        gte: monthStart,
-        lte: monthEnd,
-      },
-    },
-    _count: {
-      status: true,
-    },
-  })
-
-  // ステータス別の件数をマップに変換
-  const countsByStatus: Record<string, number> = {
-    PENDING: 0,
-    ASSIGNED: 0,
-    REPORTED: 0,
-    COMPLETED: 0,
-    REMAINING_WORK: 0,
-  }
-
-  statusCounts.forEach((item) => {
-    countsByStatus[item.status] = item._count.status
-  })
-
   // エンジニア会社一覧を取得
   const companiesData = await prisma.company.findMany({
     select: {
@@ -89,6 +62,44 @@ export default async function CalendarPage({
         },
       }
     : {}
+
+  // 当月のステータス別案件数を取得（会社フィルター適用）
+  const statusCounts = await prisma.project.groupBy({
+    by: ['status'],
+    where: {
+      workDate: {
+        gte: monthStart,
+        lte: monthEnd,
+      },
+      // 会社フィルターが指定されている場合は、CalendarEventを経由してフィルタリング
+      ...(companyFilter
+        ? {
+            calendarEvents: {
+              some: {
+                eventType: 'CONFIRMED',
+                ...companyWhere,
+              },
+            },
+          }
+        : {}),
+    },
+    _count: {
+      status: true,
+    },
+  })
+
+  // ステータス別の件数をマップに変換
+  const countsByStatus: Record<string, number> = {
+    PENDING: 0,
+    ASSIGNED: 0,
+    REPORTED: 0,
+    COMPLETED: 0,
+    REMAINING_WORK: 0,
+  }
+
+  statusCounts.forEach((item) => {
+    countsByStatus[item.status] = item._count.status
+  })
 
   // 確定予定（割り振られた案件）を取得（最適化版 - N+1問題を解決）
   const confirmedEvents = await prisma.calendarEvent.findMany({
@@ -209,29 +220,40 @@ export default async function CalendarPage({
 
         {/* ステータス別案件数 */}
         <div className="mb-4 md:mb-6 grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-          {Object.entries(countsByStatus).map(([status, count]) => (
-            <Link
-              key={status}
-              href={`/vaxal/project?status=${status}&month=${year}-${String(month + 1).padStart(2, '0')}`}
-            >
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-2 md:pb-3">
-                  <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
-                    {STATUS_LABELS[status]}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-baseline gap-1 md:gap-2">
-                    <span className="text-2xl md:text-3xl font-bold">{count}</span>
-                    <span className="text-xs md:text-sm text-gray-500">件</span>
-                  </div>
-                  <div className={`mt-1 md:mt-2 inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs ${STATUS_COLORS[status]}`}>
-                    クリックで一覧表示
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {Object.entries(countsByStatus).map(([status, count]) => {
+            // URLパラメータを構築（会社フィルターがある場合は追加）
+            const queryParams = new URLSearchParams({
+              status,
+              month: `${year}-${String(month + 1).padStart(2, '0')}`,
+            })
+            if (companyFilter) {
+              queryParams.set('company', companyFilter)
+            }
+            
+            return (
+              <Link
+                key={status}
+                href={`/vaxal/project?${queryParams.toString()}`}
+              >
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-2 md:pb-3">
+                    <CardTitle className="text-xs md:text-sm font-medium text-gray-600">
+                      {STATUS_LABELS[status]}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-baseline gap-1 md:gap-2">
+                      <span className="text-2xl md:text-3xl font-bold">{count}</span>
+                      <span className="text-xs md:text-sm text-gray-500">件</span>
+                    </div>
+                    <div className={`mt-1 md:mt-2 inline-block px-1.5 md:px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs ${STATUS_COLORS[status]}`}>
+                      クリックで一覧表示
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            )
+          })}
         </div>
 
         {/* 使い方の説明 */}
@@ -250,7 +272,7 @@ export default async function CalendarPage({
           </div>
         </div>
 
-        <CalendarView events={events} currentDate={currentDate} />
+        <CalendarView events={events} currentDate={currentDate} companyFilter={companyFilter} />
       </div>
     </div>
   )
