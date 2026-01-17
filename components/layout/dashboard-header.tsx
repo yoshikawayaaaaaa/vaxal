@@ -145,7 +145,9 @@ export function DashboardHeader({
 
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={() => signOut({ 
+                callbackUrl: userType === 'engineer' ? '/login/engineer' : '/login/vaxal' 
+              })}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               ログアウト
