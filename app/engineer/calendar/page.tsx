@@ -37,20 +37,10 @@ export default async function EngineerCalendarPage({
   const companyId = currentUser?.masterCompanyId || currentUser?.companyId
 
   // カレンダーイベントの取得条件
-  const calendarWhere = isMaster && companyId
-    ? {
-        // マスター：自社の全スタッフの予定
-        engineerUser: {
-          OR: [
-            { companyId },
-            { masterCompanyId: companyId },
-          ],
-        },
-      }
-    : {
-        // スタッフ：自分の予定のみ
-        engineerUserId: parseInt(session.user.id),
-      }
+  // マスター・スタッフ共に自分の予定のみ表示
+  const calendarWhere = {
+    engineerUserId: parseInt(session.user.id),
+  }
 
   // 選択月または当月の開始日と終了日を計算
   let monthStart: Date
