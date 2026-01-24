@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 // R2クライアントの初期化
 const r2Client = new S3Client({
@@ -11,7 +12,30 @@ const r2Client = new S3Client({
 })
 
 /**
- * R2にファイルをアップロード
+ * プリサインドURLを生成（クライアントから直接R2にアップロード用）
+ * @param key R2内のファイルパス（例: "reports/123456_image.webp"）
+ * @param contentType ファイルのMIMEタイプ
+ * @returns プリサインドURLと公開URL
+ */
+export async function generatePresignedUrl(
+  key: string,
+  contentType: string
+): Promise<{ uploadUrl: string; publicUrl: string }> {
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME!,
+    Key: key,
+    ContentType: contentType,
+  })
+
+  // 5分間有効なプリサインドURLを生成
+  const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 300 })
+  const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`
+
+  return { uploadUrl, publicUrl }
+}
+
+/**
+ * R2にファイルをアップロード（サーバーサイド用・後方互換性のため残す）
  * @param file アップロードするファイル
  * @param key R2内のファイルパス（例: "projects/123456_image.png"）
  * @returns 公開URL

@@ -18,6 +18,7 @@ type TabId = 'SITE_SURVEY' | 'PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'UNLOADING' 
 interface ImageData {
   files: File[]
   previews: string[]
+  uploadedUrls: string[] // R2にアップロード済みの公開URL
 }
 
 interface PickupMaterialRow {
@@ -46,6 +47,7 @@ interface InventoryItem {
 export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabId>('SITE_SURVEY')
   const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
@@ -53,16 +55,16 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
 
   // 各報告タイプの画像を管理
   const [images, setImages] = useState<Record<string, ImageData>>({
-    SITE_SURVEY: { files: [], previews: [] },
-    PICKUP: { files: [], previews: [] },
-    CHECK_IN: { files: [], previews: [] },
-    COMPLETION: { files: [], previews: [] },
-    UNLOADING: { files: [], previews: [] },
-    SUBSIDY_PHOTO: { files: [], previews: [] },
-    APPEARANCE_PHOTO: { files: [], previews: [] },
-    BEFORE_WORK_PHOTO: { files: [], previews: [] },
-    REGULATION_PHOTO: { files: [], previews: [] },
-    FREE_PHOTO: { files: [], previews: [] },
+    SITE_SURVEY: { files: [], previews: [], uploadedUrls: [] },
+    PICKUP: { files: [], previews: [], uploadedUrls: [] },
+    CHECK_IN: { files: [], previews: [], uploadedUrls: [] },
+    COMPLETION: { files: [], previews: [], uploadedUrls: [] },
+    UNLOADING: { files: [], previews: [], uploadedUrls: [] },
+    SUBSIDY_PHOTO: { files: [], previews: [], uploadedUrls: [] },
+    APPEARANCE_PHOTO: { files: [], previews: [], uploadedUrls: [] },
+    BEFORE_WORK_PHOTO: { files: [], previews: [], uploadedUrls: [] },
+    REGULATION_PHOTO: { files: [], previews: [], uploadedUrls: [] },
+    FREE_PHOTO: { files: [], previews: [], uploadedUrls: [] },
   })
 
   const [formData, setFormData] = useState({
@@ -165,10 +167,57 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     )
   }
 
+  // HEIC形式を検出する関数
+  const isHEICFile = (file: File): boolean => {
+    const fileName = file.name.toLowerCase()
+    return fileName.endsWith('.heic') || fileName.endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif'
+  }
+
+  // HEIC形式をJPEGに変換する関数
+  const convertHEICToJPEG = async (file: File): Promise<File> => {
+    try {
+      console.log(`HEIC変換開始: ${file.name}`)
+      
+      // heic2anyを動的にインポート
+      const heic2any = (await import('heic2any')).default
+      
+      // heic2anyでJPEGに変換
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9,
+      })
+
+      // 配列の場合は最初の要素を使用
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+      
+      // 新しいファイル名を生成
+      const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
+      const convertedFile = new File([blob], newFileName, { type: 'image/jpeg' })
+      
+      console.log(`HEIC変換完了: ${file.name} → ${newFileName} (${(convertedFile.size / 1024 / 1024).toFixed(2)}MB)`)
+      
+      return convertedFile
+    } catch (error) {
+      console.error('HEIC変換エラー:', error)
+      throw new Error('HEIC形式の変換に失敗しました。別の形式の画像をお試しください。')
+    }
+  }
+
   // 画像圧縮関数
   const compressImage = async (file: File): Promise<File> => {
-    if (!file.type.startsWith('image/')) {
-      return file
+    // HEIC形式の場合は先に変換
+    let processFile = file
+    if (isHEICFile(file)) {
+      try {
+        processFile = await convertHEICToJPEG(file)
+      } catch (error) {
+        throw error // HEIC変換エラーを上位に伝播
+      }
+    }
+
+    if (!processFile.type.startsWith('image/')) {
+      return processFile
     }
 
     const options = {
@@ -180,16 +229,16 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     }
 
     try {
-      const compressedFile = await imageCompression(file, options)
-      const newFileName = file.name.replace(/\.[^/.]+$/, '.webp')
+      const compressedFile = await imageCompression(processFile, options)
+      const newFileName = processFile.name.replace(/\.[^/.]+$/, '.webp')
       const result = new File([compressedFile], newFileName, { type: 'image/webp' })
       
-      console.log(`圧縮完了: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) → ${newFileName} (${(result.size / 1024 / 1024).toFixed(2)}MB)`)
+      console.log(`圧縮完了: ${processFile.name} (${(processFile.size / 1024 / 1024).toFixed(2)}MB) → ${newFileName} (${(result.size / 1024 / 1024).toFixed(2)}MB)`)
       
       return result
     } catch (error) {
       console.error('画像圧縮エラー:', error)
-      return file
+      return processFile
     }
   }
 
@@ -205,31 +254,53 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     }
 
     setError('')
+    setIsCompressing(true) // 圧縮開始
     
-    // 画像を圧縮
-    const compressedFiles = await Promise.all(files.map(file => compressImage(file)))
-    
-    const newPreviews: string[] = []
-    let loadedCount = 0
+    try {
+      // 画像を圧縮（HEIC変換を含む）
+      const compressedFiles = await Promise.all(
+        files.map(async (file) => {
+          try {
+            return await compressImage(file)
+          } catch (error) {
+            // HEIC変換エラーの場合、エラーメッセージを設定
+            if (error instanceof Error) {
+              setError(error.message)
+            }
+            throw error
+          }
+        })
+      )
+      
+      const newPreviews: string[] = []
+      let loadedCount = 0
 
-    compressedFiles.forEach((file) => {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        newPreviews.push(reader.result as string)
-        loadedCount++
-        
-        if (loadedCount === compressedFiles.length) {
-          setImages((prev) => ({
-            ...prev,
-            [reportType]: {
-              files: [...prev[reportType].files, ...compressedFiles],
-              previews: [...prev[reportType].previews, ...newPreviews],
-            },
-          }))
+      compressedFiles.forEach((file) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string)
+          loadedCount++
+          
+          if (loadedCount === compressedFiles.length) {
+            setImages((prev) => ({
+              ...prev,
+              [reportType]: {
+                files: [...prev[reportType].files, ...compressedFiles],
+                previews: [...prev[reportType].previews, ...newPreviews],
+                uploadedUrls: [...prev[reportType].uploadedUrls],
+              },
+            }))
+            setIsCompressing(false) // 圧縮完了
+          }
         }
-      }
-      reader.readAsDataURL(file)
-    })
+        reader.readAsDataURL(file)
+      })
+    } catch (error) {
+      // エラーが発生した場合、ファイル選択をリセット
+      e.target.value = ''
+      console.error('画像処理エラー:', error)
+      setIsCompressing(false) // エラー時も圧縮終了
+    }
   }
 
   const removeImage = (reportType: string, index: number) => {
@@ -238,6 +309,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
       [reportType]: {
         files: prev[reportType].files.filter((_, i) => i !== index),
         previews: prev[reportType].previews.filter((_, i) => i !== index),
+        uploadedUrls: prev[reportType].uploadedUrls.filter((_, i) => i !== index),
       },
     }))
   }
@@ -1159,21 +1231,43 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
         <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{error}</div>
       )}
 
+      {isCompressing && (
+        <div className="flex items-center justify-center p-4 bg-blue-50 rounded-md">
+          <svg className="animate-spin h-5 w-5 mr-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="text-blue-600 font-medium">画像を圧縮中...</span>
+        </div>
+      )}
+
       <div className="flex justify-end space-x-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
-          disabled={isLoading}
+          disabled={isLoading || isCompressing}
         >
           キャンセル
         </Button>
         <Button
           type="submit"
-          disabled={isLoading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+          disabled={isLoading || isCompressing}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading ? '保存中...' : '保存'}
+          {isLoading ? (
+            <span className="flex items-center">
+              <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              保存中...
+            </span>
+          ) : isCompressing ? (
+            '圧縮中...'
+          ) : (
+            '保存'
+          )}
         </Button>
       </div>
     </form>
