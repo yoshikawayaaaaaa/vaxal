@@ -242,6 +242,42 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     }
   }
 
+  // R2に直接アップロードする関数
+  const uploadToR2Direct = async (file: File): Promise<string> => {
+    // プリサインドURLを取得
+    const presignedResponse = await fetch('/api/engineer/reports/presigned-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type,
+      }),
+    })
+
+    if (!presignedResponse.ok) {
+      throw new Error('プリサインドURLの取得に失敗しました')
+    }
+
+    const { uploadUrl, publicUrl } = await presignedResponse.json()
+
+    // R2に直接アップロード
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('画像のアップロードに失敗しました')
+    }
+
+    return publicUrl
+  }
+
   const handleImageChange = async (reportType: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     
@@ -272,6 +308,18 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
         })
       )
       
+      // R2に直接アップロード
+      const uploadedUrls = await Promise.all(
+        compressedFiles.map(async (file) => {
+          try {
+            return await uploadToR2Direct(file)
+          } catch (error) {
+            console.error('R2アップロードエラー:', error)
+            throw error
+          }
+        })
+      )
+      
       const newPreviews: string[] = []
       let loadedCount = 0
 
@@ -287,7 +335,7 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
               [reportType]: {
                 files: [...prev[reportType].files, ...compressedFiles],
                 previews: [...prev[reportType].previews, ...newPreviews],
-                uploadedUrls: [...prev[reportType].uploadedUrls],
+                uploadedUrls: [...prev[reportType].uploadedUrls, ...uploadedUrls],
               },
             }))
             setIsCompressing(false) // 圧縮完了
@@ -320,43 +368,38 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
     setIsLoading(true)
 
     try {
-      // FormDataを作成
-      const submitData = new FormData()
-      
-      // プロジェクトIDを追加
-      submitData.append('projectId', projectId)
-      
-      // 集荷部材データをJSON形式で追加
-      submitData.append('pickupMaterialsData', JSON.stringify(pickupMaterials))
-      
-      // エンジニア入力情報を追加
-      submitData.append('notes', formData.notes)
-      submitData.append('isWorkCompleted', formData.isWorkCompleted)
-      submitData.append('remainingWorkDate', formData.remainingWorkDate)
-      submitData.append('existingManufacturer', formData.existingManufacturer)
-      submitData.append('yearsOfUse', formData.yearsOfUse)
-      submitData.append('replacementType', formData.replacementType)
-      submitData.append('replacementManufacturer', formData.replacementManufacturer)
-      submitData.append('tankCapacity', formData.tankCapacity)
-      submitData.append('tankType', formData.tankType)
-      submitData.append('hasSpecialSpec', String(formData.hasSpecialSpec))
-      submitData.append('materialUnitPrice', formData.materialUnitPrice)
-      submitData.append('highwayFee', formData.highwayFee)
-      submitData.append('gasolineFee', formData.gasolineFee)
-      submitData.append('saleType', formData.saleType)
-      submitData.append('saleFee', formData.saleFee)
-
-      // 各報告タイプの画像を追加
+      // 画像URLデータを準備
+      const imageUrlsData: Record<string, string[]> = {}
       Object.entries(images).forEach(([reportType, data]) => {
-        data.files.forEach((file, index) => {
-          submitData.append(`${reportType}_${index}`, file)
-        })
-        submitData.append(`${reportType}_count`, String(data.files.length))
+        imageUrlsData[reportType] = data.uploadedUrls
       })
 
+      // JSON形式でデータを送信
       const response = await fetch('/api/engineer/reports', {
         method: 'POST',
-        body: submitData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId,
+          pickupMaterialsData: pickupMaterials,
+          imageUrls: imageUrlsData,
+          notes: formData.notes,
+          isWorkCompleted: formData.isWorkCompleted,
+          remainingWorkDate: formData.remainingWorkDate,
+          existingManufacturer: formData.existingManufacturer,
+          yearsOfUse: formData.yearsOfUse,
+          replacementType: formData.replacementType,
+          replacementManufacturer: formData.replacementManufacturer,
+          tankCapacity: formData.tankCapacity,
+          tankType: formData.tankType,
+          hasSpecialSpec: formData.hasSpecialSpec,
+          materialUnitPrice: formData.materialUnitPrice,
+          highwayFee: formData.highwayFee,
+          gasolineFee: formData.gasolineFee,
+          saleType: formData.saleType,
+          saleFee: formData.saleFee,
+        }),
       })
 
       if (!response.ok) {

@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
     }
 
-    const formData = await request.formData()
+    const body = await request.json()
     
     // プロジェクトIDを取得
-    const projectId = formData.get('projectId') as string
+    const projectId = body.projectId as string
     
     if (!projectId) {
       return NextResponse.json({ error: 'プロジェクトIDが必要です' }, { status: 400 })
@@ -36,26 +36,28 @@ export async function POST(request: NextRequest) {
     }
 
     // 集荷部材データを取得
-    const pickupMaterialsDataStr = formData.get('pickupMaterialsData') as string
-    const pickupMaterialsData = pickupMaterialsDataStr ? JSON.parse(pickupMaterialsDataStr) : []
+    const pickupMaterialsData = body.pickupMaterialsData || []
+
+    // 画像URLデータを取得
+    const imageUrls = body.imageUrls || {}
 
     // エンジニア入力情報を取得
     const engineerInfo = {
-      notes: formData.get('notes') as string || null,
-      isWorkCompleted: formData.get('isWorkCompleted') === 'true' ? true : formData.get('isWorkCompleted') === 'false' ? false : null,
-      remainingWorkDate: formData.get('remainingWorkDate') as string || null,
-      existingManufacturer: formData.get('existingManufacturer') as string || null,
-      yearsOfUse: formData.get('yearsOfUse') ? parseInt(formData.get('yearsOfUse') as string) : null,
-      replacementType: formData.get('replacementType') as string || null,
-      replacementManufacturer: formData.get('replacementManufacturer') as string || null,
-      tankCapacity: formData.get('tankCapacity') as string || null,
-      tankType: formData.get('tankType') as string || null,
-      hasSpecialSpec: formData.get('hasSpecialSpec') === 'true',
-      materialUnitPrice: formData.get('materialUnitPrice') ? parseInt(formData.get('materialUnitPrice') as string) : null,
-      highwayFee: formData.get('highwayFee') ? parseInt(formData.get('highwayFee') as string) : null,
-      gasolineFee: formData.get('gasolineFee') ? parseInt(formData.get('gasolineFee') as string) : null,
-      saleType: formData.get('saleType') as string || null,
-      saleFee: formData.get('saleFee') ? parseInt(formData.get('saleFee') as string) : null,
+      notes: body.notes || null,
+      isWorkCompleted: body.isWorkCompleted === 'true' ? true : body.isWorkCompleted === 'false' ? false : null,
+      remainingWorkDate: body.remainingWorkDate || null,
+      existingManufacturer: body.existingManufacturer || null,
+      yearsOfUse: body.yearsOfUse ? parseInt(body.yearsOfUse) : null,
+      replacementType: body.replacementType || null,
+      replacementManufacturer: body.replacementManufacturer || null,
+      tankCapacity: body.tankCapacity || null,
+      tankType: body.tankType || null,
+      hasSpecialSpec: body.hasSpecialSpec === true,
+      materialUnitPrice: body.materialUnitPrice ? parseInt(body.materialUnitPrice) : null,
+      highwayFee: body.highwayFee ? parseInt(body.highwayFee) : null,
+      gasolineFee: body.gasolineFee ? parseInt(body.gasolineFee) : null,
+      saleType: body.saleType || null,
+      saleFee: body.saleFee ? parseInt(body.saleFee) : null,
     }
 
     // 報告タイプのリスト
@@ -77,10 +79,10 @@ export async function POST(request: NextRequest) {
     let hasAnyData = false
 
     for (const reportType of reportTypes) {
-      const imageCount = parseInt(formData.get(`${reportType}_count`) as string || '0')
+      const urls = imageUrls[reportType] || []
       
       // 画像がある場合のみ報告を作成
-      if (imageCount > 0) {
+      if (urls.length > 0) {
         hasAnyData = true
         
         // 報告を作成
@@ -155,30 +157,20 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // 画像を保存
-        for (let i = 0; i < imageCount; i++) {
-          const file = formData.get(`${reportType}_${i}`) as File
+        // 画像URLをデータベースに保存
+        for (const fileUrl of urls) {
+          // URLからファイル名を抽出
+          const fileName = fileUrl.split('/').pop() || 'unknown'
           
-          if (file) {
-            // ファイル名を生成（タイムスタンプ + インデックス + オリジナル名）
-            const timestamp = Date.now()
-            const fileName = `${timestamp}_${i}_${file.name}`
-            const key = `reports/${fileName}`
-
-            // R2にアップロード
-            const fileUrl = await uploadToR2(file, key)
-
-            // データベースに記録
-            await prisma.reportFile.create({
-              data: {
-                reportId: report.id,
-                fileName: file.name,
-                fileUrl: fileUrl,
-                fileSize: file.size,
-                mimeType: file.type,
-              },
-            })
-          }
+          await prisma.reportFile.create({
+            data: {
+              reportId: report.id,
+              fileName: fileName,
+              fileUrl: fileUrl,
+              fileSize: 0, // クライアント側でアップロード済みのためサイズ不明
+              mimeType: 'image/webp', // 圧縮後はwebp形式
+            },
+          })
         }
 
         createdReports.push(report)
