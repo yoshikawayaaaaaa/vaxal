@@ -281,10 +281,11 @@ export function ReportForm({ projectId, projectNumber }: ReportFormProps) {
   const handleImageChange = async (reportType: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     
-    // 枚数制限チェック（最大20枚）
+    // 枚数制限チェック（工事完了報告とフリー写真は50枚、その他は20枚）
+    const maxFiles = (reportType === 'COMPLETION' || reportType === 'FREE_PHOTO') ? 50 : 20
     const currentCount = images[reportType].files.length
-    if (currentCount + files.length > 20) {
-      setError(`${reportType}は最大20枚までアップロードできます（現在${currentCount}枚）`)
+    if (currentCount + files.length > maxFiles) {
+      setError(`${reportType}は最大${maxFiles}枚までアップロードできます（現在${currentCount}枚）`)
       e.target.value = ''
       return
     }

@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadToR2, deleteFromR2, extractKeyFromUrl } from '@/lib/r2'
+import { deleteFromR2, extractKeyFromUrl } from '@/lib/r2'
 
 // 画像アップロード
 export async function POST(
