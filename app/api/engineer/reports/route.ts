@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
               await prisma.pickupMaterial.create({
                 data: {
                   reportId: report.id,
-                  inventoryItemId: material.inventoryItemId,
+                  inventoryItemId: parseInt(material.inventoryItemId),
                   inventoryItemName: material.inventoryItemName,
                   productName: material.productName || null,
                   manufacturer: material.manufacturer || null,
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
               // 在庫数を減算
               const updatedItem = await prisma.inventoryItem.update({
-                where: { id: material.inventoryItemId },
+                where: { id: parseInt(material.inventoryItemId) },
                 data: {
                   currentStock: {
                     decrement: material.quantity,
@@ -234,9 +234,59 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // 報告済みステータスの判定
+    // 4つの必須報告タイプ全てに画像があるかチェック
+    const requiredReportTypes: ('PICKUP' | 'CHECK_IN' | 'COMPLETION' | 'SUBSIDY_PHOTO')[] = ['PICKUP', 'CHECK_IN', 'COMPLETION', 'SUBSIDY_PHOTO']
+    const existingReports = await prisma.report.findMany({
+      where: {
+        projectId: parseInt(projectId),
+        reportType: {
+          in: requiredReportTypes,
+        },
+      },
+      include: {
+        files: true,
+      },
+    })
+
+    // 各必須報告タイプに画像があるかチェック
+    const reportTypesWithImages = new Set(
+      existingReports
+        .filter(report => report.files.length > 0)
+        .map(report => report.reportType)
+    )
+
+    const allRequiredReportsComplete = requiredReportTypes.every(type => 
+      reportTypesWithImages.has(type)
+    )
+
     // プロジェクトのステータスを更新
-    // 残工事日がある場合はREMAINING_WORK、それ以外はREPORTED
-    const newStatus = engineerInfo.remainingWorkDate ? 'REMAINING_WORK' : 'REPORTED'
+    let newStatus = project.status // 現在のステータスを維持
+    let shouldNotify = false
+    let finalRemainingWorkDate: string | undefined = undefined
+
+    if (allRequiredReportsComplete) {
+      // 4つ全ての必須報告が完了している場合
+      // 工事完了報告の最新のものをチェック
+      const latestCompletionReport = await prisma.report.findFirst({
+        where: {
+          projectId: parseInt(projectId),
+          reportType: 'COMPLETION',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+
+      // 最新の工事完了報告が未完了の場合は残工事
+      if (latestCompletionReport && latestCompletionReport.isWorkCompleted === false && latestCompletionReport.remainingWorkDate) {
+        newStatus = 'REMAINING_WORK'
+        finalRemainingWorkDate = latestCompletionReport.remainingWorkDate.toISOString()
+      } else {
+        newStatus = 'REPORTED'
+      }
+      shouldNotify = true
+    }
     
     await prisma.project.update({
       where: { id: parseInt(projectId) },
@@ -245,8 +295,14 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 通知を作成
-    await notifyReportSubmitted(parseInt(projectId), project.projectNumber)
+    // 報告済みステータスになった場合のみ通知を作成
+    if (shouldNotify) {
+      await notifyReportSubmitted(
+        parseInt(projectId), 
+        project.projectNumber,
+        finalRemainingWorkDate
+      )
+    }
 
     return NextResponse.json({
       message: '報告を作成しました',

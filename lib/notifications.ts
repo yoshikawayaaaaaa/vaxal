@@ -37,17 +37,28 @@ export async function createNotification({
 /**
  * 報告提出時の通知を作成（すべてのVAXAL社員に通知）
  */
-export async function notifyReportSubmitted(projectId: number, projectNumber: string) {
+export async function notifyReportSubmitted(projectId: number, projectNumber: string, remainingWorkDate?: string) {
   try {
     // すべてのVAXAL社員を取得
     const vaxalUsers = await prisma.vaxalUser.findMany()
+
+    // メッセージを作成
+    let message = `案件番号 ${projectNumber} の報告が提出されました。`
+    if (remainingWorkDate) {
+      const formattedDate = new Date(remainingWorkDate).toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      message = `案件番号 ${projectNumber} の報告が提出されました。残工事があります。残工事日: ${formattedDate}`
+    }
 
     // 各VAXAL社員に通知を作成
     for (const user of vaxalUsers) {
       await createNotification({
         type: 'REPORT_SUBMITTED',
         title: '報告が提出されました',
-        message: `案件番号 ${projectNumber} の報告が提出されました。`,
+        message,
         projectId,
         vaxalUserId: user.id,
       })
