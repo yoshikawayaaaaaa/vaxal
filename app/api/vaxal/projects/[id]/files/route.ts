@@ -16,13 +16,12 @@ export async function POST(
     }
 
     const { id } = await params
-    const formData = await request.formData()
-    const category = formData.get('category') as string
-    const files = formData.getAll('files') as File[]
+    const body = await request.json()
+    const { category, fileUrls } = body
 
-    if (!category || files.length === 0) {
+    if (!category || !fileUrls || fileUrls.length === 0) {
       return NextResponse.json(
-        { error: 'カテゴリとファイルが必要です' },
+        { error: 'カテゴリとファイルURLが必要です' },
         { status: 400 }
       )
     }
@@ -39,26 +38,21 @@ export async function POST(
       )
     }
 
-    // ファイルを保存
+    // ファイルURLをデータベースに保存
     const uploadedFiles = []
 
-    for (const file of files) {
-      // ファイル名を生成（タイムスタンプ + オリジナル名）
-      const timestamp = Date.now()
-      const fileName = `${timestamp}_${file.name}`
-      const key = `projects/${fileName}`
-
-      // R2にアップロード
-      const fileUrl = await uploadToR2(file, key)
+    for (const fileUrl of fileUrls) {
+      // URLからファイル名を抽出
+      const fileName = fileUrl.split('/').pop() || 'unknown'
 
       // データベースに記録
       const projectFile = await prisma.projectFile.create({
         data: {
           projectId: parseInt(id),
-          fileName: file.name,
+          fileName: fileName,
           fileUrl: fileUrl,
-          fileSize: file.size,
-          mimeType: file.type,
+          fileSize: 0, // クライアント側でアップロード済みのためサイズ不明
+          mimeType: 'image/webp', // 圧縮後はwebp形式
           category: category as any,
         },
       })

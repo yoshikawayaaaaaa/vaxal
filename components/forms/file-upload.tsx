@@ -17,6 +17,7 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [compressing, setCompressing] = useState(false)
   const [error, setError] = useState<string>('')
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([])
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError('')
@@ -32,10 +33,57 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
     }
   }
 
+  // HEIC形式を検出する関数
+  const isHEICFile = (file: File): boolean => {
+    const fileName = file.name.toLowerCase()
+    return fileName.endsWith('.heic') || fileName.endsWith('.heif') || file.type === 'image/heic' || file.type === 'image/heif'
+  }
+
+  // HEIC形式をJPEGに変換する関数
+  const convertHEICToJPEG = async (file: File): Promise<File> => {
+    try {
+      console.log(`HEIC変換開始: ${file.name}`)
+      
+      // heic2anyを動的にインポート
+      const heic2any = (await import('heic2any')).default
+      
+      // heic2anyでJPEGに変換
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9,
+      })
+
+      // 配列の場合は最初の要素を使用
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob
+      
+      // 新しいファイル名を生成
+      const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
+      const convertedFile = new File([blob], newFileName, { type: 'image/jpeg' })
+      
+      console.log(`HEIC変換完了: ${file.name} → ${newFileName} (${(convertedFile.size / 1024 / 1024).toFixed(2)}MB)`)
+      
+      return convertedFile
+    } catch (error) {
+      console.error('HEIC変換エラー:', error)
+      throw new Error('HEIC形式の変換に失敗しました。別の形式の画像をお試しください。')
+    }
+  }
+
   const compressImage = async (file: File): Promise<File> => {
+    // HEIC形式の場合は先に変換
+    let processFile = file
+    if (isHEICFile(file)) {
+      try {
+        processFile = await convertHEICToJPEG(file)
+      } catch (error) {
+        throw error // HEIC変換エラーを上位に伝播
+      }
+    }
+
     // 画像ファイルでない場合はそのまま返す
-    if (!file.type.startsWith('image/')) {
-      return file
+    if (!processFile.type.startsWith('image/')) {
+      return processFile
     }
 
     const options = {
@@ -47,19 +95,55 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
     }
 
     try {
-      const compressedFile = await imageCompression(file, options)
+      const compressedFile = await imageCompression(processFile, options)
       // ファイル名を.webpに変更
-      const newFileName = file.name.replace(/\.[^/.]+$/, '.webp')
+      const newFileName = processFile.name.replace(/\.[^/.]+$/, '.webp')
       const result = new File([compressedFile], newFileName, { type: 'image/webp' })
       
-      console.log(`圧縮完了: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) → ${newFileName} (${(result.size / 1024 / 1024).toFixed(2)}MB)`)
+      console.log(`圧縮完了: ${processFile.name} (${(processFile.size / 1024 / 1024).toFixed(2)}MB) → ${newFileName} (${(result.size / 1024 / 1024).toFixed(2)}MB)`)
       
       return result
     } catch (error) {
       console.error('画像圧縮エラー:', error)
       // 圧縮に失敗した場合は元のファイルを返す
-      return file
+      return processFile
     }
+  }
+
+  // R2に直接アップロードする関数
+  const uploadToR2Direct = async (file: File): Promise<string> => {
+    // プリサインドURLを取得
+    const presignedResponse = await fetch('/api/vaxal/projects/presigned-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type,
+      }),
+    })
+
+    if (!presignedResponse.ok) {
+      throw new Error('プリサインドURLの取得に失敗しました')
+    }
+
+    const { uploadUrl, publicUrl } = await presignedResponse.json()
+
+    // R2に直接アップロード
+    const uploadResponse = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    })
+
+    if (!uploadResponse.ok) {
+      throw new Error('画像のアップロードに失敗しました')
+    }
+
+    return publicUrl
   }
 
   const handleUpload = async () => {
@@ -69,22 +153,46 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
     setCompressing(true)
 
     try {
-      // 全ての画像を圧縮
+      // 全ての画像を圧縮（HEIC変換を含む）
       const compressedFiles = await Promise.all(
-        selectedFiles.map((file) => compressImage(file))
+        selectedFiles.map(async (file) => {
+          try {
+            return await compressImage(file)
+          } catch (error) {
+            if (error instanceof Error) {
+              setError(error.message)
+            }
+            throw error
+          }
+        })
       )
       
       setCompressing(false)
 
-      const formData = new FormData()
-      formData.append('category', category)
-      compressedFiles.forEach((file) => {
-        formData.append('files', file)
-      })
+      // R2に直接アップロード
+      const urls = await Promise.all(
+        compressedFiles.map(async (file) => {
+          try {
+            return await uploadToR2Direct(file)
+          } catch (error) {
+            console.error('R2アップロードエラー:', error)
+            throw error
+          }
+        })
+      )
 
+      setUploadedUrls(urls)
+
+      // データベースに保存
       const response = await fetch(`/api/vaxal/projects/${projectId}/files`, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          fileUrls: urls,
+        }),
       })
 
       if (!response.ok) {
@@ -94,6 +202,7 @@ export function FileUpload({ projectId, category, onUploadSuccess }: FileUploadP
       }
 
       setSelectedFiles([])
+      setUploadedUrls([])
       setError('')
       onUploadSuccess()
       alert('アップロードが完了しました')
