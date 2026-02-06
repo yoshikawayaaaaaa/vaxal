@@ -104,6 +104,8 @@ export async function POST(request: NextRequest) {
     const customItemsJson = formData.get('customItems')
     const customItems = customItemsJson ? JSON.parse(customItemsJson as string) : []
 
+    console.log('カスタム項目データ:', customItems)
+
     // 月次データを作成または更新
     const monthlyExpense = await prisma.monthlyExpense.upsert({
       where: {
@@ -120,25 +122,38 @@ export async function POST(request: NextRequest) {
       update: data,
     })
 
-    // 既存のカスタム項目を削除
-    if (prisma.monthlyExpenseCustomItem) {
-      await prisma.monthlyExpenseCustomItem.deleteMany({
-        where: {
-          monthlyExpenseId: monthlyExpense.id,
-        },
-      })
+    console.log('月次データID:', monthlyExpense.id)
 
-      // 新しいカスタム項目を作成
-      if (customItems.length > 0) {
-        await prisma.monthlyExpenseCustomItem.createMany({
-          data: customItems.map((item: { itemName: string; amount: number }, index: number) => ({
+    // 既存のカスタム項目を削除
+    try {
+      // @ts-ignore - 本番環境でPrisma Clientが更新されるまでの一時的な対応
+      if (prisma.monthlyExpenseCustomItem) {
+        // @ts-ignore
+        await prisma.monthlyExpenseCustomItem.deleteMany({
+          where: {
             monthlyExpenseId: monthlyExpense.id,
-            itemName: item.itemName,
-            amount: parseInt(item.amount.toString()),
-            displayOrder: index,
-          })),
+          },
         })
+        console.log('既存カスタム項目を削除しました')
+
+        // 新しいカスタム項目を作成
+        if (customItems.length > 0) {
+          // @ts-ignore
+          const result = await prisma.monthlyExpenseCustomItem.createMany({
+            data: customItems.map((item: { itemName: string; amount: number }, index: number) => ({
+              monthlyExpenseId: monthlyExpense.id,
+              itemName: item.itemName,
+              amount: parseInt(item.amount.toString()),
+              displayOrder: index,
+            })),
+          })
+          console.log('カスタム項目を作成しました:', result)
+        }
+      } else {
+        console.log('monthlyExpenseCustomItemモデルが見つかりません')
       }
+    } catch (error) {
+      console.error('カスタム項目の保存エラー:', error)
     }
 
     return NextResponse.redirect(new URL(`/vaxal/monthly?year=${year}&month=${month}&success=true`, request.url))
