@@ -23,6 +23,7 @@ export default function InventoryPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<{
+    name: string
     productName: string
     manufacturer: string
     partNumber: string
@@ -31,6 +32,7 @@ export default function InventoryPage() {
     currentStock: number
     threshold: number
   }>({ 
+    name: '',
     productName: '', 
     manufacturer: '', 
     partNumber: '', 
@@ -81,6 +83,7 @@ export default function InventoryPage() {
   const handleEdit = (item: InventoryItem) => {
     setEditingId(item.id)
     setEditValues({
+      name: item.name,
       productName: item.productName || '',
       manufacturer: item.manufacturer || '',
       partNumber: item.partNumber || '',
@@ -423,7 +426,17 @@ export default function InventoryPage() {
                 {items.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {item.name}
+                      {editingId === item.id ? (
+                        <Input
+                          type="text"
+                          value={editValues.name}
+                          onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                          placeholder="部材名"
+                          className="w-32"
+                        />
+                      ) : (
+                        <span>{item.name}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {editingId === item.id ? (
@@ -600,6 +613,18 @@ export default function InventoryPage() {
                 <div className="space-y-3">
                   <h3 className="text-base font-bold text-gray-900 mb-3">{item.name}を編集</h3>
                   
+                  <div>
+                    <Label htmlFor={`edit-name-${item.id}`} className="text-xs">部材名</Label>
+                    <Input
+                      id={`edit-name-${item.id}`}
+                      type="text"
+                      value={editValues.name}
+                      onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                      placeholder="部材名"
+                      className="mt-1"
+                    />
+                  </div>
+
                   <div>
                     <Label htmlFor={`edit-productName-${item.id}`} className="text-xs">商品名</Label>
                     <Input

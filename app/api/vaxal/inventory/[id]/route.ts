@@ -88,7 +88,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { productName, manufacturer, partNumber, unitPrice, unitType, currentStock, threshold } = body
+    const { name, productName, manufacturer, partNumber, unitPrice, unitType, currentStock, threshold } = body
 
     // 現在の在庫アイテムを取得
     const currentItem = await prisma.inventoryItem.findUnique({
@@ -133,6 +133,7 @@ export async function PUT(
     const updatedItem = await prisma.inventoryItem.update({
       where: { id: parseInt(id) },
       data: {
+        name: name || currentItem.name,
         productName: productName || null,
         manufacturer: manufacturer || null,
         partNumber: partNumber || null,
