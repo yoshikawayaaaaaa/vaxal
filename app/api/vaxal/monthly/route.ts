@@ -40,18 +40,24 @@ export async function GET(request: NextRequest) {
           month,
         },
       },
-      include: {
-        customItems: {
-          orderBy: {
-            displayOrder: 'asc',
-          },
-        },
-      },
     })
+
+    // カスタム項目を別途取得
+    let customItems: any[] = []
+    if (monthlyExpense && prisma.monthlyExpenseCustomItem) {
+      customItems = await prisma.monthlyExpenseCustomItem.findMany({
+        where: {
+          monthlyExpenseId: monthlyExpense.id,
+        },
+        orderBy: {
+          displayOrder: 'asc',
+        },
+      })
+    }
 
     return NextResponse.json({
       monthlyExpense: monthlyExpense || null,
-      customItems: monthlyExpense?.customItems || [],
+      customItems: customItems,
     })
   } catch (error) {
     console.error('月次データ取得エラー:', error)
@@ -115,22 +121,24 @@ export async function POST(request: NextRequest) {
     })
 
     // 既存のカスタム項目を削除
-    await prisma.monthlyExpenseCustomItem.deleteMany({
-      where: {
-        monthlyExpenseId: monthlyExpense.id,
-      },
-    })
-
-    // 新しいカスタム項目を作成
-    if (customItems.length > 0) {
-      await prisma.monthlyExpenseCustomItem.createMany({
-        data: customItems.map((item: { itemName: string; amount: number }, index: number) => ({
+    if (prisma.monthlyExpenseCustomItem) {
+      await prisma.monthlyExpenseCustomItem.deleteMany({
+        where: {
           monthlyExpenseId: monthlyExpense.id,
-          itemName: item.itemName,
-          amount: parseInt(item.amount.toString()),
-          displayOrder: index,
-        })),
+        },
       })
+
+      // 新しいカスタム項目を作成
+      if (customItems.length > 0) {
+        await prisma.monthlyExpenseCustomItem.createMany({
+          data: customItems.map((item: { itemName: string; amount: number }, index: number) => ({
+            monthlyExpenseId: monthlyExpense.id,
+            itemName: item.itemName,
+            amount: parseInt(item.amount.toString()),
+            displayOrder: index,
+          })),
+        })
+      }
     }
 
     return NextResponse.redirect(new URL(`/vaxal/monthly?year=${year}&month=${month}&success=true`, request.url))
