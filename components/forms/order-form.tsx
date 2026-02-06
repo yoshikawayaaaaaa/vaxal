@@ -97,7 +97,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
     // 支払い情報
     paymentAmount: '',
     productWarranty: false,
-    warrantyPeriod: 'FIVE_YEARS',
+    warrantyPeriod: 'NONE',
     paymentMethod: 'CASH',
     subsidyAmount: '',
     sellingPriceTypes: [] as string[], // 選択された売価タイプの配列
@@ -751,6 +751,7 @@ export function OrderForm({ engineerCompanies }: OrderFormProps) {
               value={formData.warrantyPeriod}
               onChange={(e) => handleChange('warrantyPeriod', e.target.value)}
             >
+              <option value="NONE">無し</option>
               <option value="FIVE_YEARS">5年</option>
               <option value="SEVEN_YEARS">7年</option>
               <option value="TEN_YEARS">10年</option>

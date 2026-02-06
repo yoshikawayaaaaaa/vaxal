@@ -190,6 +190,7 @@ enum PaymentMethod {
 }
 
 enum WarrantyPeriod {
+  NONE              // 無し
   FIVE_YEARS        // 5年
   SEVEN_YEARS       // 7年
   TEN_YEARS         // 10年
