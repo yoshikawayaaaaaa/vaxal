@@ -117,6 +117,29 @@ export default function InventoryPage() {
     setEditingId(null)
   }
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`「${name}」を削除してもよろしいですか？\nこの操作は取り消せません。`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/vaxal/inventory/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await fetchInventory()
+        alert('削除しました')
+      } else {
+        const data = await response.json()
+        alert(data.error || '削除に失敗しました')
+      }
+    } catch (error) {
+      console.error('削除エラー:', error)
+      alert('削除に失敗しました')
+    }
+  }
+
   const handleAddNew = async () => {
     if (!newItem.name.trim()) {
       alert('部材名を入力してください')
@@ -544,12 +567,20 @@ export default function InventoryPage() {
                           </Button>
                         </div>
                       ) : (
-                        <Button
-                          onClick={() => handleEdit(item)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
-                        >
-                          編集
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleEdit(item)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-xs"
+                          >
+                            編集
+                          </Button>
+                          <Button
+                            onClick={() => handleDelete(item.id, item.name)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs"
+                          >
+                            削除
+                          </Button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -742,12 +773,20 @@ export default function InventoryPage() {
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => handleEdit(item)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs"
-                  >
-                    編集
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleEdit(item)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                    >
+                      編集
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(item.id, item.name)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs"
+                    >
+                      削除
+                    </Button>
+                  </div>
                 </>
               )}
             </Card>
