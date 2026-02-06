@@ -143,6 +143,27 @@ export default function InventoryPage() {
     }
   }
 
+  const handleReorder = async (id: string, direction: 'up' | 'down') => {
+    try {
+      const response = await fetch('/api/vaxal/inventory/reorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, direction }),
+      })
+
+      if (response.ok) {
+        await fetchInventory()
+      } else {
+        alert('並び替えに失敗しました')
+      }
+    } catch (error) {
+      console.error('並び替えエラー:', error)
+      alert('並び替えに失敗しました')
+    }
+  }
+
   const handleAddNew = async () => {
     if (!newItem.name.trim()) {
       alert('部材名を入力してください')
@@ -390,6 +411,9 @@ export default function InventoryPage() {
               <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    順序
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     部材名
                   </th>
@@ -423,8 +447,26 @@ export default function InventoryPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          onClick={() => handleReorder(item.id, 'up')}
+                          disabled={index === 0}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 text-xs disabled:opacity-30"
+                        >
+                          上へ移動
+                        </Button>
+                        <Button
+                          onClick={() => handleReorder(item.id, 'down')}
+                          disabled={index === items.length - 1}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 text-xs disabled:opacity-30"
+                        >
+                          下へ移動
+                        </Button>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {editingId === item.id ? (
                         <Input
@@ -606,7 +648,7 @@ export default function InventoryPage() {
 
         {/* スマートフォン用カードレイアウト */}
         <div className="md:hidden space-y-3">
-          {items.map((item) => (
+          {items.map((item, index) => (
             <Card key={item.id} className="p-4">
               {editingId === item.id ? (
                 // 編集モード
@@ -798,19 +840,37 @@ export default function InventoryPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleEdit(item)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
-                    >
-                      編集
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(item.id, item.name)}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs"
-                    >
-                      削除
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleReorder(item.id, 'up')}
+                        disabled={index === 0}
+                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white text-xs disabled:opacity-30"
+                      >
+                        上へ移動
+                      </Button>
+                      <Button
+                        onClick={() => handleReorder(item.id, 'down')}
+                        disabled={index === items.length - 1}
+                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white text-xs disabled:opacity-30"
+                      >
+                        下へ移動
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleEdit(item)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                      >
+                        編集
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(item.id, item.name)}
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs"
+                      >
+                        削除
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}
