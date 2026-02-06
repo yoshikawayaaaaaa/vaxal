@@ -2,6 +2,66 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { prisma } from '@/lib/prisma'
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await auth()
+
+    if (!session) {
+      return NextResponse.json(
+        { error: '認証が必要です' },
+        { status: 401 }
+      )
+    }
+
+    // VAXAL社員のみアクセス可能
+    if (session.user.role !== 'VAXAL_ADMIN') {
+      return NextResponse.json(
+        { error: '権限がありません' },
+        { status: 403 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const year = parseInt(searchParams.get('year') || '')
+    const month = parseInt(searchParams.get('month') || '')
+
+    if (!year || !month) {
+      return NextResponse.json(
+        { error: '年月が指定されていません' },
+        { status: 400 }
+      )
+    }
+
+    // 月次データを取得
+    const monthlyExpense = await prisma.monthlyExpense.findUnique({
+      where: {
+        year_month: {
+          year,
+          month,
+        },
+      },
+      include: {
+        customItems: {
+          orderBy: {
+            displayOrder: 'asc',
+          },
+        },
+      },
+    })
+
+    return NextResponse.json({
+      monthlyExpense: monthlyExpense || null,
+      customItems: monthlyExpense?.customItems || [],
+    })
+  } catch (error) {
+    console.error('月次データ取得エラー:', error)
+    return NextResponse.json(
+      { error: '月次データの取得に失敗しました' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -34,6 +94,10 @@ export async function POST(request: NextRequest) {
       communicationFee: formData.get('communicationFee') ? parseInt(formData.get('communicationFee') as string) : null,
     }
 
+    // カスタム項目の取得
+    const customItemsJson = formData.get('customItems')
+    const customItems = customItemsJson ? JSON.parse(customItemsJson as string) : []
+
     // 月次データを作成または更新
     const monthlyExpense = await prisma.monthlyExpense.upsert({
       where: {
@@ -49,6 +113,25 @@ export async function POST(request: NextRequest) {
       },
       update: data,
     })
+
+    // 既存のカスタム項目を削除
+    await prisma.monthlyExpenseCustomItem.deleteMany({
+      where: {
+        monthlyExpenseId: monthlyExpense.id,
+      },
+    })
+
+    // 新しいカスタム項目を作成
+    if (customItems.length > 0) {
+      await prisma.monthlyExpenseCustomItem.createMany({
+        data: customItems.map((item: { itemName: string; amount: number }, index: number) => ({
+          monthlyExpenseId: monthlyExpense.id,
+          itemName: item.itemName,
+          amount: parseInt(item.amount.toString()),
+          displayOrder: index,
+        })),
+      })
+    }
 
     return NextResponse.redirect(new URL(`/vaxal/monthly?year=${year}&month=${month}&success=true`, request.url))
   } catch (error) {

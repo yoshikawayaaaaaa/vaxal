@@ -1,46 +1,90 @@
-import { auth } from '@/auth'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { MonthlyExpenseForm } from '@/components/forms/monthly-expense-form'
 
-export default async function MonthlyExpensePage({
-  searchParams,
-}: {
+interface CustomItem {
+  itemName: string
+  amount: number
+}
+
+interface MonthlyExpensePageProps {
   searchParams: Promise<{ year?: string; month?: string; success?: string }>
-}) {
-  const session = await auth()
+}
 
-  if (!session) {
-    redirect('/login')
+export default function MonthlyExpensePage({ searchParams }: MonthlyExpensePageProps) {
+  const router = useRouter()
+  const [params, setParams] = useState<{ year?: string; month?: string; success?: string }>({})
+  const [monthlyExpense, setMonthlyExpense] = useState<any>(null)
+  const [customItems, setCustomItems] = useState<CustomItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1)
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  useEffect(() => {
+    searchParams.then(p => {
+      setParams(p)
+      const now = new Date()
+      const year = p.year ? parseInt(p.year) : now.getFullYear()
+      const month = p.month ? parseInt(p.month) : now.getMonth() + 1
+      
+      setSelectedYear(year)
+      setSelectedMonth(month)
+      setShowSuccess(p.success === 'true')
+      
+      // データ取得
+      fetch(`/api/vaxal/monthly?year=${year}&month=${month}`)
+        .then(res => res.json())
+        .then(data => {
+          setMonthlyExpense(data.monthlyExpense)
+          setCustomItems(data.customItems || [])
+          setLoading(false)
+        })
+        .catch(() => setLoading(false))
+    })
+  }, [searchParams])
+
+  const addCustomItem = () => {
+    setCustomItems([...customItems, { itemName: '', amount: 0 }])
   }
 
-  // VAXAL社員のみアクセス可能
-  if (session.user.role !== 'VAXAL_ADMIN') {
-    redirect('/dashboard')
+  const removeCustomItem = (index: number) => {
+    setCustomItems(customItems.filter((_, i) => i !== index))
   }
 
-  const params = await searchParams
-  
-  // 現在の年月を取得
-  const now = new Date()
-  const selectedYear = params.year ? parseInt(params.year) : now.getFullYear()
-  const selectedMonth = params.month ? parseInt(params.month) : now.getMonth() + 1
-  const showSuccess = params.success === 'true'
+  const updateCustomItem = (index: number, field: 'itemName' | 'amount', value: string | number) => {
+    const updated = [...customItems]
+    updated[index] = { ...updated[index], [field]: value }
+    setCustomItems(updated)
+  }
 
-  // 選択された月のデータを取得
-  const monthlyExpense = await prisma.monthlyExpense.findUnique({
-    where: {
-      year_month: {
-        year: selectedYear,
-        month: selectedMonth,
-      },
-    },
-  })
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    formData.append('customItems', JSON.stringify(customItems))
 
+    try {
+      const response = await fetch('/api/vaxal/monthly', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.redirected) {
+        window.location.href = response.url
+      }
+    } catch (error) {
+      console.error('保存エラー:', error)
+    }
+  }
+
+  if (loading) {
+    return <div className="p-8">読み込み中...</div>
+  }
 
   return (
     <div className="p-8">
@@ -52,7 +96,6 @@ export default async function MonthlyExpensePage({
           </p>
         </div>
 
-        {/* 成功メッセージ */}
         {showSuccess && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className="text-green-800 font-medium">✓ 保存が完了しました</p>
@@ -60,18 +103,49 @@ export default async function MonthlyExpensePage({
         )}
 
         {/* 年月選択 */}
-        <MonthlyExpenseForm
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-        />
+        <div className="mb-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="yearSelect">年</Label>
+              <select
+                id="yearSelect"
+                className="w-full h-10 px-3 rounded-md border border-gray-300"
+                value={selectedYear}
+                onChange={(e) => router.push(`/vaxal/monthly?year=${e.target.value}&month=${selectedMonth}`)}
+              >
+                {[2026, 2025].map((y) => (
+                  <option key={y} value={y}>
+                    {y}年
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="monthSelect">月</Label>
+              <select
+                id="monthSelect"
+                className="w-full h-10 px-3 rounded-md border border-gray-300"
+                value={selectedMonth}
+                onChange={(e) => router.push(`/vaxal/monthly?year=${selectedYear}&month=${e.target.value}`)}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>
+                    {m}月
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
 
-        <form action="/api/vaxal/monthly" method="POST">
+        <form onSubmit={handleSubmit}>
           <input type="hidden" name="year" value={selectedYear} />
           <input type="hidden" name="month" value={selectedMonth} />
 
-          <Card>
+          {/* 固定経費項目 */}
+          <Card className="mb-6">
             <CardHeader>
-              <CardTitle>経費項目</CardTitle>
+              <CardTitle>固定経費項目</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -81,7 +155,8 @@ export default async function MonthlyExpensePage({
                     id="wasteDisposalFee"
                     name="wasteDisposalFee"
                     type="number"
-                    defaultValue={monthlyExpense?.wasteDisposalFee || ''}
+                    value={monthlyExpense?.wasteDisposalFee || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, wasteDisposalFee: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
@@ -91,7 +166,8 @@ export default async function MonthlyExpensePage({
                     id="vehicleFee"
                     name="vehicleFee"
                     type="number"
-                    defaultValue={monthlyExpense?.vehicleFee || ''}
+                    value={monthlyExpense?.vehicleFee || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, vehicleFee: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
@@ -104,7 +180,8 @@ export default async function MonthlyExpensePage({
                     id="laborCost"
                     name="laborCost"
                     type="number"
-                    defaultValue={monthlyExpense?.laborCost || ''}
+                    value={monthlyExpense?.laborCost || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, laborCost: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
@@ -114,7 +191,8 @@ export default async function MonthlyExpensePage({
                     id="warehouseFee"
                     name="warehouseFee"
                     type="number"
-                    defaultValue={monthlyExpense?.warehouseFee || ''}
+                    value={monthlyExpense?.warehouseFee || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, warehouseFee: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
@@ -127,7 +205,8 @@ export default async function MonthlyExpensePage({
                     id="officeFee"
                     name="officeFee"
                     type="number"
-                    defaultValue={monthlyExpense?.officeFee || ''}
+                    value={monthlyExpense?.officeFee || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, officeFee: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
@@ -137,11 +216,68 @@ export default async function MonthlyExpensePage({
                     id="communicationFee"
                     name="communicationFee"
                     type="number"
-                    defaultValue={monthlyExpense?.communicationFee || ''}
+                    value={monthlyExpense?.communicationFee || ''}
+                    onChange={(e) => setMonthlyExpense({ ...monthlyExpense, communicationFee: e.target.value ? parseInt(e.target.value) : null })}
                     placeholder="円"
                   />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* カスタム経費項目 */}
+          <Card className="mb-6">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>カスタム経費項目</CardTitle>
+              <Button
+                type="button"
+                onClick={addCustomItem}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                + 項目を追加
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {customItems.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">
+                  カスタム項目はありません。「+ 項目を追加」ボタンで追加できます。
+                </p>
+              ) : (
+                customItems.map((item, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
+                    <div className="col-span-5 space-y-2">
+                      <Label htmlFor={`customItemName${index}`}>項目名</Label>
+                      <Input
+                        id={`customItemName${index}`}
+                        type="text"
+                        value={item.itemName}
+                        onChange={(e) => updateCustomItem(index, 'itemName', e.target.value)}
+                        placeholder="例: 広告費"
+                      />
+                    </div>
+                    <div className="col-span-5 space-y-2">
+                      <Label htmlFor={`customItemAmount${index}`}>金額</Label>
+                      <Input
+                        id={`customItemAmount${index}`}
+                        type="number"
+                        value={item.amount || ''}
+                        onChange={(e) => updateCustomItem(index, 'amount', parseInt(e.target.value) || 0)}
+                        placeholder="円"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Button
+                        type="button"
+                        onClick={() => removeCustomItem(index)}
+                        variant="outline"
+                        className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                      >
+                        削除
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
 

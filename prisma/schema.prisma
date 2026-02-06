@@ -636,7 +636,7 @@ model MonthlyExpense {
   year                  Int      // 年
   month                 Int      // 月（1-12）
   
-  // 経費項目
+  // 固定経費項目
   wasteDisposalFee      Int?     // 産廃処分費
   vehicleFee            Int?     // 車両費
   laborCost             Int?     // 人件費
@@ -647,8 +647,30 @@ model MonthlyExpense {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   
+  // リレーション
+  customItems           MonthlyExpenseCustomItem[]
+  
   // 年月の組み合わせをユニークにする
   @@unique([year, month])
+}
+
+// 月次管理カスタム項目
+model MonthlyExpenseCustomItem {
+  id                    Int      @id @default(autoincrement())
+  
+  @@map("monthly_expense_custom_items")
+  monthlyExpenseId      Int
+  monthlyExpense        MonthlyExpense @relation(fields: [monthlyExpenseId], references: [id], onDelete: Cascade)
+  
+  itemName              String   // 項目名
+  amount                Int      // 金額
+  displayOrder          Int      @default(0) // 表示順序
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([monthlyExpenseId])
+  @@index([monthlyExpenseId, displayOrder])
 }
 
 // 在庫管理
