@@ -255,7 +255,7 @@ export default function InventoryPage() {
           <Card className="p-4 md:p-6">
             <div className="text-xs md:text-sm text-gray-600 mb-1">在庫切れ</div>
             <div className="text-2xl md:text-3xl font-bold text-red-600">
-              {items.filter((item) => item.currentStock === 0).length}<span className="text-sm md:text-base">種類</span>
+              {items.filter((item) => item.currentStock <= 0).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
         </div>
@@ -591,7 +591,7 @@ export default function InventoryPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {item.currentStock === 0 ? (
+                      {item.currentStock <= 0 ? (
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                           在庫切れ
                         </span>
@@ -797,7 +797,7 @@ export default function InventoryPage() {
                       <p className="text-xs text-gray-600 mt-1">{item.productName || '-'}</p>
                     </div>
                     <div>
-                      {item.currentStock === 0 ? (
+                      {item.currentStock <= 0 ? (
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                           在庫切れ
                         </span>
