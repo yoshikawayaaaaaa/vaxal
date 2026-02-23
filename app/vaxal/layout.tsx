@@ -27,6 +27,7 @@ export default async function VaxalDashboardLayout({
         userRole={userRole} 
         isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
         accountType={session.user.accountType}
+        userId={session.user.id}
       />
 
       {/* メインコンテンツ */}
@@ -36,6 +37,7 @@ export default async function VaxalDashboardLayout({
           userType="vaxal"
           isVaxalAdmin={session.user.role === 'VAXAL_ADMIN'}
           accountType={session.user.accountType}
+          userId={session.user.id}
         />
         
         <main className="flex-1 overflow-y-auto">

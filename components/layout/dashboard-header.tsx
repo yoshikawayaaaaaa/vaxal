@@ -28,6 +28,7 @@ interface DashboardHeaderProps {
   unreadCount?: number
   companyName?: string
   engineerRole?: string
+  userId?: string
 }
 
 export function DashboardHeader({ 
@@ -37,7 +38,8 @@ export function DashboardHeader({
   accountType,
   unreadCount = 0,
   companyName,
-  engineerRole
+  engineerRole,
+  userId
 }: DashboardHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -82,6 +84,12 @@ export function DashboardHeader({
         href: '/vaxal/inventory',
         icon: Image,
       },
+      // 持ち出し履歴はid=1のユーザーのみ表示
+      ...(userId === '1' ? [{
+        title: '部材持ち出し履歴',
+        href: '/vaxal/inventory/pickup-history',
+        icon: ClipboardList,
+      }] : []),
       {
         title: '月次管理',
         href: '/vaxal/monthly',
