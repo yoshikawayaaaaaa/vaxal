@@ -43,6 +43,11 @@ export async function GET(request: NextRequest) {
                     companyName: true,
                   },
                 },
+                masterCompany: {
+                  select: {
+                    companyName: true,
+                  },
+                },
               },
             },
             project: {
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest) {
       id: item.id,
       date: item.createdAt,
       engineerName: item.report.engineerUser.name,
-      companyName: item.report.engineerUser.company?.companyName || '-',
+      companyName: item.report.engineerUser.company?.companyName || item.report.engineerUser.masterCompany?.companyName || '-',
       projectNumber: item.report.project?.projectNumber || '-',
       projectId: item.report.project?.id || null,
       materialName: item.inventoryItemName,
