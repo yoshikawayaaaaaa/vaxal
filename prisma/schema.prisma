@@ -692,6 +692,7 @@ model InventoryItem {
   currentStock          Int      @default(0) // 現在の在庫数（ステータス）
   threshold             Int      @default(0) // 閾値（必須）
   displayOrder          Int      @default(0) // 表示順序
+  isActive              Boolean  @default(true) // 有効/無効（論理削除用）
   
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt

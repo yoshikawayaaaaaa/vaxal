@@ -41,18 +41,18 @@ export async function DELETE(
       )
     }
 
-    // PickupMaterialで使用されている場合は削除不可
+    // PickupMaterialで使用されている場合は論理削除（isActive: false）
     if (item.pickupMaterials.length > 0) {
-      return NextResponse.json(
-        { error: 'この部材は報告書で使用されているため削除できません' },
-        { status: 400 }
-      )
+      await prisma.inventoryItem.update({
+        where: { id: parseInt(id) },
+        data: { isActive: false },
+      })
+    } else {
+      // 使用されていない場合は物理削除（関連する単価履歴も自動削除される）
+      await prisma.inventoryItem.delete({
+        where: { id: parseInt(id) }
+      })
     }
-
-    // 在庫アイテムを削除（関連する単価履歴も自動削除される）
-    await prisma.inventoryItem.delete({
-      where: { id: parseInt(id) }
-    })
 
     return NextResponse.json({ message: '削除しました' })
   } catch (error) {

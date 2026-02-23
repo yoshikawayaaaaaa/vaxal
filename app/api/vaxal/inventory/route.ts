@@ -21,8 +21,11 @@ export async function GET() {
       )
     }
 
-    // 在庫一覧を取得
+    // 在庫一覧を取得（有効なもののみ）
     const items = await prisma.inventoryItem.findMany({
+      where: {
+        isActive: true,
+      },
       orderBy: {
         displayOrder: 'asc',
       },
