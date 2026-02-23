@@ -243,13 +243,13 @@ export default function InventoryPage() {
           <Card className="p-4 md:p-6">
             <div className="text-xs md:text-sm text-gray-600 mb-1">正常</div>
             <div className="text-2xl md:text-3xl font-bold text-green-600">
-              {items.filter((item) => item.currentStock > item.threshold * 0.3).length}<span className="text-sm md:text-base">種類</span>
+              {items.filter((item) => item.currentStock > item.threshold).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
           <Card className="p-4 md:p-6">
             <div className="text-xs md:text-sm text-gray-600 mb-1">要発注</div>
             <div className="text-2xl md:text-3xl font-bold text-yellow-600">
-              {items.filter((item) => item.currentStock > 0 && item.currentStock <= item.threshold * 0.3).length}<span className="text-sm md:text-base">種類</span>
+              {items.filter((item) => item.currentStock > 0 && item.currentStock <= item.threshold).length}<span className="text-sm md:text-base">種類</span>
             </div>
           </Card>
           <Card className="p-4 md:p-6">
@@ -595,7 +595,7 @@ export default function InventoryPage() {
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                           在庫切れ
                         </span>
-                      ) : item.currentStock <= item.threshold * 0.3 ? (
+                      ) : item.currentStock <= item.threshold ? (
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                           要発注
                         </span>
@@ -801,7 +801,7 @@ export default function InventoryPage() {
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                           在庫切れ
                         </span>
-                      ) : item.currentStock <= item.threshold * 0.3 ? (
+                      ) : item.currentStock <= item.threshold ? (
                         <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                           要発注
                         </span>
