@@ -93,12 +93,11 @@ export function Sidebar({ companyName = 'MIAMU TIGERS', userRole = 'エンジニ
         href: '/vaxal/inventory',
         icon: Image,
       },
-      // 持ち出し履歴はid=1のユーザーのみ表示
-      ...(userId === '1' ? [{
+      {
         title: '部材持ち出し履歴',
         href: '/vaxal/inventory/pickup-history',
         icon: ClipboardList,
-      }] : []),
+      },
       {
         title: '月次管理',
         href: '/vaxal/monthly',
